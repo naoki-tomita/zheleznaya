@@ -1,4 +1,5 @@
 import { wrap } from "./Settable";
+import { isEquals } from "./Equals";
 
 type Element = VNode | (() => VNode);
 
@@ -8,22 +9,37 @@ export function h(element: Component | string, attributes: any | null, ...childr
     : () => element(attributes, children);
 }
 
+export function createStore<T>(initialValue: T): T {
+  return store = wrap(initialValue) as unknown as T;
+}
+
 let store: any;
-export function getStore<T>(initialValue: T): T {
-  if (store) {
-    return store;
-  }
-  return store = wrap(initialValue);
+export function getStore<T>(): T {
+  return store;
 }
 
-function rerender(vNodes: () => VNode) {
-  document.body.replaceChild(createElement(vNodes()), document.body.children.item(1)!);
+function renderElement(node: Element): RenderedVNode {
+  if (typeof node === "function") node = node();
+  return {...node, children: (node.children || []).map(it =>
+    typeof it === "function" || typeof it === "object"
+      ? renderElement(typeof it === "function" ? it() :it)
+      : it)}
 }
 
-export function render(vNodes: () => VNode) {
-  document.body.appendChild(document.createElement("div"));
-  rerender(vNodes);
-  store.__on__(() => rerender(vNodes));
+let old: HTMLElement = document.createElement("div");
+document.body.appendChild(old);
+let oldVNode: RenderedVNode;
+function rerender(nodeElement: Element) {
+  const renderedNode = renderElement(nodeElement);
+  const el = createElement(renderedNode);
+  document.body.replaceChild(el, old);
+  old = el;
+  oldVNode = renderedNode;
+}
+
+export function render(nodeElement: Element) {
+  rerender(nodeElement);
+  store.__on__(() => rerender(nodeElement));
 }
 
 type Component = (props: any, children: Array<VNode | string>) => VNode;
@@ -31,21 +47,31 @@ type Component = (props: any, children: Array<VNode | string>) => VNode;
 interface VNode {
   name: string;
   attributes: {[key: string]: any} | null;
-  children: Array<VNode | string>;
+  children: Array<Element | string | number | boolean>;
 }
 
-function expand(child: any) {
+interface RenderedVNode extends VNode {
+  children: Array<HTMLElementConvertable>;
+}
+
+type HTMLElementConvertable = RenderedVNode | string | number | boolean;
+
+function expand(child: HTMLElementConvertable) {
   switch(typeof child) {
     case "object":
       return createElement(child);
-    case "function":
-      return createElement(child());
     default:
-      return child;
+      return child.toString();
   }
 }
 
-function createElement({ name, attributes = {}, children }: VNode) {
+function createId(parentId: string, node: RenderedVNode) {
+  return `${parentId}_${node.name}`;
+}
+
+const cache: { [key: string]: HTMLElement } = {};
+function createElementCached(node: RenderedVNode): HTMLElement {
+  const {name, attributes = {}, children} = node;
   const el = Object.keys(attributes || {}).reduce((el, key) => {
     const attribute = attributes![key];
     if (key === "style") {
@@ -59,8 +85,17 @@ function createElement({ name, attributes = {}, children }: VNode) {
     }
     return el;
   }, document.createElement(name));
-  (children || []).forEach(it => el.append(expand(it)));
+  (children || []).forEach((it, i) => {
+    const renderable = typeof it === "object"
+      ? createElementCached(it)
+      : it.toString();
+    el.append(renderable)
+  });
   return el;
+}
+
+function createElement(node: RenderedVNode): HTMLElement {
+  return createElementCached(node);
 }
 
 interface AttributesOverwrite {
