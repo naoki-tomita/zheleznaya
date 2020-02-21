@@ -1,5 +1,13 @@
-import { h, render } from "zheleznaya";
+import { h, getStore, render } from "zheleznaya";
 
+const store = getStore({
+  foo: "bar",
+  bar: {
+    bar: "foo"
+  },
+  check: false,
+  count: 0,
+});
 const MyComponent = (props: { key: string }) => {
   return (
     <div>{props.key}</div>
@@ -9,12 +17,12 @@ const MyComponent = (props: { key: string }) => {
 const App = () => {
   return (
     <div class="my-class">
-      <input checked/>
-      <div onclick={(e) => console.log(e)} >fuga</div>
-      <div>poyo</div>
+      <div><input onchange={() => store.check = !store.check} type="checkbox" checked={store.check}/></div>
+      <div><button onclick={() => store.count++} >+1</button></div>
+      <div style={{ backgroundColor: "black", color: "white" }} >{store.count}</div>
       <MyComponent key="hello" />
     </div>
   );
 }
 
-render(App);
+render(<App />);
