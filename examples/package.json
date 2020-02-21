@@ -1,0 +1,13 @@
+{
+  "name": "examples",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "parcel": "^1.12.4",
+    "typescript": "^3.8.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.8.4"
+  }
+}
