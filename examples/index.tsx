@@ -3,7 +3,10 @@ import { h, createStore, render } from "zheleznaya";
 const store = createStore({
   foo: "bar",
   bar: {
-    bar: "foo"
+    bar: "foo",
+    foo: {
+      foo: "bar"
+    }
   },
   check: false,
   count: 0,
