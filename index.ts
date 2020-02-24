@@ -1,7 +1,7 @@
 import { wrap } from "./Settable";
 import { isEquals } from "./Equals";
 
-type Component = (props: any, children: Array<VNode | string>) => VNode;
+export type Component = (props: any, children: Array<VNode | string>) => VNode;
 type Element = VNode | (() => VNode);
 interface VNode {
   name: string;
@@ -14,7 +14,9 @@ interface RenderedVNode extends VNode {
   children: Array<RenderedVNode>;
 }
 
-type RenderedVNodeWithHTMLElement = RenderedVNodeWithHTMLElementText | RenderedVNodeWithHTMLElementNode;
+type RenderedVNodeWithHTMLElement =
+  | RenderedVNodeWithHTMLElementText
+  | RenderedVNodeWithHTMLElementNode;
 
 interface RenderedVNodeWithHTMLElementText extends RenderedVNode {
   type: "text";
@@ -84,17 +86,28 @@ function rerender(nodeElement: Element) {
   const completedVNode = createRootElement(renderedNode);
   _oldNode = completedVNode;
   if (!root) {
-    document.body.appendChild(root = completedVNode.element as HTMLElement);
+    document.body.appendChild((root = completedVNode.element as HTMLElement));
   }
 }
 
-function createElement(node: RenderedVNode, oldNode: RenderedVNodeWithHTMLElement | null, oldElement?: HTMLElement): RenderedVNodeWithHTMLElement {
+function createElement(
+  node: RenderedVNode,
+  oldNode: RenderedVNodeWithHTMLElement | null,
+  oldElement?: HTMLElement
+): RenderedVNodeWithHTMLElement {
   if (node.type === "text") {
-    return {name: node.name, attributes: {}, children: [], type: "text", element: node.name}
+    return {
+      name: node.name,
+      attributes: {},
+      children: [],
+      type: "text",
+      element: node.name
+    };
   }
   // element
   let element: HTMLElement;
-  if (isEquals(node.name, oldNode?.name) && oldElement != null) element = oldElement;
+  if (isEquals(node.name, oldNode?.name) && oldElement != null)
+    element = oldElement;
   else element = document.createElement(node.name);
 
   // attributes
@@ -102,7 +115,9 @@ function createElement(node: RenderedVNode, oldNode: RenderedVNodeWithHTMLElemen
   Object.keys(attributes || {}).forEach(key => {
     const attribute = attributes![key];
     if (key === "style") {
-      Object.keys(attribute).forEach(key => (element.style as any)[key] = attribute[key]);
+      Object.keys(attribute).forEach(
+        key => ((element.style as any)[key] = attribute[key])
+      );
     } else if (key.startsWith("on")) {
       (element as any)[key] = attribute;
     } else if (typeof attribute === "boolean") {
@@ -118,12 +133,20 @@ function createElement(node: RenderedVNode, oldNode: RenderedVNodeWithHTMLElemen
   for (let i = 0; i < node.children.length; i++) {
     const child = node.children[i];
     const oldChild = oldNode?.children[i] || null;
-    const childVNode = createElement(child, oldChild, element.childNodes[i] as HTMLElement | undefined);
+    const childVNode = createElement(
+      child,
+      oldChild,
+      element.childNodes[i] as HTMLElement | undefined
+    );
     if (!oldElement) element.append(childVNode.element);
-    else if (oldChild?.type === "text" && !isEquals(childVNode.element, oldChild.element)) (element.childNodes[i] as Text).data = childVNode.element as string;
+    else if (
+      oldChild?.type === "text" &&
+      !isEquals(childVNode.element, oldChild.element)
+    )
+      (element.childNodes[i] as Text).data = childVNode.element as string;
     children.push(childVNode);
   }
-  return {...node, type: "html", element, children};
+  return { ...node, type: "html", element, children };
 }
 
 function createRootElement(node: RenderedVNode): RenderedVNodeWithHTMLElement {
