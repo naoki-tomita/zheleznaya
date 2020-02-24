@@ -1,4 +1,4 @@
-import { h, createStore, render } from "zheleznaya";
+import { h, createStore, render, Component } from "zheleznaya";
 
 const store = createStore({
   foo: "bar",
@@ -11,9 +11,21 @@ const store = createStore({
   check: false,
   count: 0,
 });
+const MyInput = (props: { value: string, oninput: (text: string) => void }, children: Component[]) => {
+  return (
+    <div>
+      {props.value}
+      <input value={props.value} oninput={e => (e && props.oninput((e.target as any).value))} />
+    </div>
+  );
+}
+
 const MyComponent = (props: { key: string }) => {
   return (
-    <div>{props.key}</div>
+    <div>
+      <div>{props.key}</div>
+      <MyInput value={store.bar.foo.foo} oninput={t => store.bar.foo.foo = t}/>
+    </div>
   );
 }
 

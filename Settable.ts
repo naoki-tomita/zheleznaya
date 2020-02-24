@@ -16,11 +16,14 @@ export function wrap<T>(
     return obj;
   }
   const original: any = {};
-  Object.keys(obj).forEach(
-    key =>
-      (original[key] =
-        typeof obj === "object" ? wrap((obj as any)[key]) : (obj as any)[key])
-  );
+  Object.keys(obj).forEach(key => {
+    if (typeof (obj as any)[key] === "object") {
+      original[key] = wrap((obj as any)[key]);
+      original[key].__on__(() => settable.__emit__());
+    } else {
+      original[key] = (obj as any)[key];
+    }
+  });
   const settable: Settable<T> = {
     __original__: original,
     __on__(cb: () => void) {
