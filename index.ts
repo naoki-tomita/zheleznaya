@@ -5,6 +5,7 @@ export type Component = (props: any, children: Array<VNode | string>) => VNode;
 type Element = VNode | (() => VNode);
 interface VNode {
   name: string;
+  // type: "text" | "html" | "array";
   type: "text" | "html";
   attributes: { [key: string]: any } | null;
   children: Array<Element | string | number | boolean>;
@@ -17,6 +18,7 @@ interface RenderedVNode extends VNode {
 type RenderedVNodeWithHTMLElement =
   | RenderedVNodeWithHTMLElementText
   | RenderedVNodeWithHTMLElementNode;
+// | RenderedVNodeWithHTMLElementArray;
 
 interface RenderedVNodeWithHTMLElementText extends RenderedVNode {
   type: "text";
@@ -29,6 +31,12 @@ interface RenderedVNodeWithHTMLElementNode extends RenderedVNode {
   children: Array<RenderedVNodeWithHTMLElement>;
   element: HTMLElement;
 }
+
+// interface RenderedVNodeWithHTMLElementArray extends RenderedVNode {
+//   type: "array";
+//   children: Array<RenderedVNodeWithHTMLElement>;
+//   element: HTMLElement[];
+// }
 
 export function h(
   name: Component | string,
@@ -67,19 +75,6 @@ export function render(nodeElement: Element) {
   store.__on__(() => rerender(nodeElement));
 }
 
-let oldNode: RenderedVNode;
-function _rerender(nodeElement: Element) {
-  const renderedNode = renderElement(nodeElement);
-  const el = _createElement(renderedNode);
-  oldNode = renderedNode;
-  document.body.replaceChild(el, root);
-  root = el;
-}
-
-function removeChildren(node: HTMLElement) {
-  while (node.hasChildNodes()) node.removeChild(node.firstChild!);
-}
-
 let _oldNode: RenderedVNodeWithHTMLElement;
 function rerender(nodeElement: Element) {
   const renderedNode = renderElement(nodeElement);
@@ -92,8 +87,7 @@ function rerender(nodeElement: Element) {
 
 function createElement(
   node: RenderedVNode,
-  oldNode: RenderedVNodeWithHTMLElement | null,
-  oldElement?: HTMLElement
+  oldNode: RenderedVNodeWithHTMLElement | null
 ): RenderedVNodeWithHTMLElement {
   if (node.type === "text") {
     return {
@@ -106,8 +100,8 @@ function createElement(
   }
   // element
   let element: HTMLElement;
-  if (isEquals(node.name, oldNode?.name) && oldElement != null)
-    element = oldElement;
+  if (isEquals(node.name, oldNode?.name) && oldNode?.element != null)
+    element = (oldNode as RenderedVNodeWithHTMLElementNode).element;
   else element = document.createElement(node.name);
 
   // attributes
@@ -128,49 +122,37 @@ function createElement(
   });
 
   // children
-  // removeChildren(element);
   const children: RenderedVNodeWithHTMLElement[] = [];
   for (let i = 0; i < node.children.length; i++) {
     const child = node.children[i];
     const oldChild = oldNode?.children[i] || null;
-    const childVNode = createElement(
-      child,
-      oldChild,
-      element.childNodes[i] as HTMLElement | undefined
-    );
-    if (!oldElement) element.append(childVNode.element);
-    else if (
+    const childVNode = createElement(child, oldChild);
+
+    // エレメントをdocumentに追加する(初回だけ)
+    if (!oldChild?.element) {
+      // if (childVNode.type === "array") {
+
+      // } else {
+      // arrayじゃない場合のエレメント追加処理
+      element.append(childVNode.element);
+      // }
+    }
+
+    if (
       oldChild?.type === "text" &&
       !isEquals(childVNode.element, oldChild.element)
-    )
+    ) {
+      // テキストノードの更新処理
+      // テキストノード以外は、createElementの中でやっているからいらない
       (element.childNodes[i] as Text).data = childVNode.element as string;
+    }
     children.push(childVNode);
   }
   return { ...node, type: "html", element, children };
 }
 
 function createRootElement(node: RenderedVNode): RenderedVNodeWithHTMLElement {
-  return createElement(node, _oldNode, root);
-}
-
-function _createElement(node: RenderedVNode): HTMLElement {
-  const { name, attributes = {}, children } = node;
-  const el = Object.keys(attributes || {}).reduce((el, key) => {
-    const attribute = attributes![key];
-    if (key === "style")
-      Object.keys(attribute).forEach(
-        key => (el.style[key as any] = attribute[key])
-      );
-    else if (typeof attribute === "function") (el as any)[key] = attribute;
-    else if (typeof attribute === "boolean")
-      attribute === true && el.setAttribute(key, "");
-    else el.setAttribute(key, attributes![key]);
-    return el;
-  }, document.createElement(name));
-  (children || []).forEach(it =>
-    el.append(it.type === "text" ? it.name : _createElement(it))
-  );
-  return el;
+  return createElement(node, _oldNode);
 }
 
 type Attributes<T extends HTMLElement> =

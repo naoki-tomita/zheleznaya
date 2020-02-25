@@ -11,6 +11,7 @@ const store = createStore({
   check: false,
   count: 0,
 });
+
 const MyInput = (props: { value: string, oninput: (text: string) => void }, children: Component[]) => {
   return (
     <div>
@@ -38,6 +39,10 @@ const App = () => {
       <div><button onclick={() => store.count++} >+1</button></div>
       <div style={{ backgroundColor: "black", color: "white" }} >{store.count}</div>
       <MyComponent key="hello" />
+      <ul>
+        {["foo", "bar", "hoge", "fuga"].map(it => <li>{it}</li>)}
+      </ul>
+      <div>aaaaa</div>
     </div>
   );
 }
