@@ -129,11 +129,7 @@ function recycleArrayElement(
     parentElement?.removeChild(it)
   );
   node.children.forEach(it => {
-    const child = createElement(
-      it as RenderedVNode,
-      undefined,
-      parentElement
-    );
+    const child = createElement(it as RenderedVNode, undefined, parentElement);
     elements.push(child.element as HTMLElement);
     renderedVNodes.push(child);
   });
@@ -150,7 +146,7 @@ function recycleNodeElement(
   node: RenderedVNode,
   oldNode: RenderedVNodeWithHTMLElement | undefined
 ): RenderedVNodeWithHTMLElement {
-// standard node.
+  // standard node.
   // element
   let element: HTMLElement;
   if (isEquals(node.name, oldNode?.name) && oldNode?.element != null)
