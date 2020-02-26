@@ -1,0 +1,49 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+function wrap(obj) {
+    if (typeof obj === "string" ||
+        typeof obj === "number" ||
+        typeof obj === "boolean") {
+        return obj;
+    }
+    var original = {};
+    Object.keys(obj).forEach(function (key) {
+        if (typeof obj[key] === "object") {
+            original[key] = wrap(obj[key]);
+            original[key].__on__(function () { return settable.__emit__(); });
+        }
+        else {
+            original[key] = obj[key];
+        }
+    });
+    var settable = {
+        __original__: original,
+        __on__: function (cb) {
+            this.__cb__.push(cb);
+        },
+        __cb__: [],
+        __emit__: function () {
+            this.__cb__.forEach(function (it) { return it(); });
+        }
+    };
+    Object.keys(obj).forEach(function (key) {
+        return Object.defineProperty(settable, key, {
+            set: function (prop) {
+                var _this = this;
+                this.__original__[key] =
+                    typeof prop === "object" && prop !== null
+                        ? wrap(prop.__original__ || prop)
+                        : prop;
+                this.__original__[key].__on__ &&
+                    this.__original__[key].__on__(function () { return _this.__emit__(); });
+                this.__emit__();
+            },
+            get: function () {
+                return this.__original__[key];
+            }
+        });
+    });
+    return settable;
+}
+exports.wrap = wrap;
+//# sourceMappingURL=Settable.js.map
