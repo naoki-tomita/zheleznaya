@@ -36,15 +36,19 @@ const App = () => {
       <div><input oninput={e => store.foo = (e as any).target.value} value={store.foo} /></div>
       <div>{store.foo}</div>
       <div><input onchange={() => store.check = !store.check} type="checkbox" checked={store.check}/></div>
-      <div><button onclick={() => store.count++} >+1</button></div>
+      <div><button onclick={() => store.count++} >+1</button></div><div><button onclick={() => store.count--} >-1</button></div>
       <div style={{ backgroundColor: "black", color: "white" }} >{store.count}</div>
       <MyComponent key="hello" />
       <ul>
-        {["foo", "bar", "hoge", "fuga"].map(it => <li>{it}</li>)}
+        {range(store.count).map((_, i) => i).map(it => <li><div>{it}</div></li>)}
       </ul>
       <div>aaaaa</div>
     </div>
   );
+}
+
+function range(size: number) {
+  return Array(size).fill(null);
 }
 
 render(<App />);

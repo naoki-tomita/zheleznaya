@@ -3,22 +3,22 @@ import { isEquals } from "./Equals";
 
 export type Component = (props: any, children: Array<VNode | string>) => VNode;
 type Element = VNode | (() => VNode);
+type RendereableElement = Element | string | number | boolean;
 interface VNode {
   name: string;
-  // type: "text" | "html" | "array";
-  type: "text" | "html";
+  type: "text" | "html" | "array";
   attributes: { [key: string]: any } | null;
-  children: Array<Element | string | number | boolean>;
+  children: Array<RendereableElement | RendereableElement[]>;
 }
 
 interface RenderedVNode extends VNode {
-  children: Array<RenderedVNode>;
+  children: Array<RenderedVNode | RenderedVNode[]>;
 }
 
 type RenderedVNodeWithHTMLElement =
   | RenderedVNodeWithHTMLElementText
-  | RenderedVNodeWithHTMLElementNode;
-// | RenderedVNodeWithHTMLElementArray;
+  | RenderedVNodeWithHTMLElementNode
+  | RenderedVNodeWithHTMLElementArray;
 
 interface RenderedVNodeWithHTMLElementText extends RenderedVNode {
   type: "text";
@@ -32,11 +32,11 @@ interface RenderedVNodeWithHTMLElementNode extends RenderedVNode {
   element: HTMLElement;
 }
 
-// interface RenderedVNodeWithHTMLElementArray extends RenderedVNode {
-//   type: "array";
-//   children: Array<RenderedVNodeWithHTMLElement>;
-//   element: HTMLElement[];
-// }
+interface RenderedVNodeWithHTMLElementArray extends RenderedVNode {
+  type: "array";
+  children: Array<RenderedVNodeWithHTMLElement>;
+  element: HTMLElement[];
+}
 
 export function h(
   name: Component | string,
@@ -57,14 +57,37 @@ export function getStore<T>(): T {
   return store;
 }
 
+function renderChild(
+  child: RendereableElement
+): RenderedVNode | RenderedVNode[] {
+  if (typeof child === "function") {
+    return renderElement(child());
+  } else if (typeof child === "object") {
+    if (Array.isArray(child)) {
+      return {
+        name: "ArrayNode",
+        type: "array",
+        attributes: {},
+        children: child.map(item => renderChild(item)) as RenderedVNode[]
+      };
+    }
+    return renderElement(child);
+  } else {
+    return {
+      name: child.toString(),
+      attributes: {},
+      children: [],
+      type: "text"
+    };
+  }
+}
+
 function renderElement(node: Element): RenderedVNode {
   if (typeof node === "function") node = node();
   return {
     ...node,
     children: (node.children || []).map(it =>
-      typeof it === "function" || typeof it === "object"
-        ? renderElement(typeof it === "function" ? it() : it)
-        : { name: it.toString(), attributes: {}, children: [], type: "text" }
+      renderChild(it as RendereableElement)
     )
   };
 }
@@ -85,19 +108,56 @@ function rerender(nodeElement: Element) {
   }
 }
 
+function recycleTextElement(
+  node: RenderedVNode & { type: "text" },
+  oldNode: RenderedVNodeWithHTMLElement | undefined,
+  parentElement: HTMLElement
+) {
+  return {
+    name: node.name,
+    attributes: {},
+    children: [],
+    type: "text",
+    element: node.name
+  };
+}
+
 function createElement(
   node: RenderedVNode,
-  oldNode: RenderedVNodeWithHTMLElement | null
+  oldNode: RenderedVNodeWithHTMLElement | undefined,
+  parentElement: HTMLElement
 ): RenderedVNodeWithHTMLElement {
+  // text node.
   if (node.type === "text") {
+    return recycleTextElement(node, oldNode, parentElement);
+  }
+
+  // array node.
+  if (node.type === "array") {
+    const elements: HTMLElement[] = [];
+    const renderedVNodes: RenderedVNodeWithHTMLElement[] = [];
+    (oldNode?.element as HTMLElement[])?.forEach(it =>
+      parentElement?.removeChild(it)
+    );
+    node.children.forEach(it => {
+      const child = createElement(
+        it as RenderedVNode,
+        undefined,
+        parentElement
+      );
+      elements.push(child.element as HTMLElement);
+      renderedVNodes.push(child);
+    });
     return {
-      name: node.name,
+      name: "ArrayNode",
       attributes: {},
-      children: [],
-      type: "text",
-      element: node.name
+      type: "array",
+      children: renderedVNodes,
+      element: elements
     };
   }
+
+  // standard node.
   // element
   let element: HTMLElement;
   if (isEquals(node.name, oldNode?.name) && oldNode?.element != null)
@@ -124,18 +184,19 @@ function createElement(
   // children
   const children: RenderedVNodeWithHTMLElement[] = [];
   for (let i = 0; i < node.children.length; i++) {
-    const child = node.children[i];
-    const oldChild = oldNode?.children[i] || null;
-    const childVNode = createElement(child, oldChild);
+    const child = node.children[i] as RenderedVNode;
+    const oldChild = oldNode?.children[i];
+    const childVNode = createElement(child, oldChild, element);
 
-    // エレメントをdocumentに追加する(初回だけ)
-    if (!oldChild?.element) {
-      // if (childVNode.type === "array") {
-
-      // } else {
+    // エレメントをdocumentに追加する
+    if (childVNode.type === "array") {
+      // arrayの場合は常に再生成する(めんどいので。いつかkey対応するのでしょう)
+      element.append(
+        ...childVNode.children.map(it => it.element as string | HTMLElement)
+      );
+    } else if (!oldChild?.element) {
       // arrayじゃない場合のエレメント追加処理
       element.append(childVNode.element);
-      // }
     }
 
     if (
@@ -152,7 +213,7 @@ function createElement(
 }
 
 function createRootElement(node: RenderedVNode): RenderedVNodeWithHTMLElement {
-  return createElement(node, _oldNode);
+  return createElement(node, _oldNode, root);
 }
 
 type Attributes<T extends HTMLElement> =
