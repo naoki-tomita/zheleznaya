@@ -108,11 +108,7 @@ function rerender(nodeElement: Element) {
   }
 }
 
-function recycleTextElement(
-  node: RenderedVNode & { type: "text" },
-  oldNode: RenderedVNodeWithHTMLElement | undefined,
-  parentElement: HTMLElement
-) {
+function recycleTextElement(node: RenderedVNode): RenderedVNodeWithHTMLElement {
   return {
     name: node.name,
     attributes: {},
@@ -122,42 +118,39 @@ function recycleTextElement(
   };
 }
 
-function createElement(
+function recycleArrayElement(
   node: RenderedVNode,
   oldNode: RenderedVNodeWithHTMLElement | undefined,
   parentElement: HTMLElement
 ): RenderedVNodeWithHTMLElement {
-  // text node.
-  if (node.type === "text") {
-    return recycleTextElement(node, oldNode, parentElement);
-  }
-
-  // array node.
-  if (node.type === "array") {
-    const elements: HTMLElement[] = [];
-    const renderedVNodes: RenderedVNodeWithHTMLElement[] = [];
-    (oldNode?.element as HTMLElement[])?.forEach(it =>
-      parentElement?.removeChild(it)
+  const elements: HTMLElement[] = [];
+  const renderedVNodes: RenderedVNodeWithHTMLElement[] = [];
+  (oldNode?.element as HTMLElement[])?.forEach(it =>
+    parentElement?.removeChild(it)
+  );
+  node.children.forEach(it => {
+    const child = createElement(
+      it as RenderedVNode,
+      undefined,
+      parentElement
     );
-    node.children.forEach(it => {
-      const child = createElement(
-        it as RenderedVNode,
-        undefined,
-        parentElement
-      );
-      elements.push(child.element as HTMLElement);
-      renderedVNodes.push(child);
-    });
-    return {
-      name: "ArrayNode",
-      attributes: {},
-      type: "array",
-      children: renderedVNodes,
-      element: elements
-    };
-  }
+    elements.push(child.element as HTMLElement);
+    renderedVNodes.push(child);
+  });
+  return {
+    name: "ArrayNode",
+    attributes: {},
+    type: "array",
+    children: renderedVNodes,
+    element: elements
+  };
+}
 
-  // standard node.
+function recycleNodeElement(
+  node: RenderedVNode,
+  oldNode: RenderedVNodeWithHTMLElement | undefined
+): RenderedVNodeWithHTMLElement {
+// standard node.
   // element
   let element: HTMLElement;
   if (isEquals(node.name, oldNode?.name) && oldNode?.element != null)
@@ -210,6 +203,21 @@ function createElement(
     children.push(childVNode);
   }
   return { ...node, type: "html", element, children };
+}
+
+function createElement(
+  node: RenderedVNode,
+  oldNode: RenderedVNodeWithHTMLElement | undefined,
+  parentElement: HTMLElement
+): RenderedVNodeWithHTMLElement {
+  switch (node.type) {
+    case "text":
+      return recycleTextElement(node);
+    case "array":
+      return recycleArrayElement(node, oldNode, parentElement);
+    default:
+      return recycleNodeElement(node, oldNode);
+  }
 }
 
 function createRootElement(node: RenderedVNode): RenderedVNodeWithHTMLElement {
