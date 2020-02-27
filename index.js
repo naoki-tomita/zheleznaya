@@ -133,6 +133,9 @@ function recycleNodeElement(node, oldNode, parentElement) {
         else if (typeof attribute === "boolean") {
             attribute ? element.setAttribute(key, "") : element.removeAttribute(key);
         }
+        else if (key === "value" && typeof element.value === "string") {
+            element.value = attribute;
+        }
         else {
             element.setAttribute(key, attribute);
         }

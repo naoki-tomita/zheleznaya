@@ -38,11 +38,13 @@ declare global {
             hr: Attributes<HTMLHRElement>;
             img: Attributes<HTMLImageElement>;
             input: Attributes<HTMLInputElement>;
+            label: Attributes<HTMLLabelElement>;
             li: Attributes<HTMLLIElement>;
             p: Attributes<HTMLParagraphElement>;
             pre: Attributes<HTMLPreElement>;
             select: Attributes<HTMLSelectElement>;
             span: Attributes<HTMLSpanElement>;
+            textarea: Attributes<HTMLTextAreaElement>;
             ul: Attributes<HTMLUListElement>;
         }
     }

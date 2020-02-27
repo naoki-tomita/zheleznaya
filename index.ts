@@ -173,6 +173,8 @@ function recycleNodeElement(
       (element as any)[key] = attribute;
     } else if (typeof attribute === "boolean") {
       attribute ? element.setAttribute(key, "") : element.removeAttribute(key);
+    } else if (key === "value" && typeof (element as any).value === "string") {
+      (element as any).value = attribute;
     } else {
       element.setAttribute(key, attribute);
     }
@@ -257,11 +259,13 @@ declare global {
       hr: Attributes<HTMLHRElement>;
       img: Attributes<HTMLImageElement>;
       input: Attributes<HTMLInputElement>;
+      label: Attributes<HTMLLabelElement>;
       li: Attributes<HTMLLIElement>;
       p: Attributes<HTMLParagraphElement>;
       pre: Attributes<HTMLPreElement>;
       select: Attributes<HTMLSelectElement>;
       span: Attributes<HTMLSpanElement>;
+      textarea: Attributes<HTMLTextAreaElement>;
       ul: Attributes<HTMLUListElement>;
     }
   }
