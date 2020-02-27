@@ -6,6 +6,30 @@ function wrap(obj) {
         typeof obj === "boolean") {
         return obj;
     }
+    if (Array.isArray(obj)) {
+        return {
+            __original__: obj,
+            push: function () {
+                var _a;
+                var items = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    items[_i] = arguments[_i];
+                }
+                (_a = this.__original__).push.apply(_a, items);
+                this.__emit__();
+            },
+            map: function (pred) {
+                return this.__original__.map(pred);
+            },
+            __cb__: [],
+            __on__: function (cb) {
+                this.__cb__.push(cb);
+            },
+            __emit__: function () {
+                this.__cb__.forEach(function (it) { return it(); });
+            }
+        };
+    }
     var original = {};
     Object.keys(obj).forEach(function (key) {
         if (typeof obj[key] === "object") {

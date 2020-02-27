@@ -105,14 +105,21 @@ function recycleArrayElement(node, oldNode, parentElement) {
         element: elements
     };
 }
-function recycleNodeElement(node, oldNode) {
+function recycleNodeElement(node, oldNode, parentElement) {
     // standard node.
     // element
     var element;
-    if (Equals_1.isEquals(node.name, oldNode === null || oldNode === void 0 ? void 0 : oldNode.name) && (oldNode === null || oldNode === void 0 ? void 0 : oldNode.element) != null)
+    if ((oldNode === null || oldNode === void 0 ? void 0 : oldNode.element) != null) {
         element = oldNode.element;
-    else
+        if (!Equals_1.isEquals(node.name, oldNode.name)) {
+            var newElement = document.createElement(node.name);
+            parentElement.replaceWith(newElement);
+            element = newElement;
+        }
+    }
+    else {
         element = document.createElement(node.name);
+    }
     // attributes
     var attributes = node.attributes;
     Object.keys(attributes || {}).forEach(function (key) {
@@ -162,7 +169,7 @@ function createElement(node, oldNode, parentElement) {
         case "array":
             return recycleArrayElement(node, oldNode, parentElement);
         default:
-            return recycleNodeElement(node, oldNode);
+            return recycleNodeElement(node, oldNode, parentElement);
     }
 }
 function createRootElement(node) {

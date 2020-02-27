@@ -144,14 +144,22 @@ function recycleArrayElement(
 
 function recycleNodeElement(
   node: RenderedVNode,
-  oldNode: RenderedVNodeWithHTMLElement | undefined
+  oldNode: RenderedVNodeWithHTMLElement | undefined,
+  parentElement: HTMLElement
 ): RenderedVNodeWithHTMLElement {
   // standard node.
   // element
   let element: HTMLElement;
-  if (isEquals(node.name, oldNode?.name) && oldNode?.element != null)
+  if (oldNode?.element != null) {
     element = (oldNode as RenderedVNodeWithHTMLElementNode).element;
-  else element = document.createElement(node.name);
+    if (!isEquals(node.name, oldNode.name)) {
+      const newElement = document.createElement(node.name);
+      parentElement.replaceWith(newElement);
+      element = newElement;
+    }
+  } else {
+    element = document.createElement(node.name);
+  }
 
   // attributes
   const { attributes } = node;
@@ -212,7 +220,7 @@ function createElement(
     case "array":
       return recycleArrayElement(node, oldNode, parentElement);
     default:
-      return recycleNodeElement(node, oldNode);
+      return recycleNodeElement(node, oldNode, parentElement);
   }
 }
 
