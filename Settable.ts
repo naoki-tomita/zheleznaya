@@ -15,6 +15,26 @@ export function wrap<T>(
   ) {
     return obj;
   }
+  if (Array.isArray(obj)) {
+    return {
+      __original__: obj,
+      push(...items: any[]) {
+        this.__original__.push(...items)
+        this.__emit__();
+      },
+      map(pred: any) {
+        return this.__original__.map(pred);
+      },
+      __cb__: [] as Array<() => void>,
+      __on__(cb: () => void) {
+        this.__cb__.push(cb);
+      },
+      __emit__() {
+        this.__cb__.forEach(it => it())
+      }
+    } as Settable<any>;
+  }
+
   const original: any = {};
   Object.keys(obj).forEach(key => {
     if (typeof (obj as any)[key] === "object") {
