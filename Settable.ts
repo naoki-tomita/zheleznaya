@@ -19,7 +19,7 @@ export function wrap<T>(
     return {
       __original__: obj,
       push(...items: any[]) {
-        this.__original__.push(...items)
+        this.__original__.push(...items);
         this.__emit__();
       },
       map(pred: any) {
@@ -30,7 +30,7 @@ export function wrap<T>(
         this.__cb__.push(cb);
       },
       __emit__() {
-        this.__cb__.forEach(it => it())
+        this.__cb__.forEach(it => it());
       }
     } as Settable<any>;
   }
