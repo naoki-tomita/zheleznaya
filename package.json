@@ -1,6 +1,6 @@
 {
   "name": "zheleznaya",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "main": "index.js",
   "type": "index.d.ts",
   "license": "MIT",
