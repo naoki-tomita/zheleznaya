@@ -121,13 +121,19 @@ function recycleTextElement(node: RenderedVNode): RenderedVNodeWithHTMLElement {
 function recycleArrayElement(
   node: RenderedVNode,
   oldNode: RenderedVNodeWithHTMLElement | undefined,
-  parentElement: HTMLElement
+  parentElement?: HTMLElement
 ): RenderedVNodeWithHTMLElement {
   const elements: HTMLElement[] = [];
   const renderedVNodes: RenderedVNodeWithHTMLElement[] = [];
-  (oldNode?.element as HTMLElement[])?.forEach(it =>
-    parentElement?.removeChild(it)
-  );
+  // replace or remove child elements.
+  if (oldNode?.type === "array") {
+    (oldNode?.element as HTMLElement[])?.forEach(it => {
+      parentElement?.removeChild(it)
+    });
+  } else {
+    oldNode?.element && parentElement?.removeChild(oldNode?.element as HTMLElement);
+  }
+  oldNode && (oldNode.children = []);
   node.children.forEach(it => {
     const child = createElement(it as RenderedVNode, undefined, parentElement);
     elements.push(child.element as HTMLElement);
@@ -145,16 +151,23 @@ function recycleArrayElement(
 function recycleNodeElement(
   node: RenderedVNode,
   oldNode: RenderedVNodeWithHTMLElement | undefined,
-  parentElement: HTMLElement
+  parentElement?: HTMLElement
 ): RenderedVNodeWithHTMLElement {
   // standard node.
   // element
   let element: HTMLElement;
   if (oldNode?.element != null) {
     element = (oldNode as RenderedVNodeWithHTMLElementNode).element;
+    // replace or remove child elements.
     if (!isEquals(node.name, oldNode.name)) {
       const newElement = document.createElement(node.name);
-      parentElement.replaceWith(newElement);
+      if (oldNode.type === "array") {
+        oldNode?.element?.forEach(it => parentElement?.removeChild(it))
+        parentElement?.append(newElement);
+      } else {
+        parentElement?.replaceChild(newElement, oldNode.element as HTMLElement);
+      }
+      oldNode.children = [];
       element = newElement;
     }
   } else {
@@ -214,8 +227,9 @@ function recycleNodeElement(
 function createElement(
   node: RenderedVNode,
   oldNode: RenderedVNodeWithHTMLElement | undefined,
-  parentElement: HTMLElement
+  parentElement?: HTMLElement
 ): RenderedVNodeWithHTMLElement {
+  console.log(node.type, node.name, oldNode?.name, oldNode?.type);
   switch (node.type) {
     case "text":
       return recycleTextElement(node);

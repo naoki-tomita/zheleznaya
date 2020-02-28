@@ -91,7 +91,15 @@ function recycleArrayElement(node, oldNode, parentElement) {
     var _a;
     var elements = [];
     var renderedVNodes = [];
-    (_a = oldNode === null || oldNode === void 0 ? void 0 : oldNode.element) === null || _a === void 0 ? void 0 : _a.forEach(function (it) { return parentElement === null || parentElement === void 0 ? void 0 : parentElement.removeChild(it); });
+    if ((oldNode === null || oldNode === void 0 ? void 0 : oldNode.type) === "array") {
+        (_a = oldNode === null || oldNode === void 0 ? void 0 : oldNode.element) === null || _a === void 0 ? void 0 : _a.forEach(function (it) {
+            parentElement === null || parentElement === void 0 ? void 0 : parentElement.removeChild(it);
+        });
+    }
+    else {
+        (oldNode === null || oldNode === void 0 ? void 0 : oldNode.element) && (parentElement === null || parentElement === void 0 ? void 0 : parentElement.removeChild(oldNode === null || oldNode === void 0 ? void 0 : oldNode.element));
+    }
+    oldNode && (oldNode.children = []);
     node.children.forEach(function (it) {
         var child = createElement(it, undefined, parentElement);
         elements.push(child.element);
@@ -106,6 +114,7 @@ function recycleArrayElement(node, oldNode, parentElement) {
     };
 }
 function recycleNodeElement(node, oldNode, parentElement) {
+    var _a;
     // standard node.
     // element
     var element;
@@ -113,7 +122,14 @@ function recycleNodeElement(node, oldNode, parentElement) {
         element = oldNode.element;
         if (!Equals_1.isEquals(node.name, oldNode.name)) {
             var newElement = document.createElement(node.name);
-            parentElement.replaceWith(newElement);
+            if (oldNode.type === "array") {
+                (_a = oldNode === null || oldNode === void 0 ? void 0 : oldNode.element) === null || _a === void 0 ? void 0 : _a.forEach(function (it) { return parentElement === null || parentElement === void 0 ? void 0 : parentElement.removeChild(it); });
+                parentElement === null || parentElement === void 0 ? void 0 : parentElement.append(newElement);
+            }
+            else {
+                parentElement === null || parentElement === void 0 ? void 0 : parentElement.replaceChild(newElement, oldNode.element);
+            }
+            oldNode.children = [];
             element = newElement;
         }
     }
@@ -166,6 +182,7 @@ function recycleNodeElement(node, oldNode, parentElement) {
     return __assign(__assign({}, node), { type: "html", element: element, children: children });
 }
 function createElement(node, oldNode, parentElement) {
+    console.log(node.type, node.name, oldNode === null || oldNode === void 0 ? void 0 : oldNode.name, oldNode === null || oldNode === void 0 ? void 0 : oldNode.type);
     switch (node.type) {
         case "text":
             return recycleTextElement(node);

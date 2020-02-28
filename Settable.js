@@ -51,7 +51,7 @@ function wrap(obj) {
         }
     };
     Object.keys(obj).forEach(function (key) {
-        return Object.defineProperty(settable, key, {
+        Object.defineProperty(settable, key, {
             set: function (prop) {
                 var _this = this;
                 this.__original__[key] =

@@ -22,6 +22,7 @@ export function wrap<T>(
         this.__original__.push(...items);
         this.__emit__();
       },
+
       map(pred: any) {
         return this.__original__.map(pred);
       },
@@ -54,7 +55,7 @@ export function wrap<T>(
       this.__cb__.forEach(it => it());
     }
   };
-  Object.keys(obj).forEach(key =>
+  Object.keys(obj).forEach(key => {
     Object.defineProperty(settable, key, {
       set(prop: any) {
         this.__original__[key] =
@@ -69,6 +70,6 @@ export function wrap<T>(
         return this.__original__[key];
       }
     })
-  );
+  });
   return settable;
 }
