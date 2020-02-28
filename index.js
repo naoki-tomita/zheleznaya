@@ -91,6 +91,7 @@ function recycleArrayElement(node, oldNode, parentElement) {
     var _a;
     var elements = [];
     var renderedVNodes = [];
+    // replace or remove child elements.
     if ((oldNode === null || oldNode === void 0 ? void 0 : oldNode.type) === "array") {
         (_a = oldNode === null || oldNode === void 0 ? void 0 : oldNode.element) === null || _a === void 0 ? void 0 : _a.forEach(function (it) {
             parentElement === null || parentElement === void 0 ? void 0 : parentElement.removeChild(it);
@@ -120,6 +121,7 @@ function recycleNodeElement(node, oldNode, parentElement) {
     var element;
     if ((oldNode === null || oldNode === void 0 ? void 0 : oldNode.element) != null) {
         element = oldNode.element;
+        // replace or remove child elements.
         if (!Equals_1.isEquals(node.name, oldNode.name)) {
             var newElement = document.createElement(node.name);
             if (oldNode.type === "array") {

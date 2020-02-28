@@ -128,10 +128,11 @@ function recycleArrayElement(
   // replace or remove child elements.
   if (oldNode?.type === "array") {
     (oldNode?.element as HTMLElement[])?.forEach(it => {
-      parentElement?.removeChild(it)
+      parentElement?.removeChild(it);
     });
   } else {
-    oldNode?.element && parentElement?.removeChild(oldNode?.element as HTMLElement);
+    oldNode?.element &&
+      parentElement?.removeChild(oldNode?.element as HTMLElement);
   }
   oldNode && (oldNode.children = []);
   node.children.forEach(it => {
@@ -162,7 +163,7 @@ function recycleNodeElement(
     if (!isEquals(node.name, oldNode.name)) {
       const newElement = document.createElement(node.name);
       if (oldNode.type === "array") {
-        oldNode?.element?.forEach(it => parentElement?.removeChild(it))
+        oldNode?.element?.forEach(it => parentElement?.removeChild(it));
         parentElement?.append(newElement);
       } else {
         parentElement?.replaceChild(newElement, oldNode.element as HTMLElement);

@@ -69,7 +69,7 @@ export function wrap<T>(
       get() {
         return this.__original__[key];
       }
-    })
+    });
   });
   return settable;
 }
