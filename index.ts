@@ -230,7 +230,6 @@ function createElement(
   oldNode: RenderedVNodeWithHTMLElement | undefined,
   parentElement?: HTMLElement
 ): RenderedVNodeWithHTMLElement {
-  console.log(node.type, node.name, oldNode?.name, oldNode?.type);
   switch (node.type) {
     case "text":
       return recycleTextElement(node);
