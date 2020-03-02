@@ -184,7 +184,6 @@ function recycleNodeElement(node, oldNode, parentElement) {
     return __assign(__assign({}, node), { type: "html", element: element, children: children });
 }
 function createElement(node, oldNode, parentElement) {
-    console.log(node.type, node.name, oldNode === null || oldNode === void 0 ? void 0 : oldNode.name, oldNode === null || oldNode === void 0 ? void 0 : oldNode.type);
     switch (node.type) {
         case "text":
             return recycleTextElement(node);
