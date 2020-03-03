@@ -1,8 +1,8 @@
 {
   "name": "zheleznaya",
   "version": "0.0.7",
-  "main": "index.js",
-  "type": "index.d.ts",
+  "main": "./dist/index.js",
+  "type": "./dist/index.d.ts",
   "license": "MIT",
   "dependencies": {
     "typescript": "^3.8.2"
