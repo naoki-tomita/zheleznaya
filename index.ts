@@ -95,7 +95,7 @@ function renderElement(node: Element): RenderedVNode {
 let root: HTMLElement;
 export function render(nodeElement: Element) {
   rerender(nodeElement);
-  store.__on__(() => rerender(nodeElement));
+  store ?? store.__on__(() => rerender(nodeElement));
 }
 
 export function renderToText(nodeElement: Element): string {
