@@ -23,7 +23,7 @@ function h(name, attributes) {
         : function () { return name(attributes, children); };
 }
 exports.h = h;
-var store;
+var store = {};
 function createStore(initialValue) {
     return (store = Settable_1.wrap(initialValue));
 }
@@ -69,6 +69,33 @@ function render(nodeElement) {
     store.__on__(function () { return rerender(nodeElement); });
 }
 exports.render = render;
+function renderToText(nodeElement) {
+    var nodes = renderElement(nodeElement);
+    return renderVNodeToText(nodes);
+}
+exports.renderToText = renderToText;
+function renderVNodeToText(vNode) {
+    if (Array.isArray(vNode)) {
+        return vNode.map(renderVNodeToText).join();
+    }
+    switch (vNode.type) {
+        case "text":
+            return vNode.name;
+        case "html":
+            return renderHtmlVNodeToText(vNode);
+        case "array":
+            return vNode.children.map(renderVNodeToText).join();
+    }
+}
+function attributeToString(attr) {
+    if (typeof attr == "string") {
+        return attr;
+    }
+    return Object.keys(attr).map(function (key) { return key + "=" + attr[key] + ";"; }).join();
+}
+function renderHtmlVNodeToText(vNode) {
+    return "\n    <" + vNode.name + " " + Object.keys(vNode.attributes || {}).map(function (key) { return key + "=\"" + attributeToString(vNode.attributes[key]) + "\""; }).join(" ") + ">\n      " + vNode.children.map(renderVNodeToText) + "\n    </" + vNode.name + ">";
+}
 var _oldNode;
 function rerender(nodeElement) {
     var renderedNode = renderElement(nodeElement);

@@ -48,7 +48,7 @@ export function h(
     : () => name(attributes, children);
 }
 
-let store: any;
+let store: any = {};
 export function createStore<T>(initialValue: T): T {
   return (store = (wrap(initialValue) as unknown) as T);
 }
@@ -59,7 +59,7 @@ export function getStore<T>(): T {
 
 function renderChild(
   child: RendereableElement
-): RenderedVNode | RenderedVNode[] {
+): RenderedVNode {
   if (typeof child === "function") {
     return renderElement(child());
   } else if (typeof child === "object") {
@@ -96,6 +96,39 @@ let root: HTMLElement;
 export function render(nodeElement: Element) {
   rerender(nodeElement);
   store.__on__(() => rerender(nodeElement));
+}
+
+export function renderToText(nodeElement: Element): string {
+  const nodes = renderElement(nodeElement);
+  return renderVNodeToText(nodes);
+}
+
+function renderVNodeToText(vNode: RenderedVNode | RenderedVNode[]): string {
+  if (Array.isArray(vNode)) {
+    return vNode.map(renderVNodeToText).join();
+  }
+  switch (vNode.type) {
+    case "text":
+      return vNode.name;
+    case "html":
+      return renderHtmlVNodeToText(vNode);
+    case "array":
+      return vNode.children.map(renderVNodeToText).join()
+  }
+}
+
+function attributeToString(attr: string | { [key: string]: string }): string {
+  if (typeof attr == "string") {
+    return attr;
+  }
+  return Object.keys(attr).map(key => `${key}=${attr[key]};`).join()
+}
+
+function renderHtmlVNodeToText(vNode: RenderedVNode): string {
+  return `
+    <${vNode.name} ${Object.keys(vNode.attributes || {}).map(key => `${key}="${attributeToString(vNode.attributes![key])}"`).join(" ")}>
+      ${vNode.children.map(renderVNodeToText)}
+    </${vNode.name}>`;
 }
 
 let _oldNode: RenderedVNodeWithHTMLElement;

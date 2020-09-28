@@ -13,6 +13,7 @@ export declare function h(name: Component | string, attributes: any | null, ...c
 export declare function createStore<T>(initialValue: T): T;
 export declare function getStore<T>(): T;
 export declare function render(nodeElement: Element): void;
+export declare function renderToText(nodeElement: Element): string;
 declare type Attributes<T extends HTMLElement> = {
     [U in keyof T]?: T[U];
 } | AttributesOverwrite;
