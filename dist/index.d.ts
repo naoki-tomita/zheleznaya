@@ -16,11 +16,12 @@ export declare function render(nodeElement: Element, rootElement?: HTMLElement):
 export declare function renderToText(nodeElement: Element): string;
 declare type Attributes<T extends HTMLElement> = {
     [U in keyof T]?: T[U];
-} | AttributesOverwrite;
-interface AttributesOverwrite {
+} | AttributesOverwrite<T>;
+interface AttributesOverwrite<T extends HTMLElement> {
     children?: Array<VNode | string>;
     class?: string;
     style?: Partial<CSSStyleDeclaration> | string;
+    ref?: (el: T) => void;
 }
 declare global {
     namespace JSX {
@@ -47,6 +48,13 @@ declare global {
             span: Attributes<HTMLSpanElement>;
             textarea: Attributes<HTMLTextAreaElement>;
             ul: Attributes<HTMLUListElement>;
+            header: Attributes<HTMLDivElement>;
+            nav: Attributes<HTMLDivElement>;
+            small: Attributes<HTMLDivElement>;
+            code: Attributes<HTMLDivElement>;
+            main: Attributes<HTMLDivElement>;
+            article: Attributes<HTMLDivElement>;
+            figure: Attributes<HTMLDivElement>;
         }
     }
 }

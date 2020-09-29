@@ -96,7 +96,7 @@ let root: HTMLElement;
 export function render(nodeElement: Element, rootElement?: HTMLElement) {
   rootElement && (root = rootElement);
   rerender(nodeElement);
-  store ?? store.__on__(() => rerender(nodeElement));
+  store && store.__on__(() => rerender(nodeElement));
 }
 
 export function renderToText(nodeElement: Element): string {
@@ -132,13 +132,20 @@ function renderHtmlVNodeToText(vNode: RenderedVNode): string {
     </${vNode.name}>`;
 }
 
+let firstRender = true;
 let _oldNode: RenderedVNodeWithHTMLElement;
 function rerender(nodeElement: Element) {
   const renderedNode = renderElement(nodeElement);
   const completedVNode = createRootElement(renderedNode);
   _oldNode = completedVNode;
-  if (!root) {
-    document.body.appendChild((root = completedVNode.element as HTMLElement));
+  if (firstRender) {
+    if (!root) {
+      root = document.createElement("div");
+      document.body.appendChild(root);
+    }
+    root.innerHTML = "";
+    root.appendChild(completedVNode.element as HTMLElement);
+    firstRender = false;
   }
 }
 
@@ -161,9 +168,10 @@ function recycleArrayElement(
   const renderedVNodes: RenderedVNodeWithHTMLElement[] = [];
   // replace or remove child elements.
   if (oldNode?.type === "array") {
-    (oldNode?.element as HTMLElement[])?.forEach(it => {
-      parentElement?.removeChild(it);
-    });
+    parentElement && (parentElement.innerHTML = "");
+    // (oldNode?.element as HTMLElement[])?.forEach(it => {
+    //   parentElement?.removeChild(it);
+    // });
   } else {
     oldNode?.element &&
       parentElement?.removeChild(oldNode?.element as HTMLElement);
@@ -223,6 +231,8 @@ function recycleNodeElement(
       attribute ? element.setAttribute(key, "") : element.removeAttribute(key);
     } else if (key === "value" && typeof (element as any).value === "string") {
       (element as any).value = attribute;
+    } else if (key === "ref" && typeof attribute === "function") {
+      attribute(element);
     } else {
       element.setAttribute(key, attribute);
     }
@@ -282,12 +292,13 @@ type Attributes<T extends HTMLElement> =
   | {
       [U in keyof T]?: T[U];
     }
-  | AttributesOverwrite;
+  | AttributesOverwrite<T>;
 
-interface AttributesOverwrite {
+interface AttributesOverwrite<T extends HTMLElement> {
   children?: Array<VNode | string>;
   class?: string;
   style?: Partial<CSSStyleDeclaration> | string;
+  ref?: (el: T) => void;
 }
 
 declare global {
@@ -315,6 +326,14 @@ declare global {
       span: Attributes<HTMLSpanElement>;
       textarea: Attributes<HTMLTextAreaElement>;
       ul: Attributes<HTMLUListElement>;
+
+      header: Attributes<HTMLDivElement>;
+      nav: Attributes<HTMLDivElement>;
+      small: Attributes<HTMLDivElement>;
+      code: Attributes<HTMLDivElement>;
+      main: Attributes<HTMLDivElement>;
+      article: Attributes<HTMLDivElement>;
+      figure: Attributes<HTMLDivElement>;
     }
   }
 }

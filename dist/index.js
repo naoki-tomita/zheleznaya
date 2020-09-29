@@ -67,7 +67,7 @@ var root;
 function render(nodeElement, rootElement) {
     rootElement && (root = rootElement);
     rerender(nodeElement);
-    store !== null && store !== void 0 ? store : store.__on__(function () { return rerender(nodeElement); });
+    store && store.__on__(function () { return rerender(nodeElement); });
 }
 exports.render = render;
 function renderToText(nodeElement) {
@@ -97,13 +97,20 @@ function attributeToString(attr) {
 function renderHtmlVNodeToText(vNode) {
     return "\n    <" + vNode.name + " " + Object.keys(vNode.attributes || {}).map(function (key) { return key + "=\"" + attributeToString(vNode.attributes[key]) + "\""; }).join(" ") + ">\n      " + vNode.children.map(renderVNodeToText) + "\n    </" + vNode.name + ">";
 }
+var firstRender = true;
 var _oldNode;
 function rerender(nodeElement) {
     var renderedNode = renderElement(nodeElement);
     var completedVNode = createRootElement(renderedNode);
     _oldNode = completedVNode;
-    if (!root) {
-        document.body.appendChild((root = completedVNode.element));
+    if (firstRender) {
+        if (!root) {
+            root = document.createElement("div");
+            document.body.appendChild(root);
+        }
+        root.innerHTML = "";
+        root.appendChild(completedVNode.element);
+        firstRender = false;
     }
 }
 function recycleTextElement(node) {
@@ -116,14 +123,14 @@ function recycleTextElement(node) {
     };
 }
 function recycleArrayElement(node, oldNode, parentElement) {
-    var _a;
     var elements = [];
     var renderedVNodes = [];
     // replace or remove child elements.
     if ((oldNode === null || oldNode === void 0 ? void 0 : oldNode.type) === "array") {
-        (_a = oldNode === null || oldNode === void 0 ? void 0 : oldNode.element) === null || _a === void 0 ? void 0 : _a.forEach(function (it) {
-            parentElement === null || parentElement === void 0 ? void 0 : parentElement.removeChild(it);
-        });
+        parentElement && (parentElement.innerHTML = "");
+        // (oldNode?.element as HTMLElement[])?.forEach(it => {
+        //   parentElement?.removeChild(it);
+        // });
     }
     else {
         (oldNode === null || oldNode === void 0 ? void 0 : oldNode.element) && (parentElement === null || parentElement === void 0 ? void 0 : parentElement.removeChild(oldNode === null || oldNode === void 0 ? void 0 : oldNode.element));
@@ -181,6 +188,9 @@ function recycleNodeElement(node, oldNode, parentElement) {
         }
         else if (key === "value" && typeof element.value === "string") {
             element.value = attribute;
+        }
+        else if (key === "ref" && typeof attribute === "function") {
+            attribute(element);
         }
         else {
             element.setAttribute(key, attribute);
