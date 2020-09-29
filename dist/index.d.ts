@@ -1,4 +1,4 @@
-export declare type Component = (props: any, children: Array<VNode | string>) => VNode;
+export declare type Component<P = any> = (props: P, children: Array<VNode | string>) => VNode;
 declare type Element = VNode | (() => VNode);
 declare type RendereableElement = Element | string | number | boolean;
 interface VNode {
@@ -12,7 +12,7 @@ interface VNode {
 export declare function h(name: Component | string, attributes: any | null, ...children: Array<VNode | string>): Element;
 export declare function createStore<T>(initialValue: T): T;
 export declare function getStore<T>(): T;
-export declare function render(nodeElement: Element): void;
+export declare function render(nodeElement: Element, rootElement?: HTMLElement): void;
 export declare function renderToText(nodeElement: Element): string;
 declare type Attributes<T extends HTMLElement> = {
     [U in keyof T]?: T[U];

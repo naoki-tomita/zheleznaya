@@ -64,9 +64,10 @@ function renderElement(node) {
         }) });
 }
 var root;
-function render(nodeElement) {
+function render(nodeElement, rootElement) {
+    rootElement && (root = rootElement);
     rerender(nodeElement);
-    store.__on__(function () { return rerender(nodeElement); });
+    store !== null && store !== void 0 ? store : store.__on__(function () { return rerender(nodeElement); });
 }
 exports.render = render;
 function renderToText(nodeElement) {

@@ -1,7 +1,7 @@
 import { wrap } from "./Settable";
 import { isEquals } from "./Equals";
 
-export type Component = (props: any, children: Array<VNode | string>) => VNode;
+export type Component<P = any> = (props: P, children: Array<VNode | string>) => VNode;
 type Element = VNode | (() => VNode);
 type RendereableElement = Element | string | number | boolean;
 interface VNode {
@@ -93,7 +93,8 @@ function renderElement(node: Element): RenderedVNode {
 }
 
 let root: HTMLElement;
-export function render(nodeElement: Element) {
+export function render(nodeElement: Element, rootElement?: HTMLElement) {
+  rootElement && (root = rootElement);
   rerender(nodeElement);
   store ?? store.__on__(() => rerender(nodeElement));
 }
