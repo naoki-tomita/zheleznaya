@@ -11,7 +11,6 @@
   },
   "scripts": {
     "update": "yarn add ../",
-    "dev": "parcel serve index.html --public-url ./dist/",
-    "build": "rm -rf dist && parcel build index.html --public-url ./dist"
+    "build": "rm -rf dist && parcel build index.html"
   }
 }
