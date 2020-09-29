@@ -1,6 +1,6 @@
 ## installation
 
-## getting started
+### getting started
 
 T.B.D
 
