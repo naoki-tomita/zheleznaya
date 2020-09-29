@@ -6,6 +6,8 @@ Built by extremely simple and minute code.
 
 You can write app by ultra simple code.
 
+This documentation written by `zheleznaya`.
+
 ```tsx
 import { h, render, createStore, Component } from "zheleznaya";
 
@@ -31,7 +33,7 @@ render(<App />);
 
 > Zheleznaya is not production yet.
 
-## how works it?
+## how it works?
 
 T.B.D
 
