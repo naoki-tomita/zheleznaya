@@ -23,4 +23,4 @@ var e,t=arguments[3];function n(e){return(n="function"==typeof Symbol&&"symbol"=
 },{"zheleznaya":"rFk7","../Store":"n3ma","./Content":"a7iQ","./Header":"kcaz","./Html":"U7uL"}],"zo2T":[function(require,module,exports) {
 "use strict";Object.defineProperty(exports,"__esModule",{value:!0});var e=require("zheleznaya"),r=require("./src/components/App");e.render(e.h(r.App,null));
 },{"zheleznaya":"rFk7","./src/components/App":"yKEB"}]},{},["zo2T"], null)
-//# sourceMappingURL=docs.aa802d09.js.map
+//# sourceMappingURL=docs.a6e0f8fd.js.map
