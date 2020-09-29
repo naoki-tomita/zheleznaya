@@ -11,6 +11,6 @@
   },
   "scripts": {
     "update": "yarn add ../",
-    "build": "rm -rf dist && parcel build index.html"
+    "build": "rm -rf dist && parcel build index.html --public-url ./"
   }
 }
