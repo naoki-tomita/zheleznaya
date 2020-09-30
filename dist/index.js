@@ -93,10 +93,20 @@ function attributeToString(attr) {
     if (typeof attr == "string") {
         return attr;
     }
+    else if (typeof attr === "function") {
+        return "";
+    }
     return Object.keys(attr).map(function (key) { return key + "=" + attr[key] + ";"; }).join();
 }
 function renderHtmlVNodeToText(vNode) {
-    return "\n    <" + vNode.name + " " + Object.keys(vNode.attributes || {}).map(function (key) { return key + "=\"" + attributeToString(vNode.attributes[key]) + "\""; }).join(" ") + ">\n      " + vNode.children.map(renderVNodeToText) + "\n    </" + vNode.name + ">";
+    var _a;
+    var ref = null;
+    if (typeof ((_a = vNode.attributes) === null || _a === void 0 ? void 0 : _a.ref) === "function") {
+        var el = {};
+        Object.defineProperty(el, "innerHTML", { set: function (value) { ref = value; } });
+        vNode.attributes.ref(el);
+    }
+    return ("<" + vNode.name + " " + Object.keys(vNode.attributes || {}).map(function (key) { return key + "=\"" + attributeToString(vNode.attributes[key]) + "\""; }).join(" ") + ">\n      " + (ref !== null && ref !== void 0 ? ref : vNode.children.map(renderVNodeToText)) + "\n    </" + vNode.name + ">");
 }
 var firstRender = true;
 var _oldNode;

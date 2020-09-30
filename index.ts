@@ -121,15 +121,24 @@ function renderVNodeToText(vNode: RenderedVNode | RenderedVNode[]): string {
 function attributeToString(attr: string | { [key: string]: string }): string {
   if (typeof attr == "string") {
     return attr;
+  } else if (typeof attr === "function") {
+    return "";
   }
   return Object.keys(attr).map(key => `${key}=${attr[key]};`).join()
 }
 
 function renderHtmlVNodeToText(vNode: RenderedVNode): string {
-  return `
-    <${vNode.name} ${Object.keys(vNode.attributes || {}).map(key => `${key}="${attributeToString(vNode.attributes![key])}"`).join(" ")}>
-      ${vNode.children.map(renderVNodeToText)}
-    </${vNode.name}>`;
+  let ref: string | null = null;
+  if (typeof vNode.attributes?.ref === "function") {
+    const el = {};
+    Object.defineProperty(el, "innerHTML", { set(value: string) { ref = value } });
+    vNode.attributes.ref(el);
+  }
+  return (
+    `<${vNode.name} ${Object.keys(vNode.attributes || {}).map(key => `${key}="${attributeToString(vNode.attributes![key])}"`).join(" ")}>
+      ${ref ?? vNode.children.map(renderVNodeToText)}
+    </${vNode.name}>`
+  );
 }
 
 let firstRender = true;
