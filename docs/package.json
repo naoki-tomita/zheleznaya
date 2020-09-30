@@ -11,6 +11,7 @@
   },
   "scripts": {
     "update": "yarn add ../",
+    "dev": "parcel index.html",
     "build": "rm -rf dist && NODE_ENV=production parcel build index.html --public-url ./"
   }
 }

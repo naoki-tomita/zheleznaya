@@ -17,7 +17,7 @@ var e,t=arguments[3];function n(e){return(n="function"==typeof Symbol&&"symbol"=
 },{"zheleznaya":"rFk7"}],"Vcnv":[function(require,module,exports) {
 "use strict";Object.defineProperty(exports,"__esModule",{value:!0}),exports.Footer=void 0;var e=require("zheleznaya");exports.Footer=function(){return e.h("footer",null,e.h("p",null,"Created by ",e.h("a",{href:"https://github.com/naoki-tomita"},"Kojiro Ueda")),e.h("p",null,"Inspired by React"))};
 },{"zheleznaya":"rFk7"}],"kcaz":[function(require,module,exports) {
-"use strict";Object.defineProperty(exports,"__esModule",{value:!0}),exports.Header=void 0;var e=require("zheleznaya"),r=require("../Router");exports.Header=function(){return e.h("header",null,e.h("h1",null,e.h(r.Link,{href:"/"},"Zheleznaya")))};
+"use strict";Object.defineProperty(exports,"__esModule",{value:!0}),exports.Header=void 0;var e=require("zheleznaya"),r=require("../Router");exports.Header=function(){return e.h("header",null,e.h("h1",null,e.h(r.Link,{href:"/"},"Zheleznaya")),e.h("small",null,e.h("code",null,e.h("a",{href:"https://github.com/naoki-tomita/zheleznaya"},"Github"))))};
 },{"zheleznaya":"rFk7","../Router":"PrGM"}],"U7uL":[function(require,module,exports) {
 "use strict";Object.defineProperty(exports,"__esModule",{value:!0}),exports.Html=void 0;var e=require("zheleznaya");exports.Html=function(r){var t=r.html;return e.h("div",{ref:function(e){return e.innerHTML=t}})};
 },{"zheleznaya":"rFk7"}],"yKEB":[function(require,module,exports) {
@@ -25,4 +25,4 @@ var e,t=arguments[3];function n(e){return(n="function"==typeof Symbol&&"symbol"=
 },{"zheleznaya":"rFk7","../Store":"n3ma","./Content":"a7iQ","./Footer":"Vcnv","./Header":"kcaz","./Html":"U7uL"}],"zo2T":[function(require,module,exports) {
 "use strict";Object.defineProperty(exports,"__esModule",{value:!0});var e=require("zheleznaya"),r=require("./src/components/App");e.render(e.h(r.App,null));
 },{"zheleznaya":"rFk7","./src/components/App":"yKEB"}]},{},["zo2T"], null)
-//# sourceMappingURL=docs.20c58c91.js.map
+//# sourceMappingURL=docs.78ede7e7.js.map
