@@ -65,9 +65,10 @@ function renderElement(node) {
 }
 var root;
 function render(nodeElement, rootElement) {
+    var _a;
     rootElement && (root = rootElement);
     rerender(nodeElement);
-    store && store.__on__(function () { return rerender(nodeElement); });
+    (_a = store.__on__) === null || _a === void 0 ? void 0 : _a.call(store, function () { return rerender(nodeElement); });
 }
 exports.render = render;
 function renderToText(nodeElement) {

@@ -96,7 +96,7 @@ let root: HTMLElement;
 export function render(nodeElement: Element, rootElement?: HTMLElement) {
   rootElement && (root = rootElement);
   rerender(nodeElement);
-  store && store.__on__(() => rerender(nodeElement));
+  store.__on__?.(() => rerender(nodeElement));
 }
 
 export function renderToText(nodeElement: Element): string {
