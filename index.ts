@@ -336,6 +336,7 @@ declare global {
       textarea: Attributes<HTMLTextAreaElement>;
       ul: Attributes<HTMLUListElement>;
 
+      link: Attributes<HTMLLinkElement>;
       header: Attributes<HTMLDivElement>;
       nav: Attributes<HTMLDivElement>;
       small: Attributes<HTMLDivElement>;
