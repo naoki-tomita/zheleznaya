@@ -49,6 +49,7 @@ declare global {
             textarea: Attributes<HTMLTextAreaElement>;
             ul: Attributes<HTMLUListElement>;
             link: Attributes<HTMLLinkElement>;
+            script: Attributes<HTMLScriptElement>;
             header: Attributes<HTMLDivElement>;
             nav: Attributes<HTMLDivElement>;
             small: Attributes<HTMLDivElement>;
