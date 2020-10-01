@@ -7,7 +7,7 @@
     "@types/marked": "^1.1.0",
     "marked": "^1.2.0",
     "parcel": "^1.12.4",
-    "zheleznaya": "^0.1.10"
+    "zheleznaya": "latest"
   },
   "scripts": {
     "update": "yarn add ../",
