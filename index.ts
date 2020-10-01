@@ -106,7 +106,7 @@ export function renderToText(nodeElement: Element): string {
 
 function renderVNodeToText(vNode: RenderedVNode | RenderedVNode[]): string {
   if (Array.isArray(vNode)) {
-    return vNode.map(renderVNodeToText).join();
+    return vNode.map(renderVNodeToText).join("");
   }
   switch (vNode.type) {
     case "text":
@@ -114,7 +114,7 @@ function renderVNodeToText(vNode: RenderedVNode | RenderedVNode[]): string {
     case "html":
       return renderHtmlVNodeToText(vNode);
     case "array":
-      return vNode.children.map(renderVNodeToText).join()
+      return vNode.children.map(renderVNodeToText).join("")
   }
 }
 
@@ -124,7 +124,7 @@ function attributeToString(attr: string | { [key: string]: string }): string {
   } else if (typeof attr === "function") {
     return "";
   }
-  return Object.keys(attr).map(key => `${key}=${attr[key]};`).join()
+  return Object.keys(attr).map(key => `${key}=${attr[key]};`).join("")
 }
 
 function renderHtmlVNodeToText(vNode: RenderedVNode): string {
@@ -135,9 +135,9 @@ function renderHtmlVNodeToText(vNode: RenderedVNode): string {
     vNode.attributes.ref(el);
   }
   return (
-    `<${vNode.name} ${Object.keys(vNode.attributes || {}).map(key => `${key}="${attributeToString(vNode.attributes![key])}"`).join(" ")}>
-      ${ref ?? vNode.children.map(renderVNodeToText)}
-    </${vNode.name}>`
+    `<${vNode.name} ${Object.keys(vNode.attributes || {}).map(key => `${key}="${attributeToString(vNode.attributes![key])}"`).join(" ")}>${
+      ref ?? vNode.children.map(renderVNodeToText).join("")
+    }</${vNode.name}>`
   );
 }
 
@@ -361,6 +361,11 @@ declare global {
       frame: Attributes<HTMLFrameElement>;
       frameset: Attributes<HTMLFrameSetElement>;
       h1: Attributes<HTMLHeadingElement>;
+      h2: Attributes<HTMLHeadingElement>;
+      h3: Attributes<HTMLHeadingElement>;
+      h4: Attributes<HTMLHeadingElement>;
+      h5: Attributes<HTMLHeadingElement>;
+      h6: Attributes<HTMLHeadingElement>;
       head: Attributes<HTMLHeadElement>;
       header: Attributes<HTMLDivElement>;
       hr: Attributes<HTMLHRElement>;

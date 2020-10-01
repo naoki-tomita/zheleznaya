@@ -74,6 +74,11 @@ declare global {
             frame: Attributes<HTMLFrameElement>;
             frameset: Attributes<HTMLFrameSetElement>;
             h1: Attributes<HTMLHeadingElement>;
+            h2: Attributes<HTMLHeadingElement>;
+            h3: Attributes<HTMLHeadingElement>;
+            h4: Attributes<HTMLHeadingElement>;
+            h5: Attributes<HTMLHeadingElement>;
+            h6: Attributes<HTMLHeadingElement>;
             head: Attributes<HTMLHeadElement>;
             header: Attributes<HTMLDivElement>;
             hr: Attributes<HTMLHRElement>;

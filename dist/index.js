@@ -78,7 +78,7 @@ function renderToText(nodeElement) {
 exports.renderToText = renderToText;
 function renderVNodeToText(vNode) {
     if (Array.isArray(vNode)) {
-        return vNode.map(renderVNodeToText).join();
+        return vNode.map(renderVNodeToText).join("");
     }
     switch (vNode.type) {
         case "text":
@@ -86,7 +86,7 @@ function renderVNodeToText(vNode) {
         case "html":
             return renderHtmlVNodeToText(vNode);
         case "array":
-            return vNode.children.map(renderVNodeToText).join();
+            return vNode.children.map(renderVNodeToText).join("");
     }
 }
 function attributeToString(attr) {
@@ -96,7 +96,7 @@ function attributeToString(attr) {
     else if (typeof attr === "function") {
         return "";
     }
-    return Object.keys(attr).map(function (key) { return key + "=" + attr[key] + ";"; }).join();
+    return Object.keys(attr).map(function (key) { return key + "=" + attr[key] + ";"; }).join("");
 }
 function renderHtmlVNodeToText(vNode) {
     var _a;
@@ -106,7 +106,7 @@ function renderHtmlVNodeToText(vNode) {
         Object.defineProperty(el, "innerHTML", { set: function (value) { ref = value; } });
         vNode.attributes.ref(el);
     }
-    return ("<" + vNode.name + " " + Object.keys(vNode.attributes || {}).map(function (key) { return key + "=\"" + attributeToString(vNode.attributes[key]) + "\""; }).join(" ") + ">\n      " + (ref !== null && ref !== void 0 ? ref : vNode.children.map(renderVNodeToText)) + "\n    </" + vNode.name + ">");
+    return ("<" + vNode.name + " " + Object.keys(vNode.attributes || {}).map(function (key) { return key + "=\"" + attributeToString(vNode.attributes[key]) + "\""; }).join(" ") + ">" + (ref !== null && ref !== void 0 ? ref : vNode.children.map(renderVNodeToText).join("")) + "</" + vNode.name + ">");
 }
 var firstRender = true;
 var _oldNode;
