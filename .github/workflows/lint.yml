@@ -1,0 +1,16 @@
+name: run test
+on: push
+jobs:
+  run-test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - uses: actions/setup-node@v2-beta
+        with:
+          node-version: '14'
+      - name: Install packages
+        run: yarn
+      - name: Run Test
+        run: yarn test
