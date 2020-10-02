@@ -5,12 +5,18 @@
   "types": "./dist/index.d.ts",
   "repository": "https://github.com/naoki-tomita/zheleznaya",
   "license": "MIT",
-  "dependencies": {
-    "typescript": "^3.8.2"
+  "devDependencies": {
+    "typescript": "^3.8.2",
+    "jest": "^26.4.2",
+    "ts-jest": "^26.4.1"
   },
   "scripts": {
     "build": "tsc",
     "lint": "npx prettier --write '{**,.}/*.ts'",
-    "prepublish": "yarn lint && yarn build"
+    "prepublish": "yarn lint && yarn build",
+    "test": "jest"
+  },
+  "jest": {
+    "preset": "ts-jest"
   }
 }
