@@ -25,4 +25,15 @@ describe("#render", () => {
     render(<App />)
     expect(document.body).toMatchSnapshot()
   });
+
+  it("should call callback when button clicked.", () => {
+    const spy = jest.fn();
+    const App = () => {
+      return <button onclick={spy} >click me!</button>
+    }
+    render(<App />);
+    const button = document.body.querySelector("button")!;
+    button.click();
+    expect(spy).toBeCalled();
+  });
 });

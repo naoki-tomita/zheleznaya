@@ -1,0 +1,21 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`#createStore should rerender when store changed. 1`] = `
+<body>
+  <div>
+    <div>
+      0
+    </div>
+  </div>
+</body>
+`;
+
+exports[`#createStore should rerender when store changed. 2`] = `
+<body>
+  <div>
+    <div>
+      2
+    </div>
+  </div>
+</body>
+`;
