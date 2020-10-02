@@ -2,7 +2,7 @@ import { isEquals, range } from "../Equals";
 
 describe("Equals", () => {
   describe("#isEquals", () => {
-    const tests: { left: any, right: any, expected: boolean }[] = [
+    const tests: { left: any; right: any; expected: boolean }[] = [
       {
         left: "",
         right: "",
@@ -46,38 +46,38 @@ describe("Equals", () => {
       {
         left: [42, "text", true],
         right: [42, "text", true],
-        expected: true
+        expected: true,
       },
       {
         left: [42, "text", true],
         right: [42, "____", true],
-        expected: false
+        expected: false,
       },
       {
         left: undefined,
         right: null,
-        expected: false
+        expected: false,
       },
       {
         left: undefined,
         right: undefined,
-        expected: true
+        expected: true,
       },
       {
         left: null,
         right: null,
-        expected: true
+        expected: true,
       },
       {
         left: { foo: "bar" },
         right: { foo: "bar" },
-        expected: true
+        expected: true,
       },
       {
         left: { foo: "foo" },
         right: { foo: "bar" },
-        expected: false
-      }
+        expected: false,
+      },
     ];
     tests.forEach(({ left, right, expected }) => {
       it("should check deep equaly two object.", () => {
@@ -88,7 +88,7 @@ describe("Equals", () => {
 
   describe("#range", () => {
     it("should return indexed array.", () => {
-      expect(range(8)).toEqual([0, 1, 2, 3, 4, 5, 6, 7])
+      expect(range(8)).toEqual([0, 1, 2, 3, 4, 5, 6, 7]);
     });
   });
 });
