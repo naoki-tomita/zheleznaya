@@ -1,6 +1,6 @@
 ## component api
 
-T.B.D
+Component is same as `React.FunctionalComponent`.
 
 ### create component
 
