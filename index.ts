@@ -23,7 +23,7 @@ type RenderedVNodeWithHTMLElement =
 interface RenderedVNodeWithHTMLElementText extends RenderedVNode {
   type: "text";
   children: Array<RenderedVNodeWithHTMLElement>;
-  element: string;
+  element: Text;
 }
 
 interface RenderedVNodeWithHTMLElementNode extends RenderedVNode {
@@ -135,7 +135,9 @@ function renderHtmlVNodeToText(vNode: RenderedVNode): string {
     vNode.attributes.ref(el);
   }
   return (
-    `<${vNode.name} ${Object.keys(vNode.attributes || {}).map(key => `${key}="${attributeToString(vNode.attributes![key])}"`).join(" ")}>${
+    `<${vNode.name} ${Object.keys(vNode.attributes || {})
+      .map(key => `${key}="${attributeToString(vNode.attributes![key])}"`).join(" ")
+    }>${
       ref ?? vNode.children.map(renderVNodeToText).join("")
     }</${vNode.name}>`
   );
@@ -146,6 +148,7 @@ let _oldNode: RenderedVNodeWithHTMLElement;
 function rerender(nodeElement: Element) {
   const renderedNode = renderElement(nodeElement);
   const completedVNode = createRootElement(renderedNode);
+  console.log("rerender!")
   _oldNode = completedVNode;
   if (firstRender) {
     if (!root) {
@@ -164,7 +167,7 @@ function recycleTextElement(node: RenderedVNode): RenderedVNodeWithHTMLElement {
     attributes: {},
     children: [],
     type: "text",
-    element: node.name
+    element: document.createTextNode(node.name),
   };
 }
 
@@ -177,10 +180,9 @@ function recycleArrayElement(
   const renderedVNodes: RenderedVNodeWithHTMLElement[] = [];
   // replace or remove child elements.
   if (oldNode?.type === "array") {
-    parentElement && (parentElement.innerHTML = "");
-    // (oldNode?.element as HTMLElement[])?.forEach(it => {
-    //   parentElement?.removeChild(it);
-    // });
+    (oldNode?.element as HTMLElement[])?.forEach(it => {
+      parentElement?.removeChild(it);
+    });
   } else {
     oldNode?.element &&
       parentElement?.removeChild(oldNode?.element as HTMLElement);
@@ -267,11 +269,11 @@ function recycleNodeElement(
 
     if (
       oldChild?.type === "text" &&
-      !isEquals(childVNode.element, oldChild.element)
+      !isEquals((childVNode.element as Text)?.data, (oldChild.element as Text)?.data)
     ) {
       // テキストノードの更新処理
       // テキストノード以外は、createElementの中でやっているからいらない
-      (element.childNodes[i] as Text).data = childVNode.element as string;
+      (element.childNodes.item(i) as Text).data = (childVNode.element as Text).data;
     }
     children.push(childVNode);
   }

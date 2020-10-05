@@ -1,7 +1,11 @@
 import { h, render, createStore, Component } from "../index";
 
+// function sleep(ms: number) {
+//   return new Promise(ok => setTimeout(ok, ms));
+// }
+
 describe("#createStore", () => {
-  it("should rerender when store changed.", () => {
+  it("should rerender when store changed.", async () => {
     const store = createStore({ count: 0 });
     const App: Component = () => {
       return (

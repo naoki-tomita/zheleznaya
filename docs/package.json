@@ -6,12 +6,12 @@
   "dependencies": {
     "@types/marked": "^1.1.0",
     "marked": "^1.2.0",
-    "parcel": "^1.12.4",
-    "zheleznaya": "latest"
+    "parcel": "^1.12.4"
   },
   "scripts": {
     "update": "yarn add ../",
-    "dev": "parcel index.html",
+    "dev": "parcel watch index.html --public-url /dist",
+    "serve": "npx http-server -p 80",
     "build": "rm -rf dist && NODE_ENV=production parcel build index.html --public-url ./"
   }
 }

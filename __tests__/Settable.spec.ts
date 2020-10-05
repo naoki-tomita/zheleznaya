@@ -20,7 +20,7 @@ describe("Settable", () => {
       expect(spy).toBeCalledTimes(1);
 
       expect(obj.foo).toBe("hoge");
-    })
+    });
 
     it("should not fire changed event when object not have property changed.", () => {
       const obj = wrap({ foo: "bar" });
@@ -28,7 +28,7 @@ describe("Settable", () => {
       obj.__on__(spy);
       (obj as any).bar = "hoge";
       expect(spy).toBeCalledTimes(0);
-    })
+    });
 
     it("should fire changed event when nested object property changed.", () => {
       const obj = wrap({ foo: { bar: "hoge" } });
