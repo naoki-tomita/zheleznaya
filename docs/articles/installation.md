@@ -10,6 +10,7 @@
 > yarn init
 > yarn add zheleznaya typescript parcel
 > touch index.html index.tsx
+> yarn tsc --init
 ```
 
 #### 2. Write `index.html`.
@@ -42,7 +43,18 @@ const App: Component = () => {
 render(<App />)
 ```
 
-#### 4. Run dev server
+#### 4. Edit `tsconfig.json`
+
+Add this entry in `compilerOptions`.
+
+```json
+{
+  "jsx": "react",
+  "jsxFactory": "h"
+}
+```
+
+#### 5. Run dev server
 
 ```bash
 > yarn parcel index.html
