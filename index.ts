@@ -148,7 +148,6 @@ let _oldNode: RenderedVNodeWithHTMLElement;
 function rerender(nodeElement: Element) {
   const renderedNode = renderElement(nodeElement);
   const completedVNode = createRootElement(renderedNode);
-  console.log("rerender!")
   _oldNode = completedVNode;
   if (firstRender) {
     if (!root) {
@@ -267,13 +266,10 @@ function recycleNodeElement(
       element.append(childVNode.element);
     }
 
-    if (
-      oldChild?.type === "text" &&
-      !isEquals((childVNode.element as Text)?.data, (oldChild.element as Text)?.data)
-    ) {
+    if (oldChild?.type === "text") {
       // テキストノードの更新処理
       // テキストノード以外は、createElementの中でやっているからいらない
-      (element.childNodes.item(i) as Text).data = (childVNode.element as Text).data;
+      element.replaceChild(childVNode.element as Text, element.childNodes.item(i));
     }
     children.push(childVNode);
   }

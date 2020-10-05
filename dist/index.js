@@ -114,7 +114,6 @@ var _oldNode;
 function rerender(nodeElement) {
     var renderedNode = renderElement(nodeElement);
     var completedVNode = createRootElement(renderedNode);
-    console.log("rerender!");
     _oldNode = completedVNode;
     if (firstRender) {
         if (!root) {
@@ -163,7 +162,7 @@ function recycleArrayElement(node, oldNode, parentElement) {
     };
 }
 function recycleNodeElement(node, oldNode, parentElement) {
-    var _a, _b, _c;
+    var _a;
     // standard node.
     // element
     var element;
@@ -224,11 +223,10 @@ function recycleNodeElement(node, oldNode, parentElement) {
             // arrayじゃない場合のエレメント追加処理
             element.append(childVNode.element);
         }
-        if ((oldChild === null || oldChild === void 0 ? void 0 : oldChild.type) === "text" &&
-            !Equals_1.isEquals((_b = childVNode.element) === null || _b === void 0 ? void 0 : _b.data, (_c = oldChild.element) === null || _c === void 0 ? void 0 : _c.data)) {
+        if ((oldChild === null || oldChild === void 0 ? void 0 : oldChild.type) === "text") {
             // テキストノードの更新処理
             // テキストノード以外は、createElementの中でやっているからいらない
-            element.childNodes.item(i).data = childVNode.element.data;
+            element.replaceChild(childVNode.element, element.childNodes.item(i));
         }
         children.push(childVNode);
     }
