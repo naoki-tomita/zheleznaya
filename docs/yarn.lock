@@ -5186,3 +5186,8 @@ xtend@^4.0.0, xtend@~4.0.1:
   version "4.0.2"
   resolved "https://registry.yarnpkg.com/xtend/-/xtend-4.0.2.tgz#bb72779f5fa465186b1f438f674fa347fdb5db54"
   integrity sha512-LKYU1iAXJXUgAXn9URjiu+MWhyUXHsvfp7mcuYm9dSUKK0/CjtrUwFAxD82/mCWbtLsGjFIad0wIsod4zrTAEQ==
+
+zheleznaya@~0.1.12:
+  version "0.1.12"
+  resolved "https://registry.yarnpkg.com/zheleznaya/-/zheleznaya-0.1.12.tgz#02dfd03353ef53527623acf507b8b479e8bb2d2c"
+  integrity sha512-MMfKl6mqlTlY2JpCLGWF2nIawny0evucGxVrFp8H8H0GNOslbgGVay6C8/5wgvs8meRIEw9hXbhPmD8CssWFUQ==
