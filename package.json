@@ -1,14 +1,14 @@
 {
   "name": "zheleznaya",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "repository": "https://github.com/naoki-tomita/zheleznaya",
   "license": "MIT",
   "devDependencies": {
-    "typescript": "^3.8.2",
     "jest": "^26.4.2",
-    "ts-jest": "^26.4.1"
+    "ts-jest": "^26.4.1",
+    "typescript": "^3.8.2"
   },
   "scripts": {
     "build": "tsc",
