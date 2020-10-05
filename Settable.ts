@@ -6,14 +6,14 @@ interface Settable<T> {
 }
 
 export function wrap<T>(
-  obj: T | string | number | boolean
-): Settable<T> | string | number | boolean {
+  obj: T
+): T extends object ? T & Settable<T> : T {
   if (
     typeof obj === "string" ||
     typeof obj === "number" ||
     typeof obj === "boolean"
   ) {
-    return obj;
+    return obj as any;
   }
   if (Array.isArray(obj)) {
     return {
@@ -31,9 +31,9 @@ export function wrap<T>(
         this.__cb__.push(cb);
       },
       __emit__() {
-        this.__cb__.forEach(it => it());
+        this.__cb__.forEach((it: () => void) => it());
       }
-    } as Settable<any>;
+    } as any;
   }
 
   const original: any = {};
@@ -71,5 +71,5 @@ export function wrap<T>(
       }
     });
   });
-  return settable;
+  return settable as any;
 }
