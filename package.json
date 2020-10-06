@@ -18,6 +18,5 @@
   },
   "jest": {
     "preset": "ts-jest"
-  },
-  "dependencies": {}
+  }
 }
