@@ -82,7 +82,7 @@ export class Zheleznaya {
    */
   reRender(element: ZheleznayaElement) {
     const finalVNode = this.createVNode(element);
-    const vNodeAndElement = this.createVNodeAndElement(finalVNode, this.oldVNode) as VNodeAndHTMLElement;
+    const vNodeAndElement = this.createVNodeAndElement(finalVNode, this.oldVNode);
     this.oldVNode = vNodeAndElement;
   }
 
