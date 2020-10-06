@@ -1,0 +1,121 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Zheleznaya #createHTMLElement should create array node with all type node. 1`] = `
+Array [
+  TEXT,
+  <input
+    class="my-class"
+    style="display: flex;"
+  />,
+  Array [
+    INNER TEXT,
+  ],
+]
+`;
+
+exports[`Zheleznaya #createVNode should create VNode 1`] = `
+Object {
+  "attributes": Object {},
+  "children": Array [
+    Object {
+      "attributes": Object {},
+      "children": Array [
+        Object {
+          "attributes": Object {},
+          "children": Array [],
+          "name": "hoge",
+          "type": "text",
+        },
+      ],
+      "name": "div",
+      "type": "html",
+    },
+    Object {
+      "attributes": Object {},
+      "children": Array [
+        Object {
+          "attributes": Object {},
+          "children": Array [
+            Object {
+              "attributes": Object {},
+              "children": Array [],
+              "name": "top",
+              "type": "text",
+            },
+          ],
+          "name": "li",
+          "type": "html",
+        },
+        Object {
+          "attributes": Object {},
+          "children": Array [
+            Object {
+              "attributes": Object {},
+              "children": Array [
+                Object {
+                  "attributes": Object {},
+                  "children": Array [],
+                  "name": "foo",
+                  "type": "text",
+                },
+              ],
+              "name": "li",
+              "type": "html",
+            },
+            Object {
+              "attributes": Object {},
+              "children": Array [
+                Object {
+                  "attributes": Object {},
+                  "children": Array [],
+                  "name": "bar",
+                  "type": "text",
+                },
+              ],
+              "name": "li",
+              "type": "html",
+            },
+            Object {
+              "attributes": Object {},
+              "children": Array [
+                Object {
+                  "attributes": Object {},
+                  "children": Array [],
+                  "name": "hoge",
+                  "type": "text",
+                },
+              ],
+              "name": "li",
+              "type": "html",
+            },
+          ],
+          "name": "",
+          "type": "array",
+        },
+      ],
+      "name": "ul",
+      "type": "html",
+    },
+    Object {
+      "attributes": Object {
+        "class": "my-class",
+        "style": Object {
+          "display": "flex",
+        },
+      },
+      "children": Array [
+        Object {
+          "attributes": Object {},
+          "children": Array [],
+          "name": "INNNER TEXT",
+          "type": "text",
+        },
+      ],
+      "name": "div",
+      "type": "html",
+    },
+  ],
+  "name": "div",
+  "type": "html",
+}
+`;

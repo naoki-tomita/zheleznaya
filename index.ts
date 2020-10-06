@@ -1,299 +1,506 @@
-import { wrap } from "./Settable";
-import { isEquals } from "./Equals";
+// import { wrap } from "./Settable";
+// import { isEquals } from "./Equals";
 
-export type Component<P = any> = (props: P, children: Array<VNode | string>) => VNode;
-type Element = VNode | (() => VNode);
-type RendereableElement = Element | string | number | boolean;
-interface VNode {
+
+type VNode = TextVnode | HtmlVNode | ArrayVNode;
+
+interface TextVnode {
   name: string;
-  type: "text" | "html" | "array";
-  attributes: { [key: string]: any } | null;
-  children: Array<RendereableElement | RendereableElement[]>;
-}
-
-interface RenderedVNode extends VNode {
-  children: Array<RenderedVNode | RenderedVNode[]>;
-}
-
-type RenderedVNodeWithHTMLElement =
-  | RenderedVNodeWithHTMLElementText
-  | RenderedVNodeWithHTMLElementNode
-  | RenderedVNodeWithHTMLElementArray;
-
-interface RenderedVNodeWithHTMLElementText extends RenderedVNode {
   type: "text";
-  children: Array<RenderedVNodeWithHTMLElement>;
-  element: Text;
+  attributes: {};
+  children: Array<VNode>;
 }
 
-interface RenderedVNodeWithHTMLElementNode extends RenderedVNode {
+interface HtmlVNode {
+  name: string;
   type: "html";
-  children: Array<RenderedVNodeWithHTMLElement>;
-  element: HTMLElement;
+  attributes: {[key: string]: any};
+  children: Array<VNode>;
 }
 
-interface RenderedVNodeWithHTMLElementArray extends RenderedVNode {
+interface ArrayVNode {
+  name: "";
   type: "array";
-  children: Array<RenderedVNodeWithHTMLElement>;
-  element: HTMLElement[];
+  attributes: {};
+  children: Array<VNode>;
+}
+
+type ZheleznayaElement = VNode | (() => VNode);
+
+export interface Component<T = any> {
+  (attributes: T, children: Array<VNode | string>): VNode;
 }
 
 export function h(
   name: Component | string,
   attributes: any | null,
   ...children: Array<VNode | string>
-): Element {
+): ZheleznayaElement {
   return typeof name === "string"
-    ? { name, attributes, children, type: "html" }
+    ? { name, attributes: attributes ?? {}, children: children.map(it => typeof it === "string"
+      ? { name: it, type: "text", attributes: {}, children: [] }
+      : it), type: "html" }
     : () => name(attributes, children);
 }
 
-let store: any = {};
-export function createStore<T>(initialValue: T): T {
-  return (store = (wrap(initialValue) as unknown) as T);
+interface VNodeAndHTMLElement {
+  vNode: VNode;
+  element: Text | HTMLElement | HTMLElement[];
+  children: VNodeAndHTMLElement[];
 }
 
-export function getStore<T>(): T {
-  return store;
-}
+export class Zheleznaya {
+  _root?: HTMLElement;
 
-function renderChild(
-  child: RendereableElement
-): RenderedVNode {
-  if (typeof child === "function") {
-    return renderElement(child());
-  } else if (typeof child === "object") {
-    if (Array.isArray(child)) {
-      return {
-        name: "ArrayNode",
-        type: "array",
-        attributes: {},
-        children: child.map(item => renderChild(item)) as RenderedVNode[]
-      };
-    }
-    return renderElement(child);
-  } else {
+  get root() {
+    return this._root ?? (this._root = this.createRoot());
+  }
+  set root(root: HTMLElement) {
+    if (!this._root) return;
+    this._root = root;
+  }
+
+  createRoot(): HTMLElement {
+    const root = document.createElement("div");
+    document.body.append(root);
+    return root;
+  }
+
+  /**
+   * Deploy components and start rerendering.
+   * @param element
+   * @param rootElement
+   */
+  render(_element: ZheleznayaElement, _rootElement?: HTMLElement) {
+
+  }
+
+  oldVNode?: VNodeAndHTMLElement;
+  /**
+   * Perform applying VNode to root element.
+   * @param element
+   */
+  reRender(element: ZheleznayaElement) {
+    const finalVNode = this.createVNode(element);
+    const vNodeAndElement = this.createVNodeAndElement(finalVNode, this.oldVNode);
+    this.oldVNode = vNodeAndElement;
+  }
+
+  createTextVNode(text: string): VNode {
     return {
-      name: child.toString(),
+      name: text,
+      type: "text",
       attributes: {},
-      children: [],
-      type: "text"
+      children: []
+    };
+  }
+
+  createArrayNode(nodes: VNode[]): VNode {
+    return {
+      name: "",
+      type: "array",
+      attributes: {},
+      children: nodes,
+    }
+  }
+
+  createVNode(node: ZheleznayaElement): VNode {
+    if (typeof node === "function") { node = node() }
+    return {
+      ...node,
+      children: node.children.map(it => {
+        if (typeof it === "string") {
+          return this.createTextVNode(it);
+        } else if (Array.isArray(it)) {
+          return this.createArrayNode(it);
+        }
+        return this.createVNode(it)
+      })
+    }
+  }
+
+  createTextElement(node: VNode) {
+    const el = document.createTextNode(node.name);
+    return el;
+  }
+
+  assignStyle(el: HTMLElement, style: { [key: string]: string | number }) {
+    return Object.keys(style).forEach((name: string) => (el.style as any)[name] = style[name]);
+  }
+
+  assignAttributes(el: HTMLElement, attributes: { [key: string]: any }) {
+    Object.keys(attributes).forEach(key => {
+      if (key === "value") {
+        return (el as HTMLInputElement).value = attributes.value;
+      } else if (key === "style") {
+        return this.assignStyle(el, attributes.style);
+      } else if (key === "ref") {
+        return attributes.ref(el);
+      } else if (key.startsWith("on")) {
+        return (el as any)[key.toLowerCase()] = attributes[key];
+      }
+      return el.setAttribute(key, attributes[key]);
+    });
+  }
+
+  createHTMLElement(node: VNode): Text | HTMLElement | HTMLElement[] {
+    switch (node.type) {
+      case "text":
+        return this.createTextElement(node);
+      case "array":
+        return node.children.map(it => this.createHTMLElement(it)) as HTMLElement[];
+    }
+    const { name } = node;
+    const el = document.createElement(name) as HTMLElement;
+    this.updateHTMLElement(el, node);
+    return el;
+  }
+
+  updateHTMLElement(element: Text | HTMLElement | HTMLElement[], node: VNode) {
+    if (node.type === "text") {
+      (element as Text).data = node.name;
+    }
+    const { attributes } = node;
+    this.assignAttributes(element as HTMLElement, attributes);
+  }
+
+  shouldCreateNewElement(vNode: VNode, oldVNode?: VNode): boolean {
+    if (oldVNode == null) {
+      return true;
+    }
+    if (vNode.type !== oldVNode.type) {
+      return true;
+    } else if (vNode.type === "html" || vNode.type === "text") {
+      if (vNode.name !== oldVNode.name) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  createVNodeAndElement(vNode: VNode, oldVNode?: VNodeAndHTMLElement): VNodeAndHTMLElement | VNodeAndHTMLElement[] {
+    if (vNode.type === "array") {
+      return vNode.children.map((it, i) => this.createVNodeAndElement(it, oldVNode?.children[i])) as VNodeAndHTMLElement[];
+    }
+    const element = this.shouldCreateNewElement(vNode, oldVNode?.vNode)
+      ? this.createHTMLElement(vNode)
+      : (this.updateHTMLElement(oldVNode!.element, vNode), oldVNode!.element);
+    const children = vNode.children.map(it => this.createVNodeAndElement(it));
+    return {
+      vNode,
+      element,
+      children,
     };
   }
 }
 
-function renderElement(node: Element): RenderedVNode {
-  if (typeof node === "function") node = node();
-  return {
-    ...node,
-    children: (node.children || []).map(it =>
-      renderChild(it as RendereableElement)
-    )
-  };
-}
 
-let root: HTMLElement;
-export function render(nodeElement: Element, rootElement?: HTMLElement) {
-  rootElement && (root = rootElement);
-  rerender(nodeElement);
-  store.__on__?.(() => rerender(nodeElement));
-}
 
-export function renderToText(nodeElement: Element): string {
-  const nodes = renderElement(nodeElement);
-  return renderVNodeToText(nodes);
-}
 
-function renderVNodeToText(vNode: RenderedVNode | RenderedVNode[]): string {
-  if (Array.isArray(vNode)) {
-    return vNode.map(renderVNodeToText).join("");
-  }
-  switch (vNode.type) {
-    case "text":
-      return vNode.name;
-    case "html":
-      return renderHtmlVNodeToText(vNode);
-    case "array":
-      return vNode.children.map(renderVNodeToText).join("")
-  }
-}
 
-function attributeToString(attr: string | { [key: string]: string }): string {
-  if (typeof attr == "string") {
-    return attr;
-  } else if (typeof attr === "function") {
-    return "";
-  }
-  return Object.keys(attr).map(key => `${key}=${attr[key]};`).join("")
-}
 
-function renderHtmlVNodeToText(vNode: RenderedVNode): string {
-  let ref: string | null = null;
-  if (typeof vNode.attributes?.ref === "function") {
-    const el = {};
-    Object.defineProperty(el, "innerHTML", { set(value: string) { ref = value } });
-    vNode.attributes.ref(el);
-  }
-  return (
-    `<${vNode.name} ${Object.keys(vNode.attributes || {})
-      .map(key => `${key}="${attributeToString(vNode.attributes![key])}"`).join(" ")
-    }>${
-      ref ?? vNode.children.map(renderVNodeToText).join("")
-    }</${vNode.name}>`
-  );
-}
 
-let firstRender = true;
-let _oldNode: RenderedVNodeWithHTMLElement;
-function rerender(nodeElement: Element) {
-  const renderedNode = renderElement(nodeElement);
-  const completedVNode = createRootElement(renderedNode);
-  _oldNode = completedVNode;
-  if (firstRender) {
-    if (!root) {
-      root = document.createElement("div");
-      document.body.appendChild(root);
-    }
-    root.innerHTML = "";
-    root.appendChild(completedVNode.element as HTMLElement);
-    firstRender = false;
-  }
-}
 
-function recycleTextElement(node: RenderedVNode): RenderedVNodeWithHTMLElement {
-  return {
-    name: node.name,
-    attributes: {},
-    children: [],
-    type: "text",
-    element: document.createTextNode(node.name),
-  };
-}
 
-function recycleArrayElement(
-  node: RenderedVNode,
-  oldNode: RenderedVNodeWithHTMLElement | undefined,
-  parentElement?: HTMLElement
-): RenderedVNodeWithHTMLElement {
-  const elements: HTMLElement[] = [];
-  const renderedVNodes: RenderedVNodeWithHTMLElement[] = [];
-  // replace or remove child elements.
-  if (oldNode?.type === "array") {
-    (oldNode?.element as HTMLElement[])?.forEach(it => {
-      parentElement?.removeChild(it);
-    });
-  } else {
-    oldNode?.element &&
-      parentElement?.removeChild(oldNode?.element as HTMLElement);
-  }
-  oldNode && (oldNode.children = []);
-  node.children.forEach(it => {
-    const child = createElement(it as RenderedVNode, undefined, parentElement);
-    elements.push(child.element as HTMLElement);
-    renderedVNodes.push(child);
-  });
-  return {
-    name: "ArrayNode",
-    attributes: {},
-    type: "array",
-    children: renderedVNodes,
-    element: elements
-  };
-}
 
-function recycleNodeElement(
-  node: RenderedVNode,
-  oldNode: RenderedVNodeWithHTMLElement | undefined,
-  parentElement?: HTMLElement
-): RenderedVNodeWithHTMLElement {
-  // standard node.
-  // element
-  let element: HTMLElement;
-  if (oldNode?.element != null) {
-    element = (oldNode as RenderedVNodeWithHTMLElementNode).element;
-    // replace or remove child elements.
-    if (!isEquals(node.name, oldNode.name)) {
-      const newElement = document.createElement(node.name);
-      if (oldNode.type === "array") {
-        oldNode?.element?.forEach(it => parentElement?.removeChild(it));
-        parentElement?.append(newElement);
-      } else {
-        parentElement?.replaceChild(newElement, oldNode.element as HTMLElement);
-      }
-      oldNode.children = [];
-      element = newElement;
-    }
-  } else {
-    element = document.createElement(node.name);
-  }
 
-  // attributes
-  const { attributes } = node;
-  Object.keys(attributes || {}).forEach(key => {
-    const attribute = attributes![key];
-    if (key === "style") {
-      Object.keys(attribute).forEach(
-        key => ((element.style as any)[key] = attribute[key])
-      );
-    } else if (key.startsWith("on")) {
-      (element as any)[key] = attribute;
-    } else if (typeof attribute === "boolean") {
-      attribute ? element.setAttribute(key, "") : element.removeAttribute(key);
-    } else if (key === "value" && typeof (element as any).value === "string") {
-      (element as any).value = attribute;
-    } else if (key === "ref" && typeof attribute === "function") {
-      attribute(element);
-    } else {
-      element.setAttribute(key, attribute);
-    }
-  });
 
-  // children
-  const children: RenderedVNodeWithHTMLElement[] = [];
-  for (let i = 0; i < node.children.length; i++) {
-    const child = node.children[i] as RenderedVNode;
-    const oldChild = oldNode?.children[i];
-    const childVNode = createElement(child, oldChild, element);
 
-    // エレメントをdocumentに追加する
-    if (childVNode.type === "array") {
-      // arrayの場合は常に再生成する(めんどいので。いつかkey対応するのでしょう)
-      element.append(
-        ...childVNode.children.map(it => it.element as string | HTMLElement)
-      );
-    } else if (!oldChild?.element) {
-      // arrayじゃない場合のエレメント追加処理
-      element.append(childVNode.element);
-    }
 
-    if (oldChild?.type === "text") {
-      // テキストノードの更新処理
-      // テキストノード以外は、createElementの中でやっているからいらない
-      element.replaceChild(childVNode.element as Text, element.childNodes.item(i));
-    }
-    children.push(childVNode);
-  }
-  return { ...node, type: "html", element, children };
-}
 
-function createElement(
-  node: RenderedVNode,
-  oldNode: RenderedVNodeWithHTMLElement | undefined,
-  parentElement?: HTMLElement
-): RenderedVNodeWithHTMLElement {
-  switch (node.type) {
-    case "text":
-      return recycleTextElement(node);
-    case "array":
-      return recycleArrayElement(node, oldNode, parentElement);
-    default:
-      return recycleNodeElement(node, oldNode, parentElement);
-  }
-}
+// export type Component<P = any> = (props: P, children: Array<VNode | string>) => VNode;
+// type Element = VNode | (() => VNode);
+// type RendereableElement = Element | string | number | boolean;
+// interface VNode {
+//   name: string;
+//   type: "text" | "html" | "array";
+//   attributes: { [key: string]: any } | null;
+//   children: Array<RendereableElement | RendereableElement[]>;
+// }
 
-function createRootElement(node: RenderedVNode): RenderedVNodeWithHTMLElement {
-  return createElement(node, _oldNode, root);
-}
+// interface RenderedVNode extends VNode {
+//   children: Array<RenderedVNode | RenderedVNode[]>;
+// }
+
+// type RenderedVNodeWithHTMLElement =
+//   | RenderedVNodeWithHTMLElementText
+//   | RenderedVNodeWithHTMLElementNode
+//   | RenderedVNodeWithHTMLElementArray;
+
+// interface RenderedVNodeWithHTMLElementText extends RenderedVNode {
+//   type: "text";
+//   children: Array<RenderedVNodeWithHTMLElement>;
+//   element: Text;
+// }
+
+// interface RenderedVNodeWithHTMLElementNode extends RenderedVNode {
+//   type: "html";
+//   children: Array<RenderedVNodeWithHTMLElement>;
+//   element: HTMLElement;
+// }
+
+// interface RenderedVNodeWithHTMLElementArray extends RenderedVNode {
+//   type: "array";
+//   children: Array<RenderedVNodeWithHTMLElement>;
+//   element: HTMLElement[];
+// }
+
+// export function h(
+//   name: Component | string,
+//   attributes: any | null,
+//   ...children: Array<VNode | string>
+// ): Element {
+//   return typeof name === "string"
+//     ? { name, attributes, children, type: "html" }
+//     : () => name(attributes, children);
+// }
+
+// let store: any = {};
+// export function createStore<T>(initialValue: T): T {
+//   return (store = (wrap(initialValue) as unknown) as T);
+// }
+
+// export function getStore<T>(): T {
+//   return store;
+// }
+
+// function renderChild(
+//   child: RendereableElement
+// ): RenderedVNode {
+//   if (typeof child === "function") {
+//     return renderElement(child());
+//   } else if (typeof child === "object") {
+//     if (Array.isArray(child)) {
+//       return {
+//         name: "ArrayNode",
+//         type: "array",
+//         attributes: {},
+//         children: child.map(item => renderChild(item)) as RenderedVNode[]
+//       };
+//     }
+//     return renderElement(child);
+//   } else {
+//     return {
+//       name: child.toString(),
+//       attributes: {},
+//       children: [],
+//       type: "text"
+//     };
+//   }
+// }
+
+// function renderElement(node: Element): RenderedVNode {
+//   if (typeof node === "function") node = node();
+//   return {
+//     ...node,
+//     children: (node.children || []).map(it =>
+//       renderChild(it as RendereableElement)
+//     )
+//   };
+// }
+
+// let root: HTMLElement;
+// export function render(nodeElement: Element, rootElement?: HTMLElement) {
+//   rootElement && (root = rootElement);
+//   rerender(nodeElement);
+//   store.__on__?.(() => rerender(nodeElement));
+// }
+
+// export function renderToText(nodeElement: Element): string {
+//   const nodes = renderElement(nodeElement);
+//   return renderVNodeToText(nodes);
+// }
+
+// function renderVNodeToText(vNode: RenderedVNode | RenderedVNode[]): string {
+//   if (Array.isArray(vNode)) {
+//     return vNode.map(renderVNodeToText).join("");
+//   }
+//   switch (vNode.type) {
+//     case "text":
+//       return vNode.name;
+//     case "html":
+//       return renderHtmlVNodeToText(vNode);
+//     case "array":
+//       return vNode.children.map(renderVNodeToText).join("")
+//   }
+// }
+
+// function attributeToString(attr: string | { [key: string]: string }): string {
+//   if (typeof attr == "string") {
+//     return attr;
+//   } else if (typeof attr === "function") {
+//     return "";
+//   }
+//   return Object.keys(attr).map(key => `${key}=${attr[key]};`).join("")
+// }
+
+// function renderHtmlVNodeToText(vNode: RenderedVNode): string {
+//   let ref: string | null = null;
+//   if (typeof vNode.attributes?.ref === "function") {
+//     const el = {};
+//     Object.defineProperty(el, "innerHTML", { set(value: string) { ref = value } });
+//     vNode.attributes.ref(el);
+//   }
+//   return (
+//     `<${vNode.name} ${Object.keys(vNode.attributes || {})
+//       .map(key => `${key}="${attributeToString(vNode.attributes![key])}"`).join(" ")
+//     }>${
+//       ref ?? vNode.children.map(renderVNodeToText).join("")
+//     }</${vNode.name}>`
+//   );
+// }
+
+// let firstRender = true;
+// let _oldNode: RenderedVNodeWithHTMLElement;
+// function rerender(nodeElement: Element) {
+//   const renderedNode = renderElement(nodeElement);
+//   const completedVNode = createRootElement(renderedNode);
+//   _oldNode = completedVNode;
+//   if (firstRender) {
+//     if (!root) {
+//       root = document.createElement("div");
+//       document.body.appendChild(root);
+//     }
+//     root.innerHTML = "";
+//     root.appendChild(completedVNode.element as HTMLElement);
+//     firstRender = false;
+//   }
+// }
+
+// function recycleTextElement(node: RenderedVNode): RenderedVNodeWithHTMLElement {
+//   return {
+//     name: node.name,
+//     attributes: {},
+//     children: [],
+//     type: "text",
+//     element: document.createTextNode(node.name),
+//   };
+// }
+
+// function recycleArrayElement(
+//   node: RenderedVNode,
+//   oldNode: RenderedVNodeWithHTMLElement | undefined,
+//   parentElement?: HTMLElement
+// ): RenderedVNodeWithHTMLElement {
+//   const elements: HTMLElement[] = [];
+//   const renderedVNodes: RenderedVNodeWithHTMLElement[] = [];
+//   // replace or remove child elements.
+//   if (oldNode?.type === "array") {
+//     (oldNode?.element as HTMLElement[])?.forEach(it => {
+//       parentElement?.removeChild(it);
+//     });
+//   } else {
+//     oldNode?.element &&
+//       parentElement?.removeChild(oldNode?.element as HTMLElement);
+//   }
+//   oldNode && (oldNode.children = []);
+//   node.children.forEach(it => {
+//     const child = createElement(it as RenderedVNode, undefined, parentElement);
+//     elements.push(child.element as HTMLElement);
+//     renderedVNodes.push(child);
+//   });
+//   return {
+//     name: "ArrayNode",
+//     attributes: {},
+//     type: "array",
+//     children: renderedVNodes,
+//     element: elements
+//   };
+// }
+
+// function recycleNodeElement(
+//   node: RenderedVNode,
+//   oldNode: RenderedVNodeWithHTMLElement | undefined,
+//   parentElement?: HTMLElement
+// ): RenderedVNodeWithHTMLElement {
+//   // standard node.
+//   // element
+//   let element: HTMLElement;
+//   if (oldNode?.element != null) {
+//     element = (oldNode as RenderedVNodeWithHTMLElementNode).element;
+//     // replace or remove child elements.
+//     if (!isEquals(node.name, oldNode.name)) {
+//       const newElement = document.createElement(node.name);
+//       if (oldNode.type === "array") {
+//         oldNode?.element?.forEach(it => parentElement?.removeChild(it));
+//         parentElement?.append(newElement);
+//       } else {
+//         parentElement?.replaceChild(newElement, oldNode.element as HTMLElement);
+//       }
+//       oldNode.children = [];
+//       element = newElement;
+//     }
+//   } else {
+//     element = document.createElement(node.name);
+//   }
+
+//   // attributes
+//   const { attributes } = node;
+//   Object.keys(attributes || {}).forEach(key => {
+//     const attribute = attributes![key];
+//     if (key === "style") {
+//       Object.keys(attribute).forEach(
+//         key => ((element.style as any)[key] = attribute[key])
+//       );
+//     } else if (key.startsWith("on")) {
+//       (element as any)[key] = attribute;
+//     } else if (typeof attribute === "boolean") {
+//       attribute ? element.setAttribute(key, "") : element.removeAttribute(key);
+//     } else if (key === "value" && typeof (element as any).value === "string") {
+//       (element as any).value = attribute;
+//     } else if (key === "ref" && typeof attribute === "function") {
+//       attribute(element);
+//     } else {
+//       element.setAttribute(key, attribute);
+//     }
+//   });
+
+//   // children
+//   const children: RenderedVNodeWithHTMLElement[] = [];
+//   for (let i = 0; i < node.children.length; i++) {
+//     const child = node.children[i] as RenderedVNode;
+//     const oldChild = oldNode?.children[i];
+//     const childVNode = createElement(child, oldChild, element);
+
+//     // エレメントをdocumentに追加する
+//     if (childVNode.type === "array") {
+//       // arrayの場合は常に再生成する(めんどいので。いつかkey対応するのでしょう)
+//       element.append(
+//         ...childVNode.children.map(it => it.element as string | HTMLElement)
+//       );
+//     } else if (!oldChild?.element) {
+//       // arrayじゃない場合のエレメント追加処理
+//       element.append(childVNode.element);
+//     }
+
+//     if (oldChild?.type === "text") {
+//       // テキストノードの更新処理
+//       // テキストノード以外は、createElementの中でやっているからいらない
+//       element.replaceChild(childVNode.element as Text, element.childNodes.item(i));
+//     }
+//     children.push(childVNode);
+//   }
+//   return { ...node, type: "html", element, children };
+// }
+
+// function createElement(
+//   node: RenderedVNode,
+//   oldNode: RenderedVNodeWithHTMLElement | undefined,
+//   parentElement?: HTMLElement
+// ): RenderedVNodeWithHTMLElement {
+//   switch (node.type) {
+//     case "text":
+//       return recycleTextElement(node);
+//     case "array":
+//       return recycleArrayElement(node, oldNode, parentElement);
+//     default:
+//       return recycleNodeElement(node, oldNode, parentElement);
+//   }
+// }
+
+// function createRootElement(node: RenderedVNode): RenderedVNodeWithHTMLElement {
+//   return createElement(node, _oldNode, root);
+// }
 
 type Attributes<T extends HTMLElement> =
   | {
