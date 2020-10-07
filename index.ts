@@ -45,7 +45,7 @@ export function h(
 
 interface VNodeAndHTMLElement {
   vNode: VNode;
-  element: Text | HTMLElement | HTMLElement[];
+  element: Text | HTMLElement | HTMLElement[] | null;
   children: VNodeAndHTMLElement[];
 }
 
@@ -178,19 +178,48 @@ export class Zheleznaya {
     return false;
   }
 
-  createVNodeAndElement(vNode: VNode, oldVNode?: VNodeAndHTMLElement): VNodeAndHTMLElement | VNodeAndHTMLElement[] {
+  createVNodeAndElement(vNode: VNode, oldVNode?: VNodeAndHTMLElement): VNodeAndHTMLElement {
     if (vNode.type === "array") {
-      return vNode.children.map((it, i) => this.createVNodeAndElement(it, oldVNode?.children[i])) as VNodeAndHTMLElement[];
+      return {
+        vNode,
+        element: null,
+        children: vNode.children.map((it, i) => this.createVNodeAndElement(it, oldVNode?.children[i]))
+      }
     }
-    const element = this.shouldCreateNewElement(vNode, oldVNode?.vNode)
+    const shouldCreateNewElement = this.shouldCreateNewElement(vNode, oldVNode?.vNode);
+    const element = shouldCreateNewElement
       ? this.createHTMLElement(vNode)
-      : (this.updateHTMLElement(oldVNode!.element, vNode), oldVNode!.element);
-    const children = vNode.children.map(it => this.createVNodeAndElement(it));
-    return {
+      : (this.updateHTMLElement(oldVNode!.element!, vNode), oldVNode!.element);
+    const children = vNode.children.map((it, i) => this.createVNodeAndElement(it, oldVNode?.children[i]));
+    const vNodeAndElement = {
       vNode,
       element,
       children,
     };
+    return vNodeAndElement;
+  }
+
+  replaceChildNode(node: VNodeAndHTMLElement, isNewElement: boolean, oldNode?: VNodeAndHTMLElement) {
+    function appendChild(children: HTMLElement) {
+      node.element
+    }
+
+    node.children.forEach((child, i) => {
+      if (isNewElement) {
+        switch (child.vNode.type) {
+          case "array":
+            child.vNode.children.forEach(child => {
+              (node.element as HTMLElement).append(child.element as );
+            });
+          case "text":
+            return (node.element as HTMLElement).append(child.element as Text);
+          case "html":
+            return (node.element as HTMLElement).append(child.element as HTMLElement);
+        }
+      } else {
+
+      }
+    });
   }
 }
 
