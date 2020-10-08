@@ -9,11 +9,18 @@ export const store = createStore<{
   path: location.href.replace("#", ""),
   html: "",
 });
-onRouteChange(href);
+onRouteChange((path) => {
+  href(path);
+  scrollTop();
+});
 fetchMarkdown(`${store.path}.md`);
 export function href(path: string) {
   store.path = path;
   fetchMarkdown(`${path}.md`);
+}
+
+function scrollTop() {
+  setTimeout(() => window.scrollTo({ behavior: "smooth", left: 0, top: 0 }), 100);
 }
 
 async function markedAsync(md: string): Promise<string> {
