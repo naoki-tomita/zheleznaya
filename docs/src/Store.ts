@@ -20,7 +20,7 @@ export function href(path: string) {
 }
 
 function scrollTop() {
-  setTimeout(() => window.scrollTo({ behavior: "smooth", left: 0, top: 0 }), 100);
+  setTimeout(() => window.scrollTo({ behavior: "auto", left: 0, top: 0 }), 100);
 }
 
 async function markedAsync(md: string): Promise<string> {
