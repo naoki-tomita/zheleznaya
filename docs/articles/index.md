@@ -33,8 +33,4 @@ render(<App />);
 
 > Zheleznaya is not production yet.
 
-## how it works?
-
-T.B.D
-
 #### [next ->](#installation)
