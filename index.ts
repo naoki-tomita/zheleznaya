@@ -2,10 +2,6 @@ import { wrap } from "./Settable";
 import { isEquals } from "./Equals";
 import { toKebabCaseFromSnakeCase } from "./Utils";
 
-export interface ErrorPageProps {
-  error: Error;
-}
-
 export type Component<P = any> = (props: P, children: Array<VNode | string>) => VNode;
 type Element = VNode | (() => VNode);
 type RendereableElement = Element | string | number | boolean;
