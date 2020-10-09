@@ -126,7 +126,7 @@ function attributeToString(attr: string | { [key: string]: string }): string {
     return "";
   }
   // style
-  return Object.keys(attr).map(key => `${toKebabCaseFromSnakeCase(key)}=${attr[key]};`).join("")
+  return Object.keys(attr).map(key => `${toKebabCaseFromSnakeCase(key)}: ${attr[key]};`).join("")
 }
 
 function renderHtmlVNodeToText(vNode: RenderedVNode): string {
