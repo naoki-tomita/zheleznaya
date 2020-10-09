@@ -1,5 +1,6 @@
 import { wrap } from "./Settable";
 import { isEquals } from "./Equals";
+import { toKebabCaseFromSnakeCase } from "./Utils";
 
 export type Component<P = any> = (props: P, children: Array<VNode | string>) => VNode;
 type Element = VNode | (() => VNode);
@@ -124,7 +125,8 @@ function attributeToString(attr: string | { [key: string]: string }): string {
   } else if (typeof attr === "function") {
     return "";
   }
-  return Object.keys(attr).map(key => `${key}=${attr[key]};`).join("")
+  // style
+  return Object.keys(attr).map(key => `${key}=${toKebabCaseFromSnakeCase(attr[key])};`).join("")
 }
 
 function renderHtmlVNodeToText(vNode: RenderedVNode): string {

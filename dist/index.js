@@ -13,6 +13,7 @@ var __assign = (this && this.__assign) || function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 var Settable_1 = require("./Settable");
 var Equals_1 = require("./Equals");
+var Utils_1 = require("./Utils");
 function h(name, attributes) {
     var children = [];
     for (var _i = 2; _i < arguments.length; _i++) {
@@ -96,7 +97,8 @@ function attributeToString(attr) {
     else if (typeof attr === "function") {
         return "";
     }
-    return Object.keys(attr).map(function (key) { return key + "=" + attr[key] + ";"; }).join("");
+    // style
+    return Object.keys(attr).map(function (key) { return key + "=" + Utils_1.toKebabCaseFromSnakeCase(attr[key]) + ";"; }).join("");
 }
 function renderHtmlVNodeToText(vNode) {
     var _a;
