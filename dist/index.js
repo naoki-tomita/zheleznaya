@@ -98,7 +98,7 @@ function attributeToString(attr) {
         return "";
     }
     // style
-    return Object.keys(attr).map(function (key) { return key + "=" + Utils_1.toKebabCaseFromSnakeCase(attr[key]) + ";"; }).join("");
+    return Object.keys(attr).map(function (key) { return Utils_1.toKebabCaseFromSnakeCase(key) + "=" + attr[key] + ";"; }).join("");
 }
 function renderHtmlVNodeToText(vNode) {
     var _a;
