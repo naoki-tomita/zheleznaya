@@ -2,7 +2,10 @@ import { wrap } from "./Settable";
 import { isEquals } from "./Equals";
 import { toKebabCaseFromSnakeCase } from "./Utils";
 
-export type Component<P = any> = (props: P, children: Array<VNode | string>) => VNode;
+export type Component<P = any> = (
+  props: P,
+  children: Array<VNode | string>
+) => VNode;
 type Element = VNode | (() => VNode);
 type RendereableElement = Element | string | number | boolean;
 interface VNode {
@@ -58,9 +61,7 @@ export function getStore<T>(): T {
   return store;
 }
 
-function renderChild(
-  child: RendereableElement
-): RenderedVNode {
+function renderChild(child: RendereableElement): RenderedVNode {
   if (typeof child === "function") {
     return renderElement(child());
   } else if (typeof child === "object") {
@@ -69,7 +70,7 @@ function renderChild(
         name: "ArrayNode",
         type: "array",
         attributes: {},
-        children: child.map(item => renderChild(item)) as RenderedVNode[]
+        children: child.map((item) => renderChild(item)) as RenderedVNode[],
       };
     }
     return renderElement(child);
@@ -78,7 +79,7 @@ function renderChild(
       name: child.toString(),
       attributes: {},
       children: [],
-      type: "text"
+      type: "text",
     };
   }
 }
@@ -87,9 +88,9 @@ function renderElement(node: Element): RenderedVNode {
   if (typeof node === "function") node = node();
   return {
     ...node,
-    children: (node.children || []).map(it =>
+    children: (node.children || []).map((it) =>
       renderChild(it as RendereableElement)
-    )
+    ),
   };
 }
 
@@ -115,7 +116,7 @@ function renderVNodeToText(vNode: RenderedVNode | RenderedVNode[]): string {
     case "html":
       return renderHtmlVNodeToText(vNode);
     case "array":
-      return vNode.children.map(renderVNodeToText).join("")
+      return vNode.children.map(renderVNodeToText).join("");
   }
 }
 
@@ -126,23 +127,27 @@ function attributeToString(attr: string | { [key: string]: string }): string {
     return "";
   }
   // style
-  return Object.keys(attr).map(key => `${toKebabCaseFromSnakeCase(key)}: ${attr[key]};`).join("")
+  return Object.keys(attr)
+    .map((key) => `${toKebabCaseFromSnakeCase(key)}: ${attr[key]};`)
+    .join("");
 }
 
 function renderHtmlVNodeToText(vNode: RenderedVNode): string {
   let ref: string | null = null;
   if (typeof vNode.attributes?.ref === "function") {
     const el = {};
-    Object.defineProperty(el, "innerHTML", { set(value: string) { ref = value } });
+    Object.defineProperty(el, "innerHTML", {
+      set(value: string) {
+        ref = value;
+      },
+    });
     vNode.attributes.ref(el);
   }
-  return (
-    `<${vNode.name} ${Object.keys(vNode.attributes || {})
-      .map(key => `${key}="${attributeToString(vNode.attributes![key])}"`).join(" ")
-    }>${
-      ref ?? vNode.children.map(renderVNodeToText).join("")
-    }</${vNode.name}>`
-  );
+  return `<${vNode.name} ${Object.keys(vNode.attributes || {})
+    .map((key) => `${key}="${attributeToString(vNode.attributes![key])}"`)
+    .join(" ")}>${ref ?? vNode.children.map(renderVNodeToText).join("")}</${
+    vNode.name
+  }>`;
 }
 
 let firstRender = true;
@@ -181,7 +186,7 @@ function recycleArrayElement(
   const renderedVNodes: RenderedVNodeWithHTMLElement[] = [];
   // replace or remove child elements.
   if (oldNode?.type === "array") {
-    (oldNode?.element as HTMLElement[])?.forEach(it => {
+    (oldNode?.element as HTMLElement[])?.forEach((it) => {
       parentElement?.removeChild(it);
     });
   } else {
@@ -189,7 +194,7 @@ function recycleArrayElement(
       parentElement?.removeChild(oldNode?.element as HTMLElement);
   }
   oldNode && (oldNode.children = []);
-  node.children.forEach(it => {
+  node.children.forEach((it) => {
     const child = createElement(it as RenderedVNode, undefined, parentElement);
     elements.push(child.element as HTMLElement);
     renderedVNodes.push(child);
@@ -199,7 +204,7 @@ function recycleArrayElement(
     attributes: {},
     type: "array",
     children: renderedVNodes,
-    element: elements
+    element: elements,
   };
 }
 
@@ -217,7 +222,7 @@ function recycleNodeElement(
     if (!isEquals(node.name, oldNode.name)) {
       const newElement = document.createElement(node.name);
       if (oldNode.type === "array") {
-        oldNode?.element?.forEach(it => parentElement?.removeChild(it));
+        oldNode?.element?.forEach((it) => parentElement?.removeChild(it));
         parentElement?.append(newElement);
       } else {
         parentElement?.replaceChild(newElement, oldNode.element as HTMLElement);
@@ -231,11 +236,11 @@ function recycleNodeElement(
 
   // attributes
   const { attributes } = node;
-  Object.keys(attributes || {}).forEach(key => {
+  Object.keys(attributes || {}).forEach((key) => {
     const attribute = attributes![key];
     if (key === "style") {
       Object.keys(attribute).forEach(
-        key => ((element.style as any)[key] = attribute[key])
+        (key) => ((element.style as any)[key] = attribute[key])
       );
     } else if (key.startsWith("on")) {
       (element as any)[key] = attribute;
@@ -261,7 +266,7 @@ function recycleNodeElement(
     if (childVNode.type === "array") {
       // arrayの場合は常に再生成する(めんどいので。いつかkey対応するのでしょう)
       element.append(
-        ...childVNode.children.map(it => it.element as string | HTMLElement)
+        ...childVNode.children.map((it) => it.element as string | HTMLElement)
       );
     } else if (!oldChild?.element) {
       // arrayじゃない場合のエレメント追加処理
@@ -271,7 +276,10 @@ function recycleNodeElement(
     if (oldChild?.type === "text") {
       // テキストノードの更新処理
       // テキストノード以外は、createElementの中でやっているからいらない
-      element.replaceChild(childVNode.element as Text, element.childNodes.item(i));
+      element.replaceChild(
+        childVNode.element as Text,
+        element.childNodes.item(i)
+      );
     }
     children.push(childVNode);
   }

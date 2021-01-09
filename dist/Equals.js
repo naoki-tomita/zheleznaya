@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.range = exports.isEquals = void 0;
 function isEquals(left, right) {
     if (typeof left !== typeof right) {
         return false;
@@ -33,7 +34,7 @@ function isArrayEquals(left, right) {
 function isObjectEquals(left, right) {
     var _a = [
         Object.keys(left).sort(),
-        Object.keys(right).sort()
+        Object.keys(right).sort(),
     ], leftKeys = _a[0], rightKeys = _a[1];
     if (!isArrayEquals(leftKeys, rightKeys)) {
         return false;

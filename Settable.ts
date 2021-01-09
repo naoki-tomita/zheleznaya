@@ -5,9 +5,7 @@ interface Settable<T> {
   __cb__: Array<() => void>;
 }
 
-export function wrap<T>(
-  obj: T
-): T extends object ? T & Settable<T> : T {
+export function wrap<T>(obj: T): T extends object ? T & Settable<T> : T {
   if (
     typeof obj === "string" ||
     typeof obj === "number" ||
@@ -32,12 +30,12 @@ export function wrap<T>(
       },
       __emit__() {
         this.__cb__.forEach((it: () => void) => it());
-      }
+      },
     } as any;
   }
 
   const original: any = {};
-  Object.keys(obj).forEach(key => {
+  Object.keys(obj).forEach((key) => {
     if (typeof (obj as any)[key] === "object") {
       original[key] = wrap((obj as any)[key]);
       original[key].__on__(() => settable.__emit__());
@@ -52,10 +50,10 @@ export function wrap<T>(
     },
     __cb__: [] as Array<() => void>,
     __emit__() {
-      this.__cb__.forEach(it => it());
-    }
+      this.__cb__.forEach((it) => it());
+    },
   };
-  Object.keys(obj).forEach(key => {
+  Object.keys(obj).forEach((key) => {
     Object.defineProperty(settable, key, {
       set(prop: any) {
         this.__original__[key] =
@@ -68,7 +66,7 @@ export function wrap<T>(
       },
       get() {
         return this.__original__[key];
-      }
+      },
     });
   });
   return settable as any;

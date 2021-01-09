@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.wrap = void 0;
 function wrap(obj) {
     if (typeof obj === "string" ||
         typeof obj === "number" ||
@@ -27,7 +28,7 @@ function wrap(obj) {
             },
             __emit__: function () {
                 this.__cb__.forEach(function (it) { return it(); });
-            }
+            },
         };
     }
     var original = {};
@@ -48,7 +49,7 @@ function wrap(obj) {
         __cb__: [],
         __emit__: function () {
             this.__cb__.forEach(function (it) { return it(); });
-        }
+        },
     };
     Object.keys(obj).forEach(function (key) {
         Object.defineProperty(settable, key, {
@@ -64,7 +65,7 @@ function wrap(obj) {
             },
             get: function () {
                 return this.__original__[key];
-            }
+            },
         });
     });
     return settable;
