@@ -1,28 +1,17 @@
-export declare type Component<P = any> = (props: P, children: Array<VNode | string>) => VNode;
-declare type Element = VNode | (() => VNode);
-declare type RendereableElement = Element | string | number | boolean;
-interface VNode {
-    name: string;
-    type: "text" | "html" | "array";
-    attributes: {
-        [key: string]: any;
-    } | null;
-    children: Array<RendereableElement | RendereableElement[]>;
+interface Attribute {
+    [key: string]: any;
 }
-export declare function h(name: Component | string, attributes: any | null, ...children: Array<VNode | string>): Element;
-export declare function createStore<T>(initialValue: T): T;
-export declare function getStore<T>(): T;
-export declare function render(nodeElement: Element, rootElement?: HTMLElement): void;
-export declare function renderToText(nodeElement: Element): string;
+interface RawVNode {
+    name: string;
+    attributes: Attribute;
+    children: RawVNode[];
+}
+declare type Component = (attributes: Attribute, children: Array<RawVNode | string>) => any;
+export declare function h(name: string | Component, attributes: Attribute, ...children: Array<RawVNode | string>): RawVNode;
+export declare function render(vnode: RawVNode): void;
 declare type Attributes<T extends HTMLElement> = {
     [U in keyof T]?: T[U];
-} | AttributesOverwrite<T>;
-interface AttributesOverwrite<T extends HTMLElement> {
-    children?: Array<VNode | string>;
-    class?: string;
-    style?: Partial<CSSStyleDeclaration> | string;
-    ref?: (el: T) => void;
-}
+};
 declare global {
     namespace JSX {
         interface IntrinsicElements {
