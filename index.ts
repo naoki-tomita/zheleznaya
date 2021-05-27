@@ -24,28 +24,65 @@ export function h(
     : name(attributes, children);
 }
 
-export function render(vnode: RawVNode) {
-  const elements = createElement(vnode);
-  document.body.append(elements);
+class State {
+  cbs: Array<() => void> = [];
+  _state: any = {};
+  setState(key: string, value: any) {
+    this._state[key] = value;
+    this.cbs.forEach(cb => cb());
+  }
+
+  getState(key: string): any {
+    return this._state[key];
+  }
+
+  onUpdate(cb: () => void) {
+    console.log(this._state);
+    this.cbs.push(cb);
+  }
 }
 
+export const state = new State();
+
 function createElement(node: RawVNode | string): HTMLElement | Text {
-  if (typeof node === "string") {
-    return document.createTextNode(node);
+  if (typeof node !== "object") {
+    return document.createTextNode(node.toString());
   }
   const { name, attributes, children } = node;
-  const el = document.createElement(name);
-  Object.entries(attributes).map(([key, value]) => {
-    el.setAttribute(key, value);
-  });
+  const el = Object.entries(attributes).reduce((el, [key, value]) => {
+    if (key === "style") {
+      Object.entries(value).forEach(([key, value]) => ((el.style as any)[key] = value))
+    } else if (key.startsWith("on")) {
+      (el as any)[key] = value;
+    } else {
+      el.setAttribute(key, value);
+    }
+    return el;
+  }, document.createElement(name));
   const childEls = children.map(createElement);
   el.append(...childEls);
   return el;
 }
 
+export function render(vnode: RawVNode) {
+  let root: HTMLElement | Text = document.createElement("div");
+  const holder = document.body;
+  holder.append(root);
+  function rerender() {
+    const newRoot = createElement(vnode);
+    holder.replaceChild(newRoot, root);
+    root = newRoot;
+  }
+  state.onUpdate(rerender);
+  rerender();
+}
 type Attributes<T extends HTMLElement> = {
   [U in keyof T]?: T[U];
-};
+} | {
+  children?: Array<RawVNode | string>;
+  class?: string;
+  style?: Partial<CSSStyleDeclaration> | string;
+}
 
 declare global {
   namespace JSX {

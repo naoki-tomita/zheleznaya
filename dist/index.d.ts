@@ -8,9 +8,21 @@ interface RawVNode {
 }
 declare type Component = (attributes: Attribute, children: Array<RawVNode | string>) => any;
 export declare function h(name: string | Component, attributes: Attribute, ...children: Array<RawVNode | string>): RawVNode;
+declare class State {
+    cbs: Array<() => void>;
+    _state: any;
+    setState(key: string, value: any): void;
+    getState(key: string): any;
+    onUpdate(cb: () => void): void;
+}
+export declare const state: State;
 export declare function render(vnode: RawVNode): void;
 declare type Attributes<T extends HTMLElement> = {
     [U in keyof T]?: T[U];
+} | {
+    children?: Array<RawVNode | string>;
+    class?: string;
+    style?: Partial<CSSStyleDeclaration> | string;
 };
 declare global {
     namespace JSX {

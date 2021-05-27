@@ -26,7 +26,7 @@
     "../dist/index.js"(exports) {
       "use strict";
       Object.defineProperty(exports, "__esModule", { value: true });
-      exports.render = exports.h = void 0;
+      exports.render = exports.state = exports.h = void 0;
       function h2(name, attributes) {
         var children = [];
         for (var _i = 2; _i < arguments.length; _i++) {
@@ -35,29 +35,94 @@
         return typeof name === "string" ? { name, attributes: attributes !== null && attributes !== void 0 ? attributes : {}, children: children !== null && children !== void 0 ? children : [] } : name(attributes, children);
       }
       exports.h = h2;
-      function render2(vnode) {
-        var elements = createElement(vnode);
-        document.body.append(elements);
-      }
-      exports.render = render2;
+      var State = function() {
+        function State2() {
+          this.cbs = [];
+          this._state = {};
+        }
+        State2.prototype.setState = function(key, value) {
+          this._state[key] = value;
+          this.cbs.forEach(function(cb) {
+            return cb();
+          });
+        };
+        State2.prototype.getState = function(key) {
+          return this._state[key];
+        };
+        State2.prototype.onUpdate = function(cb) {
+          console.log(this._state);
+          this.cbs.push(cb);
+        };
+        return State2;
+      }();
+      exports.state = new State();
       function createElement(node) {
-        if (typeof node === "string") {
-          return document.createTextNode(node);
+        if (typeof node !== "object") {
+          return document.createTextNode(node.toString());
         }
         var name = node.name, attributes = node.attributes, children = node.children;
-        var el = document.createElement(name);
-        Object.entries(attributes).map(function(_a) {
+        var el = Object.entries(attributes).reduce(function(el2, _a) {
           var key = _a[0], value = _a[1];
-          el.setAttribute(key, value);
-        });
+          if (key === "style") {
+            Object.entries(value).forEach(function(_a2) {
+              var key2 = _a2[0], value2 = _a2[1];
+              return el2.style[key2] = value2;
+            });
+          } else if (key.startsWith("on")) {
+            el2[key] = value;
+          } else {
+            el2.setAttribute(key, value);
+          }
+          return el2;
+        }, document.createElement(name));
         var childEls = children.map(createElement);
         el.append.apply(el, childEls);
         return el;
       }
+      function render2(vnode) {
+        var root = document.createElement("div");
+        var holder = document.body;
+        holder.append(root);
+        function rerender() {
+          var newRoot = createElement(vnode);
+          holder.replaceChild(newRoot, root);
+          root = newRoot;
+        }
+        exports.state.onUpdate(rerender);
+        rerender();
+      }
+      exports.render = render2;
     }
   });
 
   // sample.tsx
   var import_zheleznaya = __toModule(require_dist());
-  (0, import_zheleznaya.render)(/* @__PURE__ */ (0, import_zheleznaya.h)("div", null, /* @__PURE__ */ (0, import_zheleznaya.h)("ul", null, /* @__PURE__ */ (0, import_zheleznaya.h)("li", null, "a"), /* @__PURE__ */ (0, import_zheleznaya.h)("li", null, "b"), /* @__PURE__ */ (0, import_zheleznaya.h)("li", null, "c")), /* @__PURE__ */ (0, import_zheleznaya.h)("span", null, "hoge"), ":", /* @__PURE__ */ (0, import_zheleznaya.h)("span", null, "fuga")));
+  function main() {
+    function setCount(count) {
+      import_zheleznaya.state.setState("count", count);
+    }
+    function getCount() {
+      return import_zheleznaya.state.getState("count") ?? 0;
+    }
+    function incrementCount() {
+      setCount(getCount() + 1);
+    }
+    (0, import_zheleznaya.render)(/* @__PURE__ */ (0, import_zheleznaya.h)("div", {
+      className: "foo bar"
+    }, /* @__PURE__ */ (0, import_zheleznaya.h)("ul", {
+      style: { color: "blue", display: "flex", listStyle: "none", margin: "0", padding: "0" }
+    }, /* @__PURE__ */ (0, import_zheleznaya.h)("li", {
+      style: { display: "block" },
+      id: "foo"
+    }, "a"), /* @__PURE__ */ (0, import_zheleznaya.h)("li", {
+      style: { display: "block" },
+      id: "bar"
+    }, "b"), /* @__PURE__ */ (0, import_zheleznaya.h)("li", {
+      style: { display: "block" },
+      id: "hoge"
+    }, "c")), /* @__PURE__ */ (0, import_zheleznaya.h)("span", null, "hoge"), ":", /* @__PURE__ */ (0, import_zheleznaya.h)("span", null, getCount()), /* @__PURE__ */ (0, import_zheleznaya.h)("button", {
+      onclick: incrementCount
+    }, "click")));
+  }
+  main();
 })();
