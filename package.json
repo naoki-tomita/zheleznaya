@@ -1,6 +1,6 @@
 {
   "name": "zheleznaya",
-  "version": "0.1.16",
+  "version": "0.1.18",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "repository": "https://github.com/naoki-tomita/zheleznaya",
