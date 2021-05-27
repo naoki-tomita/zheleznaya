@@ -155,7 +155,8 @@ function recycleArrayElement(node, oldNode, parentElement) {
         });
     }
     else {
-        (oldNode === null || oldNode === void 0 ? void 0 : oldNode.element) && (parentElement === null || parentElement === void 0 ? void 0 : parentElement.removeChild(oldNode === null || oldNode === void 0 ? void 0 : oldNode.element));
+        (oldNode === null || oldNode === void 0 ? void 0 : oldNode.element) &&
+            (parentElement === null || parentElement === void 0 ? void 0 : parentElement.removeChild(oldNode === null || oldNode === void 0 ? void 0 : oldNode.element));
     }
     oldNode && (oldNode.children = []);
     node.children.forEach(function (it) {

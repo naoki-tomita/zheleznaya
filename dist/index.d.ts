@@ -18,7 +18,7 @@ declare type Attributes<T extends HTMLElement> = {
     [U in keyof T]?: T[U];
 } | AttributesOverwrite<T>;
 interface AttributesOverwrite<T extends HTMLElement> {
-    children?: Array<VNode | string>;
+    children?: Array<RendereableElement | RendereableElement[]> | RendereableElement;
     class?: string;
     style?: Partial<CSSStyleDeclaration> | string;
     ref?: (el: T) => void;
@@ -37,7 +37,6 @@ declare global {
             audio: Attributes<HTMLAudioElement>;
             b: Attributes<HTMLDivElement>;
             base: Attributes<HTMLBaseElement>;
-            basefont: Attributes<HTMLBaseFontElement>;
             bdi: Attributes<HTMLDivElement>;
             bdo: Attributes<HTMLDivElement>;
             big: Attributes<HTMLDivElement>;
@@ -149,6 +148,7 @@ declare global {
             video: Attributes<HTMLVideoElement>;
             wbr: Attributes<HTMLDivElement>;
         }
+        type Element = VNode;
     }
 }
 export {};
