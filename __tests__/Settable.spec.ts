@@ -55,5 +55,23 @@ describe("Settable", () => {
       expect(spy).toBeCalledTimes(2);
       expect(obj.foo.bar).toBe("foo");
     });
+
+    it("should provide array function when settable array", () => {
+      const obj = wrap({ array: [] });
+      expect(obj.array.push).toBeDefined();
+      expect(obj.array.map).toBeDefined();
+      expect(obj.array.includes).toBeDefined();
+      expect(obj.array.filter).toBeDefined();
+      expect(obj.array.splice).toBeDefined();
+    });
+
+    it("should emit array function when settable array", () => {
+      const obj = wrap<{ array: string[] }>({ array: [] });
+      const spy = jest.fn();
+      obj.__on__(spy);
+
+      obj.array.push("foo");
+      expect(spy).toBeCalled();
+    });
   });
 });

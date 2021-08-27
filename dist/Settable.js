@@ -19,8 +19,37 @@ function wrap(obj) {
                 (_a = this.__original__).push.apply(_a, items);
                 this.__emit__();
             },
-            map: function (pred) {
-                return this.__original__.map(pred);
+            map: function () {
+                var _a;
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i] = arguments[_i];
+                }
+                return (_a = this.__original__).map.apply(_a, args);
+            },
+            includes: function () {
+                var _a;
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i] = arguments[_i];
+                }
+                return (_a = this.__original__).includes.apply(_a, args);
+            },
+            filter: function () {
+                var _a;
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i] = arguments[_i];
+                }
+                return (_a = this.__original__).filter.apply(_a, args);
+            },
+            splice: function () {
+                var _a;
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i] = arguments[_i];
+                }
+                return (_a = this.__original__).splice.apply(_a, args);
             },
             __cb__: [],
             __on__: function (cb) {

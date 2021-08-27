@@ -20,9 +20,19 @@ export function wrap<T>(obj: T): T extends object ? T & Settable<T> : T {
         this.__original__.push(...items);
         this.__emit__();
       },
-
-      map(pred: any) {
-        return this.__original__.map(pred);
+      map(...args: any[]) {
+        return this.__original__.map(...args);
+      },
+      includes(...args: any[]) {
+        return this.__original__.includes(...args);
+      },
+      filter(...args: any[]) {
+        return this.__original__.filter(...args);
+      },
+      splice(...args: any[]) {
+        const result = this.__original__.splice(...args)
+        this.__emit__();
+        return result;
       },
       __cb__: [] as Array<() => void>,
       __on__(cb: () => void) {

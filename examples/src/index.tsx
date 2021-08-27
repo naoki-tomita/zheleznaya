@@ -31,11 +31,13 @@ const MyComponent = (props: { key: string }) => {
 }
 
 const App = () => {
+  const check = store.check ? "checked" : undefined;
   return (
     <div class="my-class">
       <div><input oninput={e => store.foo = (e as any).target.value} value={store.foo} /></div>
       <div>{store.foo}</div>
       <div><input onchange={() => store.check = !store.check} type="checkbox" checked={store.check}/></div>
+      <div>{check && check.toUpperCase()}</div>
       <div><button onclick={() => store.count++} >+1</button></div><div><button onclick={() => store.count--} >-1</button></div>
       <div style={{ backgroundColor: "black", color: "white" }} >{store.count}</div>
       <MyComponent key="hello" />

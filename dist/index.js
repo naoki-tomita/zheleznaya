@@ -27,7 +27,7 @@ function h(name, attributes) {
 exports.h = h;
 var store = {};
 function createStore(initialValue) {
-    return (store = Settable_1.wrap(initialValue));
+    return (store = (0, Settable_1.wrap)(initialValue));
 }
 exports.createStore = createStore;
 function getStore() {
@@ -35,6 +35,7 @@ function getStore() {
 }
 exports.getStore = getStore;
 function renderChild(child) {
+    var _a;
     if (typeof child === "function") {
         return renderElement(child());
     }
@@ -51,7 +52,7 @@ function renderChild(child) {
     }
     else {
         return {
-            name: child.toString(),
+            name: (_a = child === null || child === void 0 ? void 0 : child.toString()) !== null && _a !== void 0 ? _a : "",
             attributes: {},
             children: [],
             type: "text",
@@ -100,7 +101,7 @@ function attributeToString(attr) {
     }
     // style
     return Object.keys(attr)
-        .map(function (key) { return Utils_1.toKebabCaseFromSnakeCase(key) + ": " + attr[key] + ";"; })
+        .map(function (key) { return (0, Utils_1.toKebabCaseFromSnakeCase)(key) + ": " + attr[key] + ";"; })
         .join("");
 }
 function renderHtmlVNodeToText(vNode) {
@@ -180,7 +181,7 @@ function recycleNodeElement(node, oldNode, parentElement) {
     if ((oldNode === null || oldNode === void 0 ? void 0 : oldNode.element) != null) {
         element = oldNode.element;
         // replace or remove child elements.
-        if (!Equals_1.isEquals(node.name, oldNode.name)) {
+        if (!(0, Equals_1.isEquals)(node.name, oldNode.name)) {
             var newElement = document.createElement(node.name);
             if (oldNode.type === "array") {
                 (_a = oldNode === null || oldNode === void 0 ? void 0 : oldNode.element) === null || _a === void 0 ? void 0 : _a.forEach(function (it) { return parentElement === null || parentElement === void 0 ? void 0 : parentElement.removeChild(it); });

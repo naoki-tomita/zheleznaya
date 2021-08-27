@@ -76,7 +76,7 @@ function renderChild(child: RendereableElement): RenderedVNode {
     return renderElement(child);
   } else {
     return {
-      name: child.toString(),
+      name: child?.toString() ?? "",
       attributes: {},
       children: [],
       type: "text",
@@ -325,7 +325,6 @@ declare global {
       abbr: Attributes<HTMLDivElement>;
       acronym: Attributes<HTMLDivElement>;
       address: Attributes<HTMLDivElement>;
-      applet: Attributes<HTMLAppletElement>;
       area: Attributes<HTMLAreaElement>;
       article: Attributes<HTMLDivElement>;
       aside: Attributes<HTMLDivElement>;

@@ -30,7 +30,6 @@ declare global {
             abbr: Attributes<HTMLDivElement>;
             acronym: Attributes<HTMLDivElement>;
             address: Attributes<HTMLDivElement>;
-            applet: Attributes<HTMLAppletElement>;
             area: Attributes<HTMLAreaElement>;
             article: Attributes<HTMLDivElement>;
             aside: Attributes<HTMLDivElement>;
