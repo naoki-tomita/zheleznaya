@@ -27,26 +27,26 @@ function isArrayEquals(left, right) {
     if (left.length !== right.length) {
         return false;
     }
-    return range(left.length).every(function (index) {
+    return range(left.length).every((index) => {
         return isEquals(left[index], right[index]);
     });
 }
 function isObjectEquals(left, right) {
-    var _a = [
+    const [leftKeys, rightKeys] = [
         Object.keys(left).sort(),
         Object.keys(right).sort(),
-    ], leftKeys = _a[0], rightKeys = _a[1];
+    ];
     if (!isArrayEquals(leftKeys, rightKeys)) {
         return false;
     }
-    return leftKeys.every(function (key) {
+    return leftKeys.every((key) => {
         return isEquals(left[key], right[key]);
     });
 }
 function range(size) {
     return Array(size)
         .fill(null)
-        .map(function (_, i) { return i; });
+        .map((_, i) => i);
 }
 exports.range = range;
 //# sourceMappingURL=Equals.js.map

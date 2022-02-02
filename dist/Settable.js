@@ -10,91 +10,65 @@ function wrap(obj) {
     if (Array.isArray(obj)) {
         return {
             __original__: obj,
-            push: function () {
-                var _a;
-                var items = [];
-                for (var _i = 0; _i < arguments.length; _i++) {
-                    items[_i] = arguments[_i];
-                }
-                (_a = this.__original__).push.apply(_a, items);
+            push(...items) {
+                this.__original__.push(...items);
                 this.__emit__();
             },
-            map: function () {
-                var _a;
-                var args = [];
-                for (var _i = 0; _i < arguments.length; _i++) {
-                    args[_i] = arguments[_i];
-                }
-                return (_a = this.__original__).map.apply(_a, args);
+            map(...args) {
+                return this.__original__.map(...args);
             },
-            includes: function () {
-                var _a;
-                var args = [];
-                for (var _i = 0; _i < arguments.length; _i++) {
-                    args[_i] = arguments[_i];
-                }
-                return (_a = this.__original__).includes.apply(_a, args);
+            includes(...args) {
+                return this.__original__.includes(...args);
             },
-            filter: function () {
-                var _a;
-                var args = [];
-                for (var _i = 0; _i < arguments.length; _i++) {
-                    args[_i] = arguments[_i];
-                }
-                return (_a = this.__original__).filter.apply(_a, args);
+            filter(...args) {
+                return this.__original__.filter(...args);
             },
-            splice: function () {
-                var _a;
-                var args = [];
-                for (var _i = 0; _i < arguments.length; _i++) {
-                    args[_i] = arguments[_i];
-                }
-                var result = (_a = this.__original__).splice.apply(_a, args);
+            splice(...args) {
+                const result = this.__original__.splice(...args);
                 this.__emit__();
                 return result;
             },
             __cb__: [],
-            __on__: function (cb) {
+            __on__(cb) {
                 this.__cb__.push(cb);
             },
-            __emit__: function () {
-                this.__cb__.forEach(function (it) { return it(); });
+            __emit__() {
+                this.__cb__.forEach((it) => it());
             },
         };
     }
-    var original = {};
-    Object.keys(obj).forEach(function (key) {
+    const original = {};
+    Object.keys(obj).forEach((key) => {
         if (typeof obj[key] === "object") {
             original[key] = wrap(obj[key]);
-            original[key].__on__(function () { return settable.__emit__(); });
+            original[key].__on__(() => settable.__emit__());
         }
         else {
             original[key] = obj[key];
         }
     });
-    var settable = {
+    const settable = {
         __original__: original,
-        __on__: function (cb) {
+        __on__(cb) {
             this.__cb__.push(cb);
         },
         __cb__: [],
-        __emit__: function () {
-            this.__cb__.forEach(function (it) { return it(); });
+        __emit__() {
+            this.__cb__.forEach((it) => it());
         },
     };
-    Object.keys(obj).forEach(function (key) {
+    Object.keys(obj).forEach((key) => {
         Object.defineProperty(settable, key, {
-            set: function (prop) {
-                var _this = this;
+            set(prop) {
                 this.__original__[key] =
                     typeof prop === "object" && prop !== null
                         ? wrap(prop.__original__ || prop)
                         : prop;
                 this.__original__[key].__on__ &&
-                    this.__original__[key].__on__(function () { return _this.__emit__(); });
+                    this.__original__[key].__on__(() => this.__emit__());
                 this.__emit__();
             },
-            get: function () {
+            get() {
                 return this.__original__[key];
             },
         });

@@ -1,31 +1,16 @@
 "use strict";
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.renderToText = exports.render = exports.useStore = exports.getStore = exports.createStore = exports.h = void 0;
-var Settable_1 = require("./Settable");
-var Equals_1 = require("./Equals");
-var Utils_1 = require("./Utils");
-function h(name, attributes) {
-    var children = [];
-    for (var _i = 2; _i < arguments.length; _i++) {
-        children[_i - 2] = arguments[_i];
-    }
+const Settable_1 = require("./Settable");
+const Equals_1 = require("./Equals");
+const Utils_1 = require("./Utils");
+function h(name, attributes, ...children) {
     return typeof name === "string"
-        ? { name: name, attributes: attributes, children: children, type: "html" }
-        : function () { return name(attributes, children); };
+        ? { name, attributes, children, type: "html" }
+        : () => name(attributes, children);
 }
 exports.h = h;
-var store = {};
+let store = {};
 function createStore(initialValue) {
     return (store = (0, Settable_1.wrap)(initialValue));
 }
@@ -43,7 +28,6 @@ function useStore(initialValue) {
 }
 exports.useStore = useStore;
 function renderChild(child) {
-    var _a;
     if (typeof child === "function") {
         return renderElement(child());
     }
@@ -53,14 +37,14 @@ function renderChild(child) {
                 name: "ArrayNode",
                 type: "array",
                 attributes: {},
-                children: child.map(function (item) { return renderChild(item); }),
+                children: child.map((item) => renderChild(item)),
             };
         }
         return renderElement(child);
     }
     else {
         return {
-            name: (_a = child === null || child === void 0 ? void 0 : child.toString()) !== null && _a !== void 0 ? _a : "",
+            name: child?.toString() ?? "",
             attributes: {},
             children: [],
             type: "text",
@@ -70,20 +54,20 @@ function renderChild(child) {
 function renderElement(node) {
     if (typeof node === "function")
         node = node();
-    return __assign(__assign({}, node), { children: (node.children || []).map(function (it) {
-            return renderChild(it);
-        }) });
+    return {
+        ...node,
+        children: (node.children || []).map((it) => renderChild(it)),
+    };
 }
-var root;
+let root;
 function render(nodeElement, rootElement) {
-    var _a;
     rootElement && (root = rootElement);
     rerender(nodeElement);
-    (_a = store.__on__) === null || _a === void 0 ? void 0 : _a.call(store, function () { return rerender(nodeElement); });
+    store.__on__?.(() => rerender(nodeElement));
 }
 exports.render = render;
 function renderToText(nodeElement) {
-    var nodes = renderElement(nodeElement);
+    const nodes = renderElement(nodeElement);
     return renderVNodeToText(nodes);
 }
 exports.renderToText = renderToText;
@@ -109,30 +93,29 @@ function attributeToString(attr) {
     }
     // style
     return Object.keys(attr)
-        .map(function (key) { return "".concat((0, Utils_1.toKebabCaseFromSnakeCase)(key), ": ").concat(attr[key], ";"); })
+        .map((key) => `${(0, Utils_1.toKebabCaseFromSnakeCase)(key)}: ${attr[key]};`)
         .join("");
 }
 function renderHtmlVNodeToText(vNode) {
-    var _a;
-    var ref = null;
-    if (typeof ((_a = vNode.attributes) === null || _a === void 0 ? void 0 : _a.ref) === "function") {
-        var el = {};
+    let ref = null;
+    if (typeof vNode.attributes?.ref === "function") {
+        const el = {};
         Object.defineProperty(el, "innerHTML", {
-            set: function (value) {
+            set(value) {
                 ref = value;
             },
         });
         vNode.attributes.ref(el);
     }
-    return "<".concat(vNode.name, " ").concat(Object.keys(vNode.attributes || {})
-        .map(function (key) { return "".concat(key, "=\"").concat(attributeToString(vNode.attributes[key]), "\""); })
-        .join(" "), ">").concat(ref !== null && ref !== void 0 ? ref : vNode.children.map(renderVNodeToText).join(""), "</").concat(vNode.name, ">");
+    return `<${vNode.name} ${Object.keys(vNode.attributes || {})
+        .map((key) => `${key}="${attributeToString(vNode.attributes[key])}"`)
+        .join(" ")}>${ref ?? vNode.children.map(renderVNodeToText).join("")}</${vNode.name}>`;
 }
-var firstRender = true;
-var _oldNode;
+let firstRender = true;
+let _oldNode;
 function rerender(nodeElement) {
-    var renderedNode = renderElement(nodeElement);
-    var completedVNode = createRootElement(renderedNode);
+    const renderedNode = renderElement(nodeElement);
+    const completedVNode = createRootElement(renderedNode);
     _oldNode = completedVNode;
     if (firstRender) {
         if (!root) {
@@ -154,22 +137,21 @@ function recycleTextElement(node) {
     };
 }
 function recycleArrayElement(node, oldNode, parentElement) {
-    var _a;
-    var elements = [];
-    var renderedVNodes = [];
+    const elements = [];
+    const renderedVNodes = [];
     // replace or remove child elements.
-    if ((oldNode === null || oldNode === void 0 ? void 0 : oldNode.type) === "array") {
-        (_a = oldNode === null || oldNode === void 0 ? void 0 : oldNode.element) === null || _a === void 0 ? void 0 : _a.forEach(function (it) {
-            parentElement === null || parentElement === void 0 ? void 0 : parentElement.removeChild(it);
+    if (oldNode?.type === "array") {
+        oldNode?.element?.forEach((it) => {
+            parentElement?.removeChild(it);
         });
     }
     else {
-        (oldNode === null || oldNode === void 0 ? void 0 : oldNode.element) &&
-            (parentElement === null || parentElement === void 0 ? void 0 : parentElement.removeChild(oldNode === null || oldNode === void 0 ? void 0 : oldNode.element));
+        oldNode?.element &&
+            parentElement?.removeChild(oldNode?.element);
     }
     oldNode && (oldNode.children = []);
-    node.children.forEach(function (it) {
-        var child = createElement(it, undefined, parentElement);
+    node.children.forEach((it) => {
+        const child = createElement(it, undefined, parentElement);
         elements.push(child.element);
         renderedVNodes.push(child);
     });
@@ -182,21 +164,20 @@ function recycleArrayElement(node, oldNode, parentElement) {
     };
 }
 function recycleNodeElement(node, oldNode, parentElement) {
-    var _a;
     // standard node.
     // element
-    var element;
-    if ((oldNode === null || oldNode === void 0 ? void 0 : oldNode.element) != null) {
+    let element;
+    if (oldNode?.element != null) {
         element = oldNode.element;
         // replace or remove child elements.
         if (!(0, Equals_1.isEquals)(node.name, oldNode.name)) {
-            var newElement = document.createElement(node.name);
+            const newElement = document.createElement(node.name);
             if (oldNode.type === "array") {
-                (_a = oldNode === null || oldNode === void 0 ? void 0 : oldNode.element) === null || _a === void 0 ? void 0 : _a.forEach(function (it) { return parentElement === null || parentElement === void 0 ? void 0 : parentElement.removeChild(it); });
-                parentElement === null || parentElement === void 0 ? void 0 : parentElement.append(newElement);
+                oldNode?.element?.forEach((it) => parentElement?.removeChild(it));
+                parentElement?.append(newElement);
             }
             else {
-                parentElement === null || parentElement === void 0 ? void 0 : parentElement.replaceChild(newElement, oldNode.element);
+                parentElement?.replaceChild(newElement, oldNode.element);
             }
             oldNode.children = [];
             element = newElement;
@@ -206,11 +187,11 @@ function recycleNodeElement(node, oldNode, parentElement) {
         element = document.createElement(node.name);
     }
     // attributes
-    var attributes = node.attributes;
-    Object.keys(attributes || {}).forEach(function (key) {
-        var attribute = attributes[key];
+    const { attributes } = node;
+    Object.keys(attributes || {}).forEach((key) => {
+        const attribute = attributes[key];
         if (key === "style") {
-            Object.keys(attribute).forEach(function (key) { return (element.style[key] = attribute[key]); });
+            Object.keys(attribute).forEach((key) => (element.style[key] = attribute[key]));
         }
         else if (key.startsWith("on")) {
             element[key] = attribute;
@@ -229,28 +210,28 @@ function recycleNodeElement(node, oldNode, parentElement) {
         }
     });
     // children
-    var children = [];
-    for (var i = 0; i < node.children.length; i++) {
-        var child = node.children[i];
-        var oldChild = oldNode === null || oldNode === void 0 ? void 0 : oldNode.children[i];
-        var childVNode = createElement(child, oldChild, element);
+    const children = [];
+    for (let i = 0; i < node.children.length; i++) {
+        const child = node.children[i];
+        const oldChild = oldNode?.children[i];
+        const childVNode = createElement(child, oldChild, element);
         // エレメントをdocumentに追加する
         if (childVNode.type === "array") {
             // arrayの場合は常に再生成する(めんどいので。いつかkey対応するのでしょう)
-            element.append.apply(element, childVNode.children.map(function (it) { return it.element; }));
+            element.append(...childVNode.children.map((it) => it.element));
         }
-        else if (!(oldChild === null || oldChild === void 0 ? void 0 : oldChild.element)) {
+        else if (!oldChild?.element) {
             // arrayじゃない場合のエレメント追加処理
             element.append(childVNode.element);
         }
-        if ((oldChild === null || oldChild === void 0 ? void 0 : oldChild.type) === "text") {
+        if (oldChild?.type === "text") {
             // テキストノードの更新処理
             // テキストノード以外は、createElementの中でやっているからいらない
             element.replaceChild(childVNode.element, element.childNodes.item(i));
         }
         children.push(childVNode);
     }
-    return __assign(__assign({}, node), { type: "html", element: element, children: children });
+    return { ...node, type: "html", element, children };
 }
 function createElement(node, oldNode, parentElement) {
     switch (node.type) {
