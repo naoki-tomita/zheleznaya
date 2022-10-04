@@ -6,10 +6,10 @@
   "repository": "https://github.com/naoki-tomita/zheleznaya",
   "license": "MIT",
   "devDependencies": {
+    "@types/jest": "^27.0.1",
     "jest": "^27.0.6",
     "ts-jest": "^27.0.5",
-    "typescript": "^4.4.2",
-    "@types/jest": "^27.0.1"
+    "typescript": "^4.8.4"
   },
   "scripts": {
     "build": "tsc",

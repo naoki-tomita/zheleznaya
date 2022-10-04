@@ -5,7 +5,7 @@ var UPPER_CHAR = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 function toKebabCaseFromSnakeCase(kebabCase) {
     return kebabCase
         .split("")
-        .map(function (it) { return (UPPER_CHAR.includes(it) ? "-" + it.toLowerCase() : it); })
+        .map(function (it) { return (UPPER_CHAR.includes(it) ? "-".concat(it.toLowerCase()) : it); })
         .join("");
 }
 exports.toKebabCaseFromSnakeCase = toKebabCaseFromSnakeCase;

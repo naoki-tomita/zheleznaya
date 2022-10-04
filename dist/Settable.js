@@ -49,7 +49,9 @@ function wrap(obj) {
                 for (var _i = 0; _i < arguments.length; _i++) {
                     args[_i] = arguments[_i];
                 }
-                return (_a = this.__original__).splice.apply(_a, args);
+                var result = (_a = this.__original__).splice.apply(_a, args);
+                this.__emit__();
+                return result;
             },
             __cb__: [],
             __on__: function (cb) {

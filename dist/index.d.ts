@@ -10,8 +10,9 @@ interface VNode {
     children: Array<RendereableElement | RendereableElement[]>;
 }
 export declare function h(name: Component | string, attributes: any | null, ...children: Array<VNode | string>): Element;
-export declare function createStore<T>(initialValue: T): T;
+export declare function createStore<T extends {}>(initialValue: T): T;
 export declare function getStore<T>(): T;
+export declare function useStore<T extends {}>(initialValue: T): T;
 export declare function render(nodeElement: Element, rootElement?: HTMLElement): void;
 export declare function renderToText(nodeElement: Element): string;
 declare type Attributes<T extends HTMLElement> = {

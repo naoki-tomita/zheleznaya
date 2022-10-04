@@ -11,7 +11,7 @@ var __assign = (this && this.__assign) || function () {
     return __assign.apply(this, arguments);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.renderToText = exports.render = exports.getStore = exports.createStore = exports.h = void 0;
+exports.renderToText = exports.render = exports.useStore = exports.getStore = exports.createStore = exports.h = void 0;
 var Settable_1 = require("./Settable");
 var Equals_1 = require("./Equals");
 var Utils_1 = require("./Utils");
@@ -34,6 +34,14 @@ function getStore() {
     return store;
 }
 exports.getStore = getStore;
+function useStore(initialValue) {
+    // already initialized
+    if (store.__on__) {
+        return store;
+    }
+    return createStore(initialValue);
+}
+exports.useStore = useStore;
 function renderChild(child) {
     var _a;
     if (typeof child === "function") {
@@ -101,7 +109,7 @@ function attributeToString(attr) {
     }
     // style
     return Object.keys(attr)
-        .map(function (key) { return (0, Utils_1.toKebabCaseFromSnakeCase)(key) + ": " + attr[key] + ";"; })
+        .map(function (key) { return "".concat((0, Utils_1.toKebabCaseFromSnakeCase)(key), ": ").concat(attr[key], ";"); })
         .join("");
 }
 function renderHtmlVNodeToText(vNode) {
@@ -116,9 +124,9 @@ function renderHtmlVNodeToText(vNode) {
         });
         vNode.attributes.ref(el);
     }
-    return "<" + vNode.name + " " + Object.keys(vNode.attributes || {})
-        .map(function (key) { return key + "=\"" + attributeToString(vNode.attributes[key]) + "\""; })
-        .join(" ") + ">" + (ref !== null && ref !== void 0 ? ref : vNode.children.map(renderVNodeToText).join("")) + "</" + vNode.name + ">";
+    return "<".concat(vNode.name, " ").concat(Object.keys(vNode.attributes || {})
+        .map(function (key) { return "".concat(key, "=\"").concat(attributeToString(vNode.attributes[key]), "\""); })
+        .join(" "), ">").concat(ref !== null && ref !== void 0 ? ref : vNode.children.map(renderVNodeToText).join(""), "</").concat(vNode.name, ">");
 }
 var firstRender = true;
 var _oldNode;

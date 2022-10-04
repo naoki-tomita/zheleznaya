@@ -53,12 +53,20 @@ export function h(
 }
 
 let store: any = {};
-export function createStore<T>(initialValue: T): T {
+export function createStore<T extends {}>(initialValue: T): T {
   return (store = (wrap(initialValue) as unknown) as T);
 }
 
 export function getStore<T>(): T {
   return store;
+}
+
+export function useStore<T extends {}>(initialValue: T): T {
+  // already initialized
+  if (store.__on__) {
+    return store;
+  }
+  return createStore(initialValue);
 }
 
 function renderChild(child: RendereableElement): RenderedVNode {

@@ -5,7 +5,7 @@ interface Settable<T> {
   __cb__: Array<() => void>;
 }
 
-export function wrap<T>(obj: T): T extends object ? T & Settable<T> : T {
+export function wrap<T extends {}>(obj: T): T extends {} ? T & Settable<T> : T {
   if (
     typeof obj === "string" ||
     typeof obj === "number" ||
