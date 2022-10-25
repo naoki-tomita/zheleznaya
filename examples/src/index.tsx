@@ -30,6 +30,16 @@ const MyComponent = (props: { key: string }) => {
   );
 }
 
+const MyWrapper: Component = (_, children) => {
+  return (
+    <div>
+      {children}
+      <div>children↓</div>
+      <div>children↑</div>
+    </div>
+  );
+}
+
 const App = () => {
   const check = store.check ? "checked" : undefined;
   return (
@@ -41,6 +51,11 @@ const App = () => {
       <div><button onclick={() => store.count++} >+1</button></div><div><button onclick={() => store.count--} >-1</button></div>
       <div style={{ backgroundColor: "black", color: "white" }} >{store.count}</div>
       <MyComponent key="hello" />
+      <MyWrapper>
+        <ul>
+          {range(store.count).map((_, i) => i).map(it => <li><div>{it}</div></li>)}
+        </ul>
+      </MyWrapper>
       <ul>
         {range(store.count).map((_, i) => i).map(it => <li><div>{it}</div></li>)}
       </ul>
