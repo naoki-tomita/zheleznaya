@@ -33,8 +33,8 @@ const MyComponent = (props: { key: string }) => {
 const MyWrapper: Component = (_, children) => {
   return (
     <div>
-      {children}
       <div>children↓</div>
+      {children}
       <div>children↑</div>
     </div>
   );

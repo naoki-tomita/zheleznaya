@@ -70,9 +70,8 @@ export function useStore<T extends {}>(initialValue: T): T {
 }
 
 function renderChild(child: RendereableElement): RenderedVNode {
-  if (typeof child === "function") {
-    return renderElement(child());
-  } else if (typeof child === "object") {
+  if (typeof child === "function") child = child();
+  if (typeof child === "object") {
     if (Array.isArray(child)) {
       return {
         name: "ArrayNode",

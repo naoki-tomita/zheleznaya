@@ -5,12 +5,18 @@ describe("#render", () => {
     const Inner: Component = (props: { name: string }, children) => {
       return (
         <div>
-        child component {props.name}
-        <div>{children}</div>
+          <div>
+            child component {props.name}
+          </div>
+          {children}
+          <div>
+            child component end
+          </div>
         </div>
       );
     }
     const App = () => {
+      const list = ["foo", "bar", "hoge"]
       return (
         <div id="root">
           <h1>Hello world</h1>
@@ -19,6 +25,11 @@ describe("#render", () => {
           <h4>{someString}</h4>
           <div ref={el => el.innerHTML = "<span>ref innerHTML</span>"} />
           <Inner name="props.name" >Hello <div>world</div></Inner>
+          <Inner name="array children">
+            <ul>
+              {list.map(key => <li>{key}</li>)}
+            </ul>
+          </Inner>
         </div>
       );
     }

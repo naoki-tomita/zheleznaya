@@ -28,13 +28,36 @@ exports[`#render should rendering dom. 1`] = `
         </span>
       </div>
       <div>
-        child component 
-        props.name
         <div>
-          Hello 
-          <div>
-            world
-          </div>
+          child component 
+          props.name
+        </div>
+        Hello 
+        <div>
+          world
+        </div>
+        <div>
+          child component end
+        </div>
+      </div>
+      <div>
+        <div>
+          child component 
+          array children
+        </div>
+        <ul>
+          <li>
+            foo
+          </li>
+          <li>
+            bar
+          </li>
+          <li>
+            hoge
+          </li>
+        </ul>
+        <div>
+          child component end
         </div>
       </div>
     </div>
