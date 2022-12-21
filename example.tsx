@@ -40,6 +40,13 @@ const MyWrapper: Component = (_, children) => {
     </div>
   );
 }
+const InnerChild = () => {
+  return <div>child</div>;
+}
+
+const Inner = () => {
+  return <InnerChild/>
+}
 
 const App = () => {
   console.log("render");
@@ -53,6 +60,7 @@ const App = () => {
       <div><button onclick={() => (store.count++, store.countDouble *= store.count)} >+1</button></div><div><button onclick={() => (store.count--, store.countDouble /= store.count)} >-1</button></div>
       <div style={{ backgroundColor: "black", color: "white" }} >{store.count}</div>
       <div style={{ backgroundColor: "purple", color: "white" }} >{store.countDouble}</div>
+      <Inner></Inner>
       <MyComponent key="hello" />
       <MyWrapper>
         <ul>
