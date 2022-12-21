@@ -1,5 +1,32 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`#render should render children has array children 1`] = `
+<body>
+  <div>
+    <div>
+      <div>
+        <div>
+          sample
+        </div>
+        <div>
+          <ul>
+            <li>
+              a
+            </li>
+            <li>
+              b
+            </li>
+            <li>
+              c
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+`;
+
 exports[`#render should rendering dom. 1`] = `
 <body>
   <div>

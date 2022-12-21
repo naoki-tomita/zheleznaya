@@ -47,4 +47,33 @@ describe("#render", () => {
     button.click();
     expect(spy).toBeCalled();
   });
+
+  it("should render children has array children", () => {
+    const ChildrenWrapper: Component = (_, children) => {
+      console.log(_, children)
+      return (
+        <div>
+          <div>
+            sample
+          </div>
+          <div>
+            {children}
+          </div>
+        </div>
+      );
+    }
+    const App: Component = () => {
+      return (
+        <div>
+          <ChildrenWrapper>
+            <ul>
+              {["a", "b", "c"].map(k => <li>{k}</li>)}
+            </ul>
+          </ChildrenWrapper>
+        </div>
+      );
+    }
+    render(<App />);
+    expect(document.body).toMatchSnapshot();
+  })
 });

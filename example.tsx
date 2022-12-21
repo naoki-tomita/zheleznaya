@@ -9,8 +9,8 @@ const store = createStore({
     }
   },
   check: false,
-  count: 0,
-  countDouble: 1,
+  count: 3,
+  countDouble: 3,
 });
 
 const MyInput = (props: { value: string, oninput: (text: string) => void }, _: Component[]) => {
