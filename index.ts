@@ -1,6 +1,7 @@
 import { wrap } from "./Settable";
 import { isEquals } from "./Equals";
 import { toKebabCaseFromSnakeCase } from "./Utils";
+import { debounce } from "./Debounce";
 
 export type Component<P = any> = (
   props: P,
@@ -105,8 +106,10 @@ let root: HTMLElement;
 export function render(nodeElement: Element, rootElement?: HTMLElement) {
   rootElement && (root = rootElement);
   rerender(nodeElement);
-  store.__on__?.(() => rerender(nodeElement));
+  store.__on__?.(() => rerenderWrapper(nodeElement));
 }
+
+const rerenderWrapper = debounce(rerender, 0);
 
 export function renderToText(nodeElement: Element): string {
   const nodes = renderElement(nodeElement);

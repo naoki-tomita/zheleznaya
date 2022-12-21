@@ -1,4 +1,4 @@
-import { h, createStore, render, Component } from "zheleznaya";
+import { h, createStore, render, Component } from "./index";
 
 const store = createStore({
   foo: "bar",
@@ -10,9 +10,10 @@ const store = createStore({
   },
   check: false,
   count: 0,
+  countDouble: 1,
 });
 
-const MyInput = (props: { value: string, oninput: (text: string) => void }, children: Component[]) => {
+const MyInput = (props: { value: string, oninput: (text: string) => void }, _: Component[]) => {
   return (
     <div>
       {props.value}
@@ -41,6 +42,7 @@ const MyWrapper: Component = (_, children) => {
 }
 
 const App = () => {
+  console.log("render");
   const check = store.check ? "checked" : undefined;
   return (
     <div class="my-class">
@@ -48,8 +50,9 @@ const App = () => {
       <div>{store.foo}</div>
       <div><input onchange={() => store.check = !store.check} type="checkbox" checked={store.check}/></div>
       <div>{check && check.toUpperCase()}</div>
-      <div><button onclick={() => store.count++} >+1</button></div><div><button onclick={() => store.count--} >-1</button></div>
+      <div><button onclick={() => (store.count++, store.countDouble *= store.count)} >+1</button></div><div><button onclick={() => (store.count--, store.countDouble /= store.count)} >-1</button></div>
       <div style={{ backgroundColor: "black", color: "white" }} >{store.count}</div>
+      <div style={{ backgroundColor: "purple", color: "white" }} >{store.countDouble}</div>
       <MyComponent key="hello" />
       <MyWrapper>
         <ul>

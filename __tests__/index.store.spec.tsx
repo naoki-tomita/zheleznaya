@@ -4,6 +4,10 @@ import { h, render, createStore, Component } from "../index";
 //   return new Promise(ok => setTimeout(ok, ms));
 // }
 
+function sleep(ms: number) {
+  return new Promise(ok => setTimeout(ok, ms));
+}
+
 describe("#createStore", () => {
   it("should rerender when store changed.", async () => {
     const store = createStore({ count: 0 });
@@ -16,6 +20,8 @@ describe("#createStore", () => {
     expect(document.body).toMatchSnapshot();
 
     store.count = 2;
+
+    await sleep(1);
     expect(document.body).toMatchSnapshot();
   });
 });

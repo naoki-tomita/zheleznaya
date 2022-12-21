@@ -4,6 +4,7 @@ exports.renderToText = exports.render = exports.useStore = exports.getStore = ex
 const Settable_1 = require("./Settable");
 const Equals_1 = require("./Equals");
 const Utils_1 = require("./Utils");
+const Debounce_1 = require("./Debounce");
 function h(name, attributes, ...children) {
     return typeof name === "string"
         ? { name, attributes, children, type: "html" }
@@ -62,9 +63,10 @@ let root;
 function render(nodeElement, rootElement) {
     rootElement && (root = rootElement);
     rerender(nodeElement);
-    store.__on__?.(() => rerender(nodeElement));
+    store.__on__?.(() => rerenderWrapper(nodeElement));
 }
 exports.render = render;
+const rerenderWrapper = (0, Debounce_1.debounce)(rerender, 0);
 function renderToText(nodeElement) {
     const nodes = renderElement(nodeElement);
     return renderVNodeToText(nodes);
