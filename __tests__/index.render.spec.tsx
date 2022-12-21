@@ -1,3 +1,4 @@
+declare const React = ""; // suppress error.
 import { h, render, Component } from "../index";
 describe("#render", () => {
   it("should rendering dom.", () => {
@@ -50,7 +51,6 @@ describe("#render", () => {
 
   it("should render children has array children", () => {
     const ChildrenWrapper: Component = (_, children) => {
-      console.log(_, children)
       return (
         <div>
           <div>
@@ -75,5 +75,5 @@ describe("#render", () => {
     }
     render(<App />);
     expect(document.body).toMatchSnapshot();
-  })
+  });
 });

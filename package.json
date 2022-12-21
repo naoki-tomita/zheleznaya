@@ -17,7 +17,8 @@
     "build:dev": "esbuild *.ts --outdir=dist --tsconfig=tsconfig.json --format=cjs",
     "lint": "npx prettier --write '{**,.}/*.ts'",
     "prepublish": "yarn lint && yarn build",
-    "test": "jest"
+    "test": "jest",
+    "dev": "npx vite ."
   },
   "jest": {
     "testEnvironment": "jsdom",

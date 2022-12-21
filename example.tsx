@@ -1,3 +1,4 @@
+declare const React: {};
 import { h, createStore, render, Component } from "./index";
 
 const store = createStore({
@@ -13,7 +14,7 @@ const store = createStore({
   countDouble: 3,
 });
 
-const MyInput = (props: { value: string, oninput: (text: string) => void }, _: Component[]) => {
+const MyInput = (props: { value: string, oninput: (text: string) => void }) => {
   return (
     <div>
       {props.value}
@@ -49,7 +50,6 @@ const Inner = () => {
 }
 
 const App = () => {
-  console.log("render");
   const check = store.check ? "checked" : undefined;
   return (
     <div class="my-class">
@@ -63,9 +63,7 @@ const App = () => {
       <Inner></Inner>
       <MyComponent key="hello" />
       <MyWrapper>
-        <ul>
-          {range(store.count).map((_, i) => i).map(it => <li><div>{it}</div></li>)}
-        </ul>
+        <div>hoge</div>
       </MyWrapper>
       <ul>
         {range(store.count).map((_, i) => i).map(it => <li><div>{it}</div></li>)}

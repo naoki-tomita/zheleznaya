@@ -1,3 +1,4 @@
+declare const React = ""; // suppress error.
 import { renderToText, h, Component } from "../index";
 
 describe("renderToText", () => {
