@@ -2,78 +2,59 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.wrap = void 0;
 function wrap(obj) {
-    if (typeof obj === "string" ||
-        typeof obj === "number" ||
-        typeof obj === "boolean") {
+    if (typeof obj == null ||
+        typeof obj !== "object") {
         return obj;
     }
-    if (Array.isArray(obj)) {
-        return {
-            __original__: obj,
-            push(...items) {
-                this.__original__.push(...items);
-                this.__emit__();
-            },
-            map(...args) {
-                return this.__original__.map(...args);
-            },
-            includes(...args) {
-                return this.__original__.includes(...args);
-            },
-            filter(...args) {
-                return this.__original__.filter(...args);
-            },
-            splice(...args) {
-                const result = this.__original__.splice(...args);
-                this.__emit__();
-                return result;
-            },
-            __cb__: [],
-            __on__(cb) {
-                this.__cb__.push(cb);
-            },
-            __emit__() {
-                this.__cb__.forEach((it) => it());
-            },
-        };
-    }
-    const original = {};
-    Object.keys(obj).forEach((key) => {
-        if (typeof obj[key] === "object") {
-            original[key] = wrap(obj[key]);
-            original[key].__on__(() => settable.__emit__());
-        }
-        else {
-            original[key] = obj[key];
-        }
-    });
     const settable = {
-        __original__: original,
+        __cb__: [],
+        __emit__() {
+            this.__cb__.forEach(it => it());
+        },
         __on__(cb) {
             this.__cb__.push(cb);
         },
-        __cb__: [],
-        __emit__() {
-            this.__cb__.forEach((it) => it());
-        },
+        __original__: obj
     };
-    Object.keys(obj).forEach((key) => {
-        Object.defineProperty(settable, key, {
-            set(prop) {
-                this.__original__[key] =
-                    typeof prop === "object" && prop !== null
-                        ? wrap(prop.__original__ || prop)
-                        : prop;
-                this.__original__[key].__on__ &&
-                    this.__original__[key].__on__(() => this.__emit__());
-                this.__emit__();
-            },
-            get() {
-                return this.__original__[key];
-            },
-        });
+    Object.keys(obj).forEach(key => {
+        const wrapped = wrap(obj[key]);
+        obj[key] = wrapped;
+        wrapped.__on__?.(() => settable.__emit__());
     });
-    return settable;
+    function set(_, key, value) {
+        const wrapped = wrap(value);
+        obj[key] = wrapped;
+        wrapped.__on__?.(() => settable.__emit__());
+        settable.__emit__();
+        return true;
+    }
+    if (Array.isArray(obj)) {
+        return new Proxy(settable, {
+            get(target, key) {
+                if (["__cb__", "__emit__", "__on__", "__original__"].includes(key.toString())) {
+                    return target[key];
+                }
+                if (["push", "pop", "shift", "unshift"].includes(key.toString())) {
+                    return (...args) => {
+                        const result = obj[key](...args);
+                        settable.__emit__();
+                        return result;
+                    };
+                }
+                return obj[key];
+            },
+            set,
+        });
+    }
+    return new Proxy(settable, {
+        get(target, key) {
+            if (["__cb__", "__emit__", "__on__", "__original__"].includes(key.toString())) {
+                return target[key];
+            }
+            return obj[key];
+        },
+        set,
+    });
 }
 exports.wrap = wrap;
 //# sourceMappingURL=Settable.js.map

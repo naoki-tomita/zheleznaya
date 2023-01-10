@@ -22,12 +22,12 @@ describe("Settable", () => {
       expect(obj.foo).toBe("hoge");
     });
 
-    it("should not fire changed event when object not have property changed.", () => {
+    it("should fire changed event when object does not have property changed.", () => {
       const obj = wrap({ foo: "bar" });
       const spy = jest.fn();
       obj.__on__(spy);
       (obj as any).bar = "hoge";
-      expect(spy).toBeCalledTimes(0);
+      expect(spy).toBeCalledTimes(1);
     });
 
     it("should fire changed event when nested object property changed.", () => {

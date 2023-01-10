@@ -5,79 +5,66 @@ interface Settable<T> {
   __cb__: Array<() => void>;
 }
 
-export function wrap<T extends {}>(obj: T): T extends {} ? T & Settable<T> : T {
+export function wrap<T extends {}>(obj: T): T & Settable<T> {
   if (
-    typeof obj === "string" ||
-    typeof obj === "number" ||
-    typeof obj === "boolean"
+    typeof obj == null ||
+    typeof obj !== "object"
   ) {
     return obj as any;
   }
-  if (Array.isArray(obj)) {
-    return {
-      __original__: obj,
-      push(...items: any[]) {
-        this.__original__.push(...items);
-        this.__emit__();
-      },
-      map(...args: any[]) {
-        return this.__original__.map(...args);
-      },
-      includes(...args: any[]) {
-        return this.__original__.includes(...args);
-      },
-      filter(...args: any[]) {
-        return this.__original__.filter(...args);
-      },
-      splice(...args: any[]) {
-        const result = this.__original__.splice(...args)
-        this.__emit__();
-        return result;
-      },
-      __cb__: [] as Array<() => void>,
-      __on__(cb: () => void) {
-        this.__cb__.push(cb);
-      },
-      __emit__() {
-        this.__cb__.forEach((it: () => void) => it());
-      },
-    } as any;
-  }
 
-  const original: any = {};
-  Object.keys(obj).forEach((key) => {
-    if (typeof (obj as any)[key] === "object") {
-      original[key] = wrap((obj as any)[key]);
-      original[key].__on__(() => settable.__emit__());
-    } else {
-      original[key] = (obj as any)[key];
-    }
-  });
   const settable: Settable<T> = {
-    __original__: original,
-    __on__(cb: () => void) {
+    __cb__: [],
+    __emit__() {
+      this.__cb__.forEach(it => it())
+    },
+    __on__(cb) {
       this.__cb__.push(cb);
     },
-    __cb__: [] as Array<() => void>,
-    __emit__() {
-      this.__cb__.forEach((it) => it());
-    },
-  };
-  Object.keys(obj).forEach((key) => {
-    Object.defineProperty(settable, key, {
-      set(prop: any) {
-        this.__original__[key] =
-          typeof prop === "object" && prop !== null
-            ? wrap(prop.__original__ || prop)
-            : prop;
-        this.__original__[key].__on__ &&
-          this.__original__[key].__on__(() => this.__emit__());
-        this.__emit__();
-      },
-      get() {
-        return this.__original__[key];
-      },
-    });
+    __original__: obj
+  }
+
+  Object.keys(obj).forEach(key => {
+    const wrapped = wrap((obj as any)[key]);
+    (obj as any)[key] = wrapped;
+    wrapped.__on__?.(() => settable.__emit__());
   });
-  return settable as any;
+
+  function set(_: any, key: string, value: any) {
+    const wrapped = wrap<{}>(value);
+    (obj as any)[key as any] = wrapped;
+    wrapped.__on__?.(() => settable.__emit__());
+    settable.__emit__();
+    return true;
+  }
+
+
+  if (Array.isArray(obj)) {
+    return new Proxy(settable, {
+      get(target, key) {
+        if (["__cb__", "__emit__", "__on__", "__original__"].includes(key.toString())) {
+          return (target as any)[key as any];
+        }
+        if (["push", "pop", "shift", "unshift"].includes(key.toString())) {
+          return (...args: any[]) => {
+            const result = (obj as any)[key](...args);
+            settable.__emit__();
+            return result;
+          }
+        }
+        return (obj as any)[key];
+      },
+      set,
+    }) as any;
+  }
+
+  return new Proxy(settable, {
+    get(target, key) {
+      if (["__cb__", "__emit__", "__on__", "__original__"].includes(key.toString())) {
+        return (target as any)[key as any];
+      }
+      return (obj as any)[key as any];
+    },
+    set,
+  }) as any;
 }

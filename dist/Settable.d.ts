@@ -4,6 +4,6 @@ interface Settable<T> {
     __emit__(): void;
     __cb__: Array<() => void>;
 }
-export declare function wrap<T extends {}>(obj: T): T extends {} ? T & Settable<T> : T;
+export declare function wrap<T extends {}>(obj: T): T & Settable<T>;
 export {};
 //# sourceMappingURL=Settable.d.ts.map
