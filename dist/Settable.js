@@ -41,6 +41,9 @@ function wrap(obj) {
                         return result;
                     };
                 }
+                else if (["map", "forEach", "reduce", "filter", "find", "concat"].includes(key.toString())) {
+                    return (...args) => obj[key](...args);
+                }
                 return obj[key];
             },
             set,

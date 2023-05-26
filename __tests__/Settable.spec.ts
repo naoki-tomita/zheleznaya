@@ -75,10 +75,16 @@ describe("Settable", () => {
     });
 
     it("should emulate map method when settable array", () => {
-      const obj = wrap({ array: [{id: 1, name: "foo"}, {id: 2, name: "bar"}, {id: 3, name: "hoge"}] });
+      const obj = wrap({
+        array: [
+          { id: 1, name: "foo" },
+          { id: 2, name: "bar" },
+          { id: 3, name: "hoge" },
+        ],
+      });
 
-      const actual = obj.array.map(it => it.name);
-      expect(actual).toEqual(["foo", "bar", "hoge"])
+      const actual = obj.array.map((it) => it.name);
+      expect(actual).toEqual(["foo", "bar", "hoge"]);
     });
   });
 });
