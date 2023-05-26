@@ -51,6 +51,8 @@ export function wrap<T extends {}>(obj: T): T & Settable<T> {
             settable.__emit__();
             return result;
           }
+        } else if (["map", "forEach", "reduce", "filter", "find", "concat"].includes(key.toString())) {
+          return (...args: any[]) => (obj as any)[key](...args);
         }
         return (obj as any)[key];
       },

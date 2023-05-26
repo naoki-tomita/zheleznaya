@@ -26,6 +26,7 @@
       "^.+\\.tsx?$": [
         "esbuild-jest",
         {
+          "sourcemap": true,
           "jsxFactory": "h"
         }
       ]
