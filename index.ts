@@ -457,3 +457,5 @@ declare global {
     type Element = VNode;
   }
 }
+
+export { createEffect } from "./Effect";
