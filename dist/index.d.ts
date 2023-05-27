@@ -151,5 +151,5 @@ declare global {
         type Element = VNode;
     }
 }
-export {};
+export { createEffect } from "./Effect";
 //# sourceMappingURL=index.d.ts.map

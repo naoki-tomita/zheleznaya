@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.renderToText = exports.render = exports.useStore = exports.getStore = exports.createStore = exports.h = void 0;
+exports.createEffect = exports.renderToText = exports.render = exports.useStore = exports.getStore = exports.createStore = exports.h = void 0;
 const Settable_1 = require("./Settable");
 const Equals_1 = require("./Equals");
 const Utils_1 = require("./Utils");
@@ -248,4 +248,6 @@ function createElement(node, oldNode, parentElement) {
 function createRootElement(node) {
     return createElement(node, _oldNode, root);
 }
+var Effect_1 = require("./Effect");
+Object.defineProperty(exports, "createEffect", { enumerable: true, get: function () { return Effect_1.createEffect; } });
 //# sourceMappingURL=index.js.map
