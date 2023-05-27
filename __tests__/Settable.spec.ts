@@ -86,5 +86,24 @@ describe("Settable", () => {
       const actual = obj.array.map((it) => it.name);
       expect(actual).toEqual(["foo", "bar", "hoge"]);
     });
+
+    it("should set null parameter", () => {
+      const obj = wrap<{ null: null | string; text: string }>({
+        null: null,
+        text: "text"
+      });
+      const spy = jest.fn();
+      obj.__on__(spy);
+
+      expect(obj.null).toBe(null);
+
+      obj.null = "not null";
+      expect(obj.null).toBe("not null");
+      expect(spy).toBeCalledTimes(1);
+
+      obj.null = null;
+      expect(obj.null).toBe(null);
+      expect(spy).toBeCalledTimes(2);
+    });
   });
 });

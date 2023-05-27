@@ -7,7 +7,7 @@ interface Settable<T> {
 
 export function wrap<T extends {}>(obj: T): T & Settable<T> {
   if (
-    typeof obj == null ||
+    obj == null ||
     typeof obj !== "object"
   ) {
     return obj as any;
@@ -27,13 +27,13 @@ export function wrap<T extends {}>(obj: T): T & Settable<T> {
   Object.keys(obj).forEach(key => {
     const wrapped = wrap((obj as any)[key]);
     (obj as any)[key] = wrapped;
-    wrapped.__on__?.(() => settable.__emit__());
+    wrapped?.__on__?.(() => settable.__emit__());
   });
 
   function set(_: any, key: string, value: any) {
     const wrapped = wrap<{}>(value);
     (obj as any)[key as any] = wrapped;
-    wrapped.__on__?.(() => settable.__emit__());
+    wrapped?.__on__?.(() => settable.__emit__());
     settable.__emit__();
     return true;
   }

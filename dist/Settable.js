@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.wrap = void 0;
 function wrap(obj) {
-    if (typeof obj == null ||
+    if (obj == null ||
         typeof obj !== "object") {
         return obj;
     }
@@ -19,12 +19,12 @@ function wrap(obj) {
     Object.keys(obj).forEach(key => {
         const wrapped = wrap(obj[key]);
         obj[key] = wrapped;
-        wrapped.__on__?.(() => settable.__emit__());
+        wrapped?.__on__?.(() => settable.__emit__());
     });
     function set(_, key, value) {
         const wrapped = wrap(value);
         obj[key] = wrapped;
-        wrapped.__on__?.(() => settable.__emit__());
+        wrapped?.__on__?.(() => settable.__emit__());
         settable.__emit__();
         return true;
     }
