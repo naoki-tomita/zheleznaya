@@ -50,13 +50,13 @@ const Inner = () => {
 }
 
 const App = () => {
-  const check = store.check ? "checked" : undefined;
+  const check = store.check ? "checked" : "unchecked";
   return (
     <div class="my-class">
       <div><input oninput={e => store.foo = (e as any).target.value} value={store.foo} /></div>
       <div>{store.foo}</div>
+      <div><button onclick={() => store.check = !store.check}>{check && check.toUpperCase()}</button></div>
       <div><input onchange={() => store.check = !store.check} type="checkbox" checked={store.check}/></div>
-      <div>{check && check.toUpperCase()}</div>
       <div><button onclick={() => (store.count++, store.countDouble *= store.count)} >+1</button></div><div><button onclick={() => (store.count--, store.countDouble /= store.count)} >-1</button></div>
       <div style={{ backgroundColor: "black", color: "white" }} >{store.count}</div>
       <div style={{ backgroundColor: "purple", color: "white" }} >{store.countDouble}</div>
