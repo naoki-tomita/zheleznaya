@@ -2,21 +2,20 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.wrap = void 0;
 function wrap(obj) {
-    if (obj == null ||
-        typeof obj !== "object") {
+    if (obj == null || typeof obj !== "object") {
         return obj;
     }
     const settable = {
         __cb__: [],
         __emit__() {
-            this.__cb__.forEach(it => it());
+            this.__cb__.forEach((it) => it());
         },
         __on__(cb) {
             this.__cb__.push(cb);
         },
-        __original__: obj
+        __original__: obj,
     };
-    Object.keys(obj).forEach(key => {
+    Object.keys(obj).forEach((key) => {
         const wrapped = wrap(obj[key]);
         obj[key] = wrapped;
         wrapped?.__on__?.(() => settable.__emit__());

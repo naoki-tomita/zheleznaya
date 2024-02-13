@@ -90,7 +90,7 @@ describe("Settable", () => {
     it("should set null parameter", () => {
       const obj = wrap<{ null: null | string; text: string }>({
         null: null,
-        text: "text"
+        text: "text",
       });
       const spy = jest.fn();
       obj.__on__(spy);

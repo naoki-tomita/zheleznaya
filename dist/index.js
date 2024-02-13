@@ -165,6 +165,9 @@ function recycleArrayElement(node, oldNode, parentElement) {
         element: elements,
     };
 }
+const TagAndSpecialAttributeMapping = {
+    input: ["value", "checked", "disabled", "readonly", "required"],
+};
 function recycleNodeElement(node, oldNode, parentElement) {
     // standard node.
     // element
@@ -189,26 +192,30 @@ function recycleNodeElement(node, oldNode, parentElement) {
         element = document.createElement(node.name);
     }
     // attributes
-    const { attributes } = node;
-    Object.keys(attributes || {}).forEach((key) => {
-        const attribute = attributes[key];
-        if (key === "style") {
-            Object.keys(attribute).forEach((key) => (element.style[key] = attribute[key]));
+    const { name, attributes } = node;
+    Object.entries(attributes || {}).forEach(([key, value]) => {
+        if (TagAndSpecialAttributeMapping[name]?.includes(key)) {
+            // 特殊な属性の場合は直接プロパティを設定する
+            // https://zenn.dev/kojiroueda/articles/d041122f646d4c
+            element[key] = value;
+        }
+        else if (key === "style") {
+            Object.entries(value).forEach(([key, value]) => (element.style[key] = value));
         }
         else if (key.startsWith("on")) {
-            element[key] = attribute;
+            element[key] = value;
         }
-        else if (typeof attribute === "boolean") {
-            attribute ? element.setAttribute(key, "") : element.removeAttribute(key);
+        else if (typeof value === "boolean") {
+            value ? element.setAttribute(key, "") : element.removeAttribute(key);
         }
         else if (key === "value" && typeof element.value === "string") {
-            element.value = attribute;
+            element.value = value;
         }
-        else if (key === "ref" && typeof attribute === "function") {
-            attribute(element);
+        else if (key === "ref" && typeof value === "function") {
+            value(element);
         }
         else {
-            element.setAttribute(key, attribute);
+            element.setAttribute(key, value);
         }
     });
     // children

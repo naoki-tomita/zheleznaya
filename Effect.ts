@@ -7,5 +7,5 @@ export function createEffect() {
       cb();
       lastUpdatedKeys = keys;
     }
-  }
+  };
 }

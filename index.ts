@@ -5,7 +5,7 @@ import { debounce } from "./Debounce";
 
 export type Component<P = any> = (
   props: P,
-  children: Array<VNode | string>
+  children: Array<VNode | string>,
 ) => VNode;
 type Element = VNode | (() => VNode);
 type RendereableElement = Element | string | number | boolean;
@@ -55,7 +55,7 @@ export function h(
 
 let store: any = {};
 export function createStore<T extends {}>(initialValue: T): T {
-  return (store = (wrap(initialValue) as unknown) as T);
+  return (store = wrap(initialValue) as unknown as T);
 }
 
 export function getStore<T>(): T {
@@ -72,7 +72,7 @@ export function useStore<T extends {}>(initialValue: T): T {
 
 function renderChild(child: RendereableElement): RenderedVNode {
   if (typeof child === "function") {
-      return renderElement(child());
+    return renderElement(child());
   } else if (typeof child === "object") {
     if (Array.isArray(child)) {
       return {
@@ -98,7 +98,7 @@ function renderElement(node: Element): RenderedVNode {
   return {
     ...node,
     children: (node.children || []).map((it) =>
-      renderChild(it as RendereableElement)
+      renderChild(it as RendereableElement),
     ),
   };
 }
@@ -191,7 +191,7 @@ function recycleTextElement(node: RenderedVNode): RenderedVNodeWithHTMLElement {
 function recycleArrayElement(
   node: RenderedVNode,
   oldNode: RenderedVNodeWithHTMLElement | undefined,
-  parentElement?: HTMLElement
+  parentElement?: HTMLElement,
 ): RenderedVNodeWithHTMLElement {
   const elements: HTMLElement[] = [];
   const renderedVNodes: RenderedVNodeWithHTMLElement[] = [];
@@ -219,10 +219,14 @@ function recycleArrayElement(
   };
 }
 
+const TagAndSpecialAttributeMapping: { [key: string]: string[] } = {
+  input: ["value", "checked", "disabled", "readonly", "required"],
+};
+
 function recycleNodeElement(
   node: RenderedVNode,
   oldNode: RenderedVNodeWithHTMLElement | undefined,
-  parentElement?: HTMLElement
+  parentElement?: HTMLElement,
 ): RenderedVNodeWithHTMLElement {
   // standard node.
   // element
@@ -246,23 +250,26 @@ function recycleNodeElement(
   }
 
   // attributes
-  const { attributes } = node;
-  Object.keys(attributes || {}).forEach((key) => {
-    const attribute = attributes![key];
-    if (key === "style") {
-      Object.keys(attribute).forEach(
-        (key) => ((element.style as any)[key] = attribute[key])
+  const { name, attributes } = node;
+  Object.entries(attributes || {}).forEach(([key, value]) => {
+    if (TagAndSpecialAttributeMapping[name]?.includes(key)) {
+      // 特殊な属性の場合は直接プロパティを設定する
+      // https://zenn.dev/kojiroueda/articles/d041122f646d4c
+      (element as any)[key] = value;
+    } else if (key === "style") {
+      Object.entries(value).forEach(
+        ([key, value]) => ((element.style as any)[key] = value),
       );
     } else if (key.startsWith("on")) {
-      (element as any)[key] = attribute;
-    } else if (typeof attribute === "boolean") {
-      attribute ? element.setAttribute(key, "") : element.removeAttribute(key);
+      (element as any)[key] = value;
+    } else if (typeof value === "boolean") {
+      value ? element.setAttribute(key, "") : element.removeAttribute(key);
     } else if (key === "value" && typeof (element as any).value === "string") {
-      (element as any).value = attribute;
-    } else if (key === "ref" && typeof attribute === "function") {
-      attribute(element);
+      (element as any).value = value;
+    } else if (key === "ref" && typeof value === "function") {
+      value(element);
     } else {
-      element.setAttribute(key, attribute);
+      element.setAttribute(key, value);
     }
   });
 
@@ -277,7 +284,7 @@ function recycleNodeElement(
     if (childVNode.type === "array") {
       // arrayの場合は常に再生成する(めんどいので。いつかkey対応するのでしょう)
       element.append(
-        ...childVNode.children.map((it) => it.element as string | HTMLElement)
+        ...childVNode.children.map((it) => it.element as string | HTMLElement),
       );
     } else if (!oldChild?.element) {
       // arrayじゃない場合のエレメント追加処理
@@ -289,7 +296,7 @@ function recycleNodeElement(
       // テキストノード以外は、createElementの中でやっているからいらない
       element.replaceChild(
         childVNode.element as Text,
-        element.childNodes.item(i)
+        element.childNodes.item(i),
       );
     }
     children.push(childVNode);
@@ -300,7 +307,7 @@ function recycleNodeElement(
 function createElement(
   node: RenderedVNode,
   oldNode: RenderedVNodeWithHTMLElement | undefined,
-  parentElement?: HTMLElement
+  parentElement?: HTMLElement,
 ): RenderedVNodeWithHTMLElement {
   switch (node.type) {
     case "text":
@@ -323,7 +330,9 @@ type Attributes<T extends HTMLElement> =
   | AttributesOverwrite<T>;
 
 interface AttributesOverwrite<T extends HTMLElement> {
-  children?: Array<RendereableElement | RendereableElement[]> | RendereableElement;
+  children?:
+    | Array<RendereableElement | RendereableElement[]>
+    | RendereableElement;
   class?: string;
   style?: Partial<CSSStyleDeclaration> | string;
   ref?: (el: T) => void;

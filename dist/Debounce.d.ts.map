@@ -1,1 +1,1 @@
-{"version":3,"file":"Debounce.d.ts","sourceRoot":"","sources":["../Debounce.ts"],"names":[],"mappings":"AAAA,wBAAgB,QAAQ,CAAC,CAAC,SAAS,GAAG,EAAE,EAAE,EAAE,EAAE,CAAC,GAAG,IAAI,EAAE,CAAC,KAAK,IAAI,EAAE,OAAO,EAAE,MAAM,GAAG,CAAC,GAAG,IAAI,EAAE,CAAC,KAAK,IAAI,CAMzG"}
+{"version":3,"file":"Debounce.d.ts","sourceRoot":"","sources":["../Debounce.ts"],"names":[],"mappings":"AAAA,wBAAgB,QAAQ,CAAC,CAAC,SAAS,GAAG,EAAE,EACtC,EAAE,EAAE,CAAC,GAAG,IAAI,EAAE,CAAC,KAAK,IAAI,EACxB,OAAO,EAAE,MAAM,GACd,CAAC,GAAG,IAAI,EAAE,CAAC,KAAK,IAAI,CAMtB"}
