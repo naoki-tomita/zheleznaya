@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`#createStore should rerender when store changed. 1`] = `
+exports[`#createStore > should rerender when store changed. 1`] = `
 <body>
   <div>
     <div>
@@ -10,7 +10,7 @@ exports[`#createStore should rerender when store changed. 1`] = `
 </body>
 `;
 
-exports[`#createStore should rerender when store changed. 2`] = `
+exports[`#createStore > should rerender when store changed. 2`] = `
 <body>
   <div>
     <div>

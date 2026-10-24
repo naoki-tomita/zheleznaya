@@ -1,4 +1,5 @@
 declare const React = ""; // suppress error.
+import { describe, it, expect } from "vitest";
 import { h, render, createStore, Component } from "../index";
 
 function sleep(ms: number) {
