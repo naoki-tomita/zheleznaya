@@ -331,8 +331,7 @@ type Attributes<T extends HTMLElement> =
 
 interface AttributesOverwrite<T extends HTMLElement> {
   children?:
-    | Array<RendereableElement | RendereableElement[]>
-    | RendereableElement;
+    Array<RendereableElement | RendereableElement[]> | RendereableElement;
   class?: string;
   style?: Partial<CSSStyleDeclaration> | string;
   ref?: (el: T) => void;

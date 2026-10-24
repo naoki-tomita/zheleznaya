@@ -1,6 +1,6 @@
-export declare type Component<P = any> = (props: P, children: Array<VNode | string>) => VNode;
-declare type Element = VNode | (() => VNode);
-declare type RendereableElement = Element | string | number | boolean;
+export type Component<P = any> = (props: P, children: Array<VNode | string>) => VNode;
+type Element = VNode | (() => VNode);
+type RendereableElement = Element | string | number | boolean;
 interface VNode {
     name: string;
     type: "text" | "html" | "array";
@@ -15,7 +15,7 @@ export declare function getStore<T>(): T;
 export declare function useStore<T extends {}>(initialValue: T): T;
 export declare function render(nodeElement: Element, rootElement?: HTMLElement): void;
 export declare function renderToText(nodeElement: Element): string;
-declare type Attributes<T extends HTMLElement> = {
+type Attributes<T extends HTMLElement> = {
     [U in keyof T]?: T[U];
 } | AttributesOverwrite<T>;
 interface AttributesOverwrite<T extends HTMLElement> {
@@ -151,5 +151,5 @@ declare global {
         type Element = VNode;
     }
 }
-export { createEffect } from "./Effect";
+export { createEffect } from "./Effect.ts";
 //# sourceMappingURL=index.d.ts.map

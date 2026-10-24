@@ -1,33 +1,26 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.createEffect = exports.renderToText = exports.render = exports.useStore = exports.getStore = exports.createStore = exports.h = void 0;
-const Settable_1 = require("./Settable");
-const Equals_1 = require("./Equals");
-const Utils_1 = require("./Utils");
-const Debounce_1 = require("./Debounce");
-function h(name, attributes, ...children) {
+import { wrap } from "./Settable.js";
+import { isEquals } from "./Equals.js";
+import { toKebabCaseFromSnakeCase } from "./Utils.js";
+import { debounce } from "./Debounce.js";
+export function h(name, attributes, ...children) {
     return typeof name === "string"
         ? { name, attributes, children, type: "html" }
         : () => name(attributes, children);
 }
-exports.h = h;
 let store = {};
-function createStore(initialValue) {
-    return (store = (0, Settable_1.wrap)(initialValue));
+export function createStore(initialValue) {
+    return (store = wrap(initialValue));
 }
-exports.createStore = createStore;
-function getStore() {
+export function getStore() {
     return store;
 }
-exports.getStore = getStore;
-function useStore(initialValue) {
+export function useStore(initialValue) {
     // already initialized
     if (store.__on__) {
         return store;
     }
     return createStore(initialValue);
 }
-exports.useStore = useStore;
 function renderChild(child) {
     if (typeof child === "function") {
         return renderElement(child());
@@ -61,18 +54,16 @@ function renderElement(node) {
     };
 }
 let root;
-function render(nodeElement, rootElement) {
+export function render(nodeElement, rootElement) {
     rootElement && (root = rootElement);
     rerender(nodeElement);
     store.__on__?.(() => rerenderWrapper(nodeElement));
 }
-exports.render = render;
-const rerenderWrapper = (0, Debounce_1.debounce)(rerender, 0);
-function renderToText(nodeElement) {
+const rerenderWrapper = debounce(rerender, 0);
+export function renderToText(nodeElement) {
     const nodes = renderElement(nodeElement);
     return renderVNodeToText(nodes);
 }
-exports.renderToText = renderToText;
 function renderVNodeToText(vNode) {
     if (Array.isArray(vNode)) {
         return vNode.map(renderVNodeToText).join("");
@@ -95,7 +86,7 @@ function attributeToString(attr) {
     }
     // style
     return Object.keys(attr)
-        .map((key) => `${(0, Utils_1.toKebabCaseFromSnakeCase)(key)}: ${attr[key]};`)
+        .map((key) => `${toKebabCaseFromSnakeCase(key)}: ${attr[key]};`)
         .join("");
 }
 function renderHtmlVNodeToText(vNode) {
@@ -175,7 +166,7 @@ function recycleNodeElement(node, oldNode, parentElement) {
     if (oldNode?.element != null) {
         element = oldNode.element;
         // replace or remove child elements.
-        if (!(0, Equals_1.isEquals)(node.name, oldNode.name)) {
+        if (!isEquals(node.name, oldNode.name)) {
             const newElement = document.createElement(node.name);
             if (oldNode.type === "array") {
                 oldNode?.element?.forEach((it) => parentElement?.removeChild(it));
@@ -255,6 +246,5 @@ function createElement(node, oldNode, parentElement) {
 function createRootElement(node) {
     return createElement(node, _oldNode, root);
 }
-var Effect_1 = require("./Effect");
-Object.defineProperty(exports, "createEffect", { enumerable: true, get: function () { return Effect_1.createEffect; } });
+export { createEffect } from "./Effect.js";
 //# sourceMappingURL=index.js.map

@@ -1,7 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.range = exports.isEquals = void 0;
-function isEquals(left, right) {
+export function isEquals(left, right) {
     if (typeof left !== typeof right) {
         return false;
     }
@@ -18,7 +15,6 @@ function isEquals(left, right) {
             return left === right;
     }
 }
-exports.isEquals = isEquals;
 /**
  * @param {Array<any>} left
  * @param {Array<any>} right
@@ -43,10 +39,9 @@ function isObjectEquals(left, right) {
         return isEquals(left[key], right[key]);
     });
 }
-function range(size) {
+export function range(size) {
     return Array(size)
         .fill(null)
         .map((_, i) => i);
 }
-exports.range = range;
 //# sourceMappingURL=Equals.js.map
