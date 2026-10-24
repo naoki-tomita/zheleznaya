@@ -1,4 +1,5 @@
 declare const React = ""; // suppress error.
+import { describe, it, expect } from "vitest";
 import { renderToText, h, Component } from "../index";
 
 describe("renderToText", () => {

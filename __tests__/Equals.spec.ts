@@ -1,3 +1,4 @@
+import { describe, it, expect } from "vitest";
 import { isEquals, range } from "../Equals";
 
 describe("Equals", () => {

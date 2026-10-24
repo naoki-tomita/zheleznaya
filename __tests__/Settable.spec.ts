@@ -1,3 +1,4 @@
+import { describe, it, expect, vi } from "vitest";
 import { wrap } from "../Settable";
 
 describe("Settable", () => {
@@ -14,45 +15,45 @@ describe("Settable", () => {
     it("should fire changed event when object property changed.", () => {
       const obj = wrap({ foo: "bar" });
 
-      const spy = jest.fn();
+      const spy = vi.fn();
       obj.__on__(spy);
       obj.foo = "hoge";
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
 
       expect(obj.foo).toBe("hoge");
     });
 
     it("should fire changed event when object does not have property changed.", () => {
       const obj = wrap({ foo: "bar" });
-      const spy = jest.fn();
+      const spy = vi.fn();
       obj.__on__(spy);
       (obj as any).bar = "hoge";
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
 
     it("should fire changed event when nested object property changed.", () => {
       const obj = wrap({ foo: { bar: "hoge" } });
       expect(obj.foo.bar).toBe("hoge");
 
-      const spy = jest.fn();
+      const spy = vi.fn();
       obj.__on__(spy);
       obj.foo.bar = "foo.bar";
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
 
       expect(obj.foo.bar).toBe("foo.bar");
     });
 
     it("should fire changed event when new nested object property changed.", () => {
       const obj = wrap({ foo: { bar: "hoge" } });
-      const spy = jest.fn();
+      const spy = vi.fn();
       obj.__on__(spy);
 
       obj.foo = { bar: "foo.bar" };
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
       expect(obj.foo.bar).toBe("foo.bar");
 
       obj.foo.bar = "foo";
-      expect(spy).toBeCalledTimes(2);
+      expect(spy).toHaveBeenCalledTimes(2);
       expect(obj.foo.bar).toBe("foo");
     });
 
@@ -67,11 +68,11 @@ describe("Settable", () => {
 
     it("should emit array function when settable array", () => {
       const obj = wrap<{ array: string[] }>({ array: [] });
-      const spy = jest.fn();
+      const spy = vi.fn();
       obj.__on__(spy);
 
       obj.array.push("foo");
-      expect(spy).toBeCalled();
+      expect(spy).toHaveBeenCalled();
     });
 
     it("should emulate map method when settable array", () => {
@@ -92,18 +93,18 @@ describe("Settable", () => {
         null: null,
         text: "text",
       });
-      const spy = jest.fn();
+      const spy = vi.fn();
       obj.__on__(spy);
 
       expect(obj.null).toBe(null);
 
       obj.null = "not null";
       expect(obj.null).toBe("not null");
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
 
       obj.null = null;
       expect(obj.null).toBe(null);
-      expect(spy).toBeCalledTimes(2);
+      expect(spy).toHaveBeenCalledTimes(2);
     });
   });
 });

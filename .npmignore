@@ -3,3 +3,4 @@ examples/
 node_modules/
 .vscode/
 __tests__/
+vitest.config.mts

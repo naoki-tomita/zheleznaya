@@ -1,4 +1,5 @@
 declare const React = ""; // suppress error.
+import { describe, it, expect, vi } from "vitest";
 import { h, render, Component } from "../index";
 describe("#render", () => {
   it("should rendering dom.", () => {
@@ -39,14 +40,14 @@ describe("#render", () => {
   });
 
   it("should call callback when button clicked.", () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
     const App = () => {
       return <button onclick={spy} >click me!</button>
     }
     render(<App />);
     const button = document.body.querySelector("button")!;
     button.click();
-    expect(spy).toBeCalled();
+    expect(spy).toHaveBeenCalled();
   });
 
   it("should render children has array children", () => {
