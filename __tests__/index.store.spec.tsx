@@ -1,6 +1,6 @@
 declare const React = ""; // suppress error.
 import { describe, it, expect } from "vitest";
-import { h, render, createStore, Component } from "../index";
+import { h, render, createStore, type Component } from "../index.ts";
 
 function sleep(ms: number) {
   return new Promise(ok => setTimeout(ok, ms));

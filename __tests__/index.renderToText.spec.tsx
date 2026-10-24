@@ -1,6 +1,6 @@
 declare const React = ""; // suppress error.
 import { describe, it, expect } from "vitest";
-import { renderToText, h, Component } from "../index";
+import { renderToText, h, type Component } from "../index.ts";
 
 describe("renderToText", () => {
   it("should rendered string match to snapshots.", () => {
