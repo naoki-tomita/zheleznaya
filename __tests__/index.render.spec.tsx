@@ -1,8 +1,13 @@
-declare const React = ""; // suppress error.
-import { describe, it, expect, vi } from "vitest";
-import { h, render, type Component } from "../index.ts";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { createStore, h, createRoot, type Component } from "../index.ts";
+
 describe("#render", () => {
+  beforeEach(() => {
+    document.body.innerHTML = "";
+  });
+
   it("should rendering dom.", () => {
+    const { render } = createRoot();
     const someString = "someString";
     const Inner: Component = (props: { name: string }, children) => {
       return (
@@ -40,6 +45,7 @@ describe("#render", () => {
   });
 
   it("should call callback when button clicked.", () => {
+    const { render } = createRoot();
     const spy = vi.fn();
     const App = () => {
       return <button onclick={spy} >click me!</button>
@@ -50,7 +56,8 @@ describe("#render", () => {
     expect(spy).toHaveBeenCalled();
   });
 
-  it("should render children has array children", () => {
+  it("should render children that has array children", () => {
+    const { render } = createRoot();
     const ChildrenWrapper: Component = (_, children) => {
       return (
         <div>
@@ -76,5 +83,41 @@ describe("#render", () => {
     }
     render(<App />);
     expect(document.body).toMatchSnapshot();
+  });
+
+
+  function sleep(ms: number) {
+    return new Promise(ok => setTimeout(ok, ms));
+  }
+
+  it("should render children that has array children when state has updated.", async () => {
+    const { render } = createRoot();
+    const state = createStore({ count: 0 });
+    const ChildrenWrapper: Component = (_, children) => {
+      return (
+        <div>
+          {children}
+        </div>
+      );
+    }
+
+    const App: Component = () => {
+      return (
+        <div>
+          <ChildrenWrapper>
+            <ul>
+              {["a", "b", "c"].map(k => <li>{k}</li>)}
+            </ul>
+          </ChildrenWrapper>
+        </div>
+      );
+    }
+    render(<App />);
+    const li1 = document.body.querySelector("div > div > ul > li");
+
+    state.count++;
+    await sleep(1);
+
+    expect(document.body.querySelector("div > div > ul > li")).toBe(li1);
   });
 });

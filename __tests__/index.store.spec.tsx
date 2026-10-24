@@ -1,6 +1,6 @@
 declare const React = ""; // suppress error.
 import { describe, it, expect } from "vitest";
-import { h, render, createStore, type Component } from "../index.ts";
+import { h, createRoot, createStore, type Component } from "../index.ts";
 
 function sleep(ms: number) {
   return new Promise(ok => setTimeout(ok, ms));
@@ -8,6 +8,7 @@ function sleep(ms: number) {
 
 describe("#createStore", () => {
   it("should rerender when store changed.", async () => {
+    const { render } = createRoot();
     const store = createStore({ count: 0 });
     const App: Component = () => {
       return (
