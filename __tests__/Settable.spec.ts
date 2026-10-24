@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { wrap } from "../Settable";
+import { wrap } from "../Settable.ts";
 
 describe("Settable", () => {
   describe("#wrap", () => {

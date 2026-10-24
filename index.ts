@@ -1,7 +1,7 @@
-import { wrap } from "./Settable";
-import { isEquals } from "./Equals";
-import { toKebabCaseFromSnakeCase } from "./Utils";
-import { debounce } from "./Debounce";
+import { wrap } from "./Settable.ts";
+import { isEquals } from "./Equals.ts";
+import { toKebabCaseFromSnakeCase } from "./Utils.ts";
+import { debounce } from "./Debounce.ts";
 
 export type Component<P = any> = (
   props: P,
@@ -467,4 +467,4 @@ declare global {
   }
 }
 
-export { createEffect } from "./Effect";
+export { createEffect } from "./Effect.ts";

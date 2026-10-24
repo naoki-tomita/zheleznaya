@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { toKebabCaseFromSnakeCase } from "../Utils";
+import { toKebabCaseFromSnakeCase } from "../Utils.ts";
 
 describe("#toKebabCaseFromSnakeCase", () => {
   const tests = [

@@ -1,5 +1,5 @@
 declare const React: {};
-import { h, createStore, render, Component } from "./index";
+import { h, createStore, render, type Component } from "./index.ts";
 
 const store = createStore({
   foo: "bar",

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { isEquals, range } from "../Equals";
+import { isEquals, range } from "../Equals.ts";
 
 describe("Equals", () => {
   describe("#isEquals", () => {

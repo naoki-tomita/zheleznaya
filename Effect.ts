@@ -1,4 +1,4 @@
-import { isEquals } from "./Equals";
+import { isEquals } from "./Equals.ts";
 
 export function createEffect() {
   let lastUpdatedKeys: any[] = ["_____________________"];
