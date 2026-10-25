@@ -122,7 +122,7 @@ describe("diff", () => {
     });
 
     // https://github.com/naoki-tomita/zheleznaya/issues/20#issuecomment-6397073919 (B)
-    it.fails("does not diff children after replacing an element.", () => {
+    it("does not diff children after replacing an element.", () => {
       const nextChild = html("main", [html("p", [text("a")])]);
       const last = html("div", [
         html("div", [html("p", [text("a")]), html("p", [text("b")])]),

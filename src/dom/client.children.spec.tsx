@@ -425,8 +425,8 @@ describe("#replace", () => {
   });
 
   // https://github.com/naoki-tomita/zheleznaya/issues/20#issuecomment-6397073919 (B)
-  // replace のあとも子の差分を計算し続け、作り直した要素に古い差分を当てる。
-  it.fails("should replace an element whose tag and children both change.", () => {
+  // (直った) replace のあとも子の差分を計算し続け、作り直した要素に古い差分を当てていた。
+  it("should replace an element whose tag and children both change.", () => {
     const { render, createStore } = createRoot();
     const state = createStore({ main: false });
 
