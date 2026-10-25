@@ -1,0 +1,30 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`array children > should render children that has array children 1`] = `
+<body>
+  <div
+    data-z="root"
+  >
+    <div>
+      <div>
+        <div>
+          sample
+        </div>
+        <div>
+          <ul>
+            <li>
+              a
+            </li>
+            <li>
+              b
+            </li>
+            <li>
+              c
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+`;

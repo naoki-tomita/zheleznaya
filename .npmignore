@@ -2,5 +2,7 @@ docs/
 examples/
 node_modules/
 .vscode/
-__tests__/
+src/**/*.spec.*
+src/**/__snapshots__/
+src/**/test-helpers.ts
 vitest.config.mts
