@@ -2,11 +2,13 @@ import type { VNode, Element } from "../types.ts";
 import { renderElement } from "../VNode.ts";
 import { toKebabCaseFromSnakeCase } from "../utils/string.ts";
 
-export function renderStyleToString(style: Partial<CSSStyleDeclaration> | string): string {
+export function renderStyleToString(
+  style: Partial<CSSStyleDeclaration> | string,
+): string {
   if (typeof style === "string") {
     return style;
   }
-  const result =Object.entries(style)
+  const result = Object.entries(style)
     .map(([key, value]) => `${toKebabCaseFromSnakeCase(key)}: ${value}`)
     .join(";");
   if (result.length > 0) {
@@ -19,7 +21,10 @@ function attributeToString(attributes: { [key: string]: any } | null): string {
   attributes = attributes ?? {};
   return Object.entries(attributes ?? {})
     .filter(([_, value]) => typeof value !== "function")
-    .map(([key, value]) => (key === "style" ? renderStyleToString(value) : `${key}="${value}"`)).join(" ");
+    .map(([key, value]) =>
+      key === "style" ? renderStyleToString(value) : `${key}="${value}"`,
+    )
+    .join(" ");
 }
 
 function renderVNodeToText(vnode: VNode): string {
@@ -41,6 +46,6 @@ function renderVNodeToText(vnode: VNode): string {
 }
 
 export function renderToText(root: Element): string {
-  const vnode = renderElement(root)
+  const vnode = renderElement(root);
   return renderVNodeToText(vnode);
 }

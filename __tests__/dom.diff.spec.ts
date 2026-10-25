@@ -43,20 +43,15 @@ describe("diff", () => {
     it("mounts an added child at its flattened index.", () => {
       const added = html("li", [text("c")]);
       const last = html("ul", [
-        array([
-          html("li", [text("a")]),
-          html("li", [text("b")])
-        ]),
+        array([html("li", [text("a")]), html("li", [text("b")])]),
       ]);
       const next = html("ul", [
-        array([
-          html("li", [text("a")]),
-          html("li", [text("b")]),
-          added
-        ]),
+        array([html("li", [text("a")]), html("li", [text("b")]), added]),
       ]);
 
-      expect(diff(last, next)).toEqual([{ op: "mount", path: [2], vnode: added }]);
+      expect(diff(last, next)).toEqual([
+        { op: "mount", path: [2], vnode: added },
+      ]);
     });
   });
 
@@ -88,10 +83,7 @@ describe("diff", () => {
       ]);
       const next = html("div", [
         html("span", [text("before")]),
-        array([
-          html("span", [text("a")]),
-          html("span", [text("b")])
-        ]),
+        array([html("span", [text("a")]), html("span", [text("b")])]),
         html("span", [text("after")]),
       ]);
 
@@ -149,7 +141,11 @@ describe("diff", () => {
       ]);
       const next = html("div", [
         html("span", [text("before")]),
-        array([html("span", [text("a")]), nextChild, html("span", [text("c")])]),
+        array([
+          html("span", [text("a")]),
+          nextChild,
+          html("span", [text("c")]),
+        ]),
         html("span", [text("after")]),
       ]);
 
@@ -188,9 +184,10 @@ describe("diff", () => {
         html("span", [text("after")]),
       ]);
 
-      expect(diff(last, next)).toEqual([{ op: "replace", path: [1], vnode: array([]) }]);
+      expect(diff(last, next)).toEqual([
+        { op: "replace", path: [1], vnode: array([]) },
+      ]);
     });
-
   });
 
   describe("props", () => {
@@ -199,9 +196,9 @@ describe("diff", () => {
         diff(html("div", [], { class: "a" }), html("div", [], { class: "b" })),
       ).toEqual([{ op: "props", path: [], set: { class: "b" }, unset: [] }]);
 
-      expect(
-        diff(html("div", [], { id: "x" }), html("div", [], {})),
-      ).toEqual([{ op: "props", path: [], set: {}, unset: ["id"] }]);
+      expect(diff(html("div", [], { id: "x" }), html("div", [], {}))).toEqual([
+        { op: "props", path: [], set: {}, unset: ["id"] },
+      ]);
     });
 
     it("uses the flattened index of a nested element.", () => {
