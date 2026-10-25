@@ -1,23 +1,32 @@
+export type Component<P = any> = (
+  props: P,
+  children: Array<Child | Child[]>,
+) => Element;
+
 /**
  * h関数が生成する、VNodeになる前の木構造。これをレンダリングするとVNodeになる。
  */
-interface ElementNode {
+export interface ElementNode {
   name: string;
   type: "html";
   attributes: { [key: string]: any } | null;
   children: Array<Child | Child[]>;
 }
 /**
- * ユーザーが書いたコンポーネントをラップしたもの。これを実行すると、Elementが生成される。
- * ElementNodeを生成するわけじゃないのは、
+ * ユーザーが書いたコンポーネントをラップしたもの。この関数を実行すると、Elementが生成される。
  */
-type LazyElement = () => Element;
+export type LazyElement = () => Element;
 /**
  * ElementNode, LazyElementをまとめたもの。
  */
-type Element = ElementNode | LazyElement;
-type Child = Element | string | number | boolean;
-interface VNode {
+export type Element = ElementNode | LazyElement;
+export type Child = Element | string | number | boolean | null | undefined;
+export interface VNode {
+  /**
+   * type=textのとき: テキストの文字列
+   * type=htmlのとき: 要素のタグ名
+   * type=arrayのとき: 使わない
+   */
   name: string;
   type: "html" | "text" | "array";
   attributes: { [key: string]: any } | null;
@@ -31,8 +40,7 @@ type Attributes<T extends HTMLElement> =
   | AttributesOverwrite<T>;
 
 interface AttributesOverwrite<T extends HTMLElement> {
-  children?:
-    Array<RendereableElement | RendereableElement[]> | RendereableElement;
+  children?: Array<Element | Element[]> | Element;
   class?: string;
   style?: Partial<CSSStyleDeclaration> | string;
   ref?: (el: T) => void;
@@ -163,6 +171,6 @@ declare global {
       video: Attributes<HTMLVideoElement>;
       wbr: Attributes<HTMLDivElement>;
     }
-    type Element = RenderableVNode;
+    type Element = ElementNode | LazyElement;
   }
 }

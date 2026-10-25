@@ -1,6 +1,6 @@
-declare const React = ""; // suppress error.
 import { describe, it, expect } from "vitest";
-import { renderToText, h, type Component } from "../index.ts";
+import { renderToText, h } from "../index.ts";
+import type { Component } from "../types.ts";
 
 describe("renderToText", () => {
   it("should rendered string match to snapshots.", () => {
@@ -8,8 +8,8 @@ describe("renderToText", () => {
     const Inner: Component = (props: { name: string }, children) => {
       return (
         <div>
-        child component {props.name}
-        <div>{children}</div>
+          child component {props.name}
+          <div>{children}</div>
         </div>
       );
     }

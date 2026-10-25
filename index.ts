@@ -1,40 +1,87 @@
 import { wrap } from "./Settable.ts";
 import { isEquals } from "./Equals.ts";
 import { toKebabCaseFromSnakeCase } from "./Utils.ts";
+import type { Child, Component, Element, ElementNode, LazyElement, VNode } from "./types.ts";
 import { debounce } from "./Debounce.ts";
 
-function isFunctionNode(node: RenderableElement): node is Component {}
+function renderStyleToString(style: Partial<CSSStyleDeclaration> | string): string {
+  if (typeof style === "string") {
+    return style;
+  }
+  const result =Object.entries(style)
+    .map(([key, value]) => `${toKebabCaseFromSnakeCase(key)}: ${value}`)
+    .join(";");
+  if (result.length > 0) {
+    return `style="${result};"`;
+  }
+  return "";
+}
 
-function renderChild(child: RenderableElement): VNode {
-  if (typeof child === "function") {
+function attributeToString(attributes: { [key: string]: any } | null): string {
+  return Object.entries(attributes ?? {})
+    .filter(([_, value]) => typeof value !== "function")
+    .map(([key, value]) => (key === "style" ? renderStyleToString(value) : `${key}="${value}"`)).join(" ");
+}
+
+function renderVNodeToText(vnode: VNode): string {
+  switch (vnode.type) {
+    case "text":
+      return vnode.name;
+    case "html":
+      return `<${vnode.name} ${attributeToString(vnode.attributes)}>${vnode.children.map(renderVNodeToText).join("")}</${vnode.name}>`;
+    case "array":
+      return vnode.children.map((it) => renderVNodeToText(it)).join("");
+  }
+}
+
+export function renderToText(root: Element): string {
+  const vnode = renderElement(root)
+  return renderVNodeToText(vnode);
+}
+
+function isLazyElement(node: Element | Child | Child[]): node is LazyElement {
+  return typeof node === "function";
+}
+
+function renderChild(child: Child | Child[]): VNode {
+  if (child == null) {
+    return {
+      name: "",
+      type: "text",
+      attributes: {},
+      children: [],
+    }
+  } else if (isLazyElement(child)) {
     return renderElement(child);
   } else if (typeof child === "object") {
     if (Array.isArray(child)) {
       return {
-        name: "ArrayNode",
+        name: "",
         type: "array",
         attributes: {},
-        children: child.map((item) => renderChild(item)) as RenderedVNode[],
+        children: child.map((item) => renderChild(item))
       };
     }
     return renderElement(child);
   } else {
     return {
-      name: child?.toString() ?? "",
+      name: child.toString(),
+      type: "text",
       attributes: {},
       children: [],
-      type: "text",
     };
   }
 }
 
-function renderElement(node: Element): VNode {
-  if (typeof node === "function") node = node();
+function resolveToElementNode(node: Element): ElementNode {
+  return isLazyElement(node) ? resolveToElementNode(node()) : node;
+}
+
+export function renderElement(node: Element): VNode {
+  node = resolveToElementNode(node);
   return {
     ...node,
-    children: node.children.map((it) =>
-      renderChild(it as Element),
-    ),
+    children: node.children.map(renderChild),
   };
 }
 
@@ -71,33 +118,13 @@ export function createRoot(rootElement?: HTMLElement) {
   };
 }
 
-
-export type Component<P = any> = (
-  props: P,
-  children: Array<RenderableVNode | string>,
-) => RenderableVNode;
-type Element = RenderableVNode | (() => RenderableVNode);
-type RenderableElement = Element | string | number | boolean;
-type RenderableVNode = {
-  name: string;
-  type: "text" | "element" | "array";
-  attributes: { [key: string]: any } | null;
-  children: Array<RenderableElement>;
-}
-type VNode = {
-  name: string;
-  type: "text" | "element" | "array";
-  attributes: { [key: string]: any } | null;
-  children: Array<VNode>;
-}
-
 export function h(
   name: Component | string,
   attributes: any | null,
-  ...children: Array<RenderableVNode | string>
+  ...children: Array<Child | Child[]>
 ): Element {
   return typeof name === "string"
-    ? { name, attributes, children, type: "element" }
+    ? { name, attributes, children, type: "html" }
     : () => name(attributes, children);
 }
 
