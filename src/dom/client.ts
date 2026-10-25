@@ -117,8 +117,8 @@ export function diff(lastVNode: VNode | null, vnode: VNode | null, path: IndexPa
   }
   const result: DiffResult = [];
   result.push(...diffNode(lastVNode, vnode, path));
-  if (lastVNode.type !== vnode.type) {
-    // typeが違うなら、子要素全部作り直しなので、diffはここでおしまいでよい
+  if (result[0].op === "replace") {
+    // 置き換えなら、子要素作り直しなので、やってよい
     return result;
   }
   if (lastVNode.type === "array" && vnode.type === "array") {
