@@ -1,6 +1,7 @@
 name: Release
-# v* のタグを push すると、テスト → ビルド → npm 公開 → GitHub Release 作成まで行う。
+# v* のタグを push すると、テスト → ビルド → npm へのステージ公開 → GitHub Release 作成まで行う。
 # リリース手順: `npm version patch|minor|major` (package.json の更新・コミット・タグ作成) → `git push --follow-tags`
+#   → npmjs.com でステージされた版を承認すると公開される (2FA が必要)
 on:
   push:
     tags: ["v*"]
@@ -36,14 +37,15 @@ jobs:
       - run: rm -rf dist && yarn build
         name: Build
 
-      # Trusted Publishing は npm CLI 11.5.1 以降が必要 (Node 24 同梱の npm は古いことがある)
+      # Trusted Publishing と npm stage は新しい npm CLI が必要 (Node 24 同梱の npm は古いことがある)
       - run: npm install -g npm@latest
         name: Update npm
 
-      # npmjs.com の zheleznaya の Trusted Publisher に、このリポジトリと release.yml を登録しておくこと。
-      # GitHub Actions の OIDC で認証するので、NPM_TOKEN は使わない
-      - run: npm publish --provenance --access public
-        name: Release npmjs
+      # npmjs.com の zheleznaya の Trusted Publisher に、このリポジトリと release.yml を
+      # 「npm stage publish」の権限で登録しておくこと。GitHub Actions の OIDC で認証するので NPM_TOKEN は使わない。
+      # ここではステージに置くだけで、公開はメンテナーが承認したとき (npmjs.com か `npm stage approve <stage-id>`)
+      - run: npm stage publish --provenance --access public
+        name: Stage to npmjs
 
       - run: gh release create "$GITHUB_REF_NAME" --generate-notes --verify-tag
         name: Create GitHub Release
