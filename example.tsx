@@ -1,5 +1,7 @@
-declare const React: {};
-import { h, createStore, render, type Component } from "./index.ts";
+import { h, createRoot } from "./src/index.ts";
+import type { Component } from "./src/types.ts";
+
+const { render, createStore } = createRoot();
 
 const store = createStore({
   foo: "bar",
@@ -35,9 +37,9 @@ const MyComponent = (props: { key: string }) => {
 const MyWrapper: Component = (_, children) => {
   return (
     <div>
-      <div>children↓</div>
+      <div>children↓出なければバグだよ</div>
       {children}
-      <div>children↑</div>
+      <div>children↑出なければバグだよ</div>
     </div>
   );
 }
@@ -77,4 +79,5 @@ function range(size: number) {
   return Array(size).fill(null);
 }
 
-render(<App />);
+const el = <App />;
+render(el);

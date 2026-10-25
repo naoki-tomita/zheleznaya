@@ -1,8 +1,10 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`#render > should render children has array children 1`] = `
+exports[`#render > #mount > should render children that has array children 1`] = `
 <body>
-  <div>
+  <div
+    data-z="root"
+  >
     <div>
       <div>
         <div>
@@ -27,9 +29,11 @@ exports[`#render > should render children has array children 1`] = `
 </body>
 `;
 
-exports[`#render > should rendering dom. 1`] = `
+exports[`#render > #mount > should rendering dom. 1`] = `
 <body>
-  <div>
+  <div
+    data-z="root"
+  >
     <div
       id="root"
     >

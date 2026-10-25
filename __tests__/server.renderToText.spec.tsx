@@ -1,6 +1,7 @@
-declare const React = ""; // suppress error.
 import { describe, it, expect } from "vitest";
-import { renderToText, h, type Component } from "../index.ts";
+import { h } from "../src/index.ts";
+import { renderToText } from "../src/dom/server.ts";
+import type { Component } from "../src/types.ts";
 
 describe("renderToText", () => {
   it("should rendered string match to snapshots.", () => {
@@ -8,8 +9,8 @@ describe("renderToText", () => {
     const Inner: Component = (props: { name: string }, children) => {
       return (
         <div>
-        child component {props.name}
-        <div>{children}</div>
+          child component {props.name}
+          <div>{children}</div>
         </div>
       );
     }
@@ -27,5 +28,5 @@ describe("renderToText", () => {
     }
 
     expect(renderToText(<App />)).toMatchSnapshot();
-  })
+  });
 });

@@ -1,7 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.wrap = void 0;
-function wrap(obj) {
+export function wrap(obj) {
     if (obj == null || typeof obj !== "object") {
         return obj;
     }
@@ -58,5 +55,4 @@ function wrap(obj) {
         set,
     });
 }
-exports.wrap = wrap;
 //# sourceMappingURL=Settable.js.map

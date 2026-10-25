@@ -23,7 +23,7 @@
     "build": "tsc -p tsconfig.build.json",
     "build:dev": "esbuild index.ts --bundle --format=esm --sourcemap --outdir=dist",
     "typecheck": "tsc",
-    "lint": "npx prettier --write '{**,.}/*.ts'",
+    "lint": "npx prettier --write '{**,.}/*.ts' '!dist/**'",
     "prepublish": "yarn lint && yarn build",
     "test": "vitest run",
     "test:watch": "vitest",
