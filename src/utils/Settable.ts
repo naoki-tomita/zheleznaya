@@ -38,11 +38,7 @@ export function wrap<T extends {}>(obj: T): T & Settable<T> {
   if (Array.isArray(obj)) {
     return new Proxy(settable, {
       get(target, key) {
-        if (
-          ["__cb__", "__emit__", "__on__", "__original__"].includes(
-            key.toString(),
-          )
-        ) {
+        if (["__cb__", "__emit__", "__on__", "__original__"].includes(key.toString())) {
           return (target as any)[key as any];
         }
         if (["push", "pop", "shift", "unshift"].includes(key.toString())) {
@@ -51,11 +47,7 @@ export function wrap<T extends {}>(obj: T): T & Settable<T> {
             settable.__emit__();
             return result;
           };
-        } else if (
-          ["map", "forEach", "reduce", "filter", "find", "concat"].includes(
-            key.toString(),
-          )
-        ) {
+        } else if (["map", "forEach", "reduce", "filter", "find", "concat"].includes(key.toString())) {
           return (...args: any[]) => (obj as any)[key](...args);
         }
         return (obj as any)[key];
@@ -66,11 +58,7 @@ export function wrap<T extends {}>(obj: T): T & Settable<T> {
 
   return new Proxy(settable, {
     get(target, key) {
-      if (
-        ["__cb__", "__emit__", "__on__", "__original__"].includes(
-          key.toString(),
-        )
-      ) {
+      if (["__cb__", "__emit__", "__on__", "__original__"].includes(key.toString())) {
         return (target as any)[key as any];
       }
       return (obj as any)[key as any];

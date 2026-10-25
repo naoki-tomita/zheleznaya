@@ -2,9 +2,7 @@ import type { VNode, Element } from "../types.ts";
 import { renderElement } from "../VNode.ts";
 import { toKebabCaseFromSnakeCase } from "../utils/string.ts";
 
-export function renderStyleToString(
-  style: Partial<CSSStyleDeclaration> | string,
-): string {
+export function renderStyleToString(style: Partial<CSSStyleDeclaration> | string): string {
   if (typeof style === "string") {
     return style;
   }
@@ -21,9 +19,7 @@ function attributeToString(attributes: { [key: string]: any } | null): string {
   attributes = attributes ?? {};
   return Object.entries(attributes ?? {})
     .filter(([_, value]) => typeof value !== "function")
-    .map(([key, value]) =>
-      key === "style" ? renderStyleToString(value) : `${key}="${value}"`,
-    )
+    .map(([key, value]) => (key === "style" ? renderStyleToString(value) : `${key}="${value}"`))
     .join(" ");
 }
 

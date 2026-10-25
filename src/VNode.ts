@@ -1,10 +1,4 @@
-import type {
-  Child,
-  ElementNode,
-  LazyElement,
-  VNode,
-  Element,
-} from "./types.ts";
+import type { Child, ElementNode, LazyElement, VNode, Element } from "./types.ts";
 
 function isLazyElement(node: Element | Child | Child[]): node is LazyElement {
   return typeof node === "function";

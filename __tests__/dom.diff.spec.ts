@@ -6,11 +6,7 @@ function text(name: string): TextVNode {
   return { type: "text", name };
 }
 
-function html(
-  name: string,
-  children: VNode[] = [],
-  attributes: HtmlVNode["attributes"] = null,
-): HtmlVNode {
+function html(name: string, children: VNode[] = [], attributes: HtmlVNode["attributes"] = null): HtmlVNode {
   return { type: "html", name, attributes, children };
 }
 
@@ -18,11 +14,7 @@ function array(children: VNode[]): ArrayVNode {
   return { type: "array", children };
 }
 
-function li(
-  key: string,
-  label: string = key,
-  attributes: Record<string, unknown> = {},
-): HtmlVNode {
+function li(key: string, label: string = key, attributes: Record<string, unknown> = {}): HtmlVNode {
   return html("li", [text(label)], { key, ...attributes });
 }
 
@@ -42,31 +34,17 @@ describe("diff", () => {
 
     it("mounts an added child at its flattened index.", () => {
       const added = html("li", [text("c")]);
-      const last = html("ul", [
-        array([html("li", [text("a")]), html("li", [text("b")])]),
-      ]);
-      const next = html("ul", [
-        array([html("li", [text("a")]), html("li", [text("b")]), added]),
-      ]);
+      const last = html("ul", [array([html("li", [text("a")]), html("li", [text("b")])])]);
+      const next = html("ul", [array([html("li", [text("a")]), html("li", [text("b")]), added])]);
 
-      expect(diff(last, next)).toEqual([
-        { op: "mount", path: [2], vnode: added },
-      ]);
+      expect(diff(last, next)).toEqual([{ op: "mount", path: [2], vnode: added }]);
     });
   });
 
   describe("unmount", () => {
     it("unmounts the last flattened child.", () => {
-      const last = html("ul", [
-        array([
-          html("li", [text("a")]),
-          html("li", [text("b")]),
-          html("li", [text("c")]),
-        ]),
-      ]);
-      const next = html("ul", [
-        array([html("li", [text("a")]), html("li", [text("b")])]),
-      ]);
+      const last = html("ul", [array([html("li", [text("a")]), html("li", [text("b")]), html("li", [text("c")])])]);
+      const next = html("ul", [array([html("li", [text("a")]), html("li", [text("b")])])]);
 
       expect(diff(last, next)).toEqual([{ op: "unmount", path: [2] }]);
     });
@@ -74,11 +52,7 @@ describe("diff", () => {
     it("unmounts an array item between static elements.", () => {
       const last = html("div", [
         html("span", [text("before")]),
-        array([
-          html("span", [text("a")]),
-          html("span", [text("b")]),
-          html("span", [text("c")]),
-        ]),
+        array([html("span", [text("a")]), html("span", [text("b")]), html("span", [text("c")])]),
         html("span", [text("after")]),
       ]);
       const next = html("div", [
@@ -99,15 +73,9 @@ describe("diff", () => {
         html("span", [text("target")]),
         html("span", [text("after")]),
       ]);
-      const next = html("div", [
-        html("span", [text("before")]),
-        nextChild,
-        html("span", [text("after")]),
-      ]);
+      const next = html("div", [html("span", [text("before")]), nextChild, html("span", [text("after")])]);
 
-      expect(diff(last, next)).toEqual([
-        { op: "replace", path: [1], vnode: nextChild },
-      ]);
+      expect(diff(last, next)).toEqual([{ op: "replace", path: [1], vnode: nextChild }]);
     });
 
     it("replaces an element with a text node.", () => {
@@ -117,41 +85,25 @@ describe("diff", () => {
         html("span", [text("target")]),
         html("span", [text("after")]),
       ]);
-      const next = html("div", [
-        html("span", [text("before")]),
-        nextChild,
-        html("span", [text("after")]),
-      ]);
+      const next = html("div", [html("span", [text("before")]), nextChild, html("span", [text("after")])]);
 
-      expect(diff(last, next)).toEqual([
-        { op: "replace", path: [1], vnode: nextChild },
-      ]);
+      expect(diff(last, next)).toEqual([{ op: "replace", path: [1], vnode: nextChild }]);
     });
 
     it("replaces an array item between static elements.", () => {
       const nextChild = html("b", [text("b")]);
       const last = html("div", [
         html("span", [text("before")]),
-        array([
-          html("span", [text("a")]),
-          html("span", [text("b")]),
-          html("span", [text("c")]),
-        ]),
+        array([html("span", [text("a")]), html("span", [text("b")]), html("span", [text("c")])]),
         html("span", [text("after")]),
       ]);
       const next = html("div", [
         html("span", [text("before")]),
-        array([
-          html("span", [text("a")]),
-          nextChild,
-          html("span", [text("c")]),
-        ]),
+        array([html("span", [text("a")]), nextChild, html("span", [text("c")])]),
         html("span", [text("after")]),
       ]);
 
-      expect(diff(last, next)).toEqual([
-        { op: "replace", path: [2], vnode: nextChild },
-      ]);
+      expect(diff(last, next)).toEqual([{ op: "replace", path: [2], vnode: nextChild }]);
     });
 
     it("keeps a path segment for an html parent, and skips array nodes.", () => {
@@ -164,12 +116,9 @@ describe("diff", () => {
         ),
       ).toEqual([{ op: "replace", path: [0, 0], vnode: nextChild }]);
 
-      expect(
-        diff(
-          html("div", [array([html("span", [text("target")])])]),
-          html("div", [array([nextChild])]),
-        ),
-      ).toEqual([{ op: "replace", path: [0], vnode: nextChild }]);
+      expect(diff(html("div", [array([html("span", [text("target")])])]), html("div", [array([nextChild])]))).toEqual([
+        { op: "replace", path: [0], vnode: nextChild },
+      ]);
     });
 
     it("replaces a child that becomes an empty array.", () => {
@@ -178,23 +127,17 @@ describe("diff", () => {
         html("span", [text("target")]),
         html("span", [text("after")]),
       ]);
-      const next = html("div", [
-        html("span", [text("before")]),
-        array([]),
-        html("span", [text("after")]),
-      ]);
+      const next = html("div", [html("span", [text("before")]), array([]), html("span", [text("after")])]);
 
-      expect(diff(last, next)).toEqual([
-        { op: "replace", path: [1], vnode: array([]) },
-      ]);
+      expect(diff(last, next)).toEqual([{ op: "replace", path: [1], vnode: array([]) }]);
     });
   });
 
   describe("props", () => {
     it("sets and unsets attributes.", () => {
-      expect(
-        diff(html("div", [], { class: "a" }), html("div", [], { class: "b" })),
-      ).toEqual([{ op: "props", path: [], set: { class: "b" }, unset: [] }]);
+      expect(diff(html("div", [], { class: "a" }), html("div", [], { class: "b" }))).toEqual([
+        { op: "props", path: [], set: { class: "b" }, unset: [] },
+      ]);
 
       expect(diff(html("div", [], { id: "x" }), html("div", [], {}))).toEqual([
         { op: "props", path: [], set: {}, unset: ["id"] },
@@ -213,9 +156,7 @@ describe("diff", () => {
         html("span", [text("after")]),
       ]);
 
-      expect(diff(last, next)).toEqual([
-        { op: "props", path: [1], set: { class: "b" }, unset: [] },
-      ]);
+      expect(diff(last, next)).toEqual([{ op: "props", path: [1], set: { class: "b" }, unset: [] }]);
     });
   });
 
@@ -224,18 +165,14 @@ describe("diff", () => {
       const last = html("ul", [array([li("a"), li("b", "old"), li("c")])]);
       const next = html("ul", [array([li("a"), li("b", "new"), li("c")])]);
 
-      expect(diff(last, next)).toEqual([
-        { op: "replace", path: [1, 0], vnode: text("new") },
-      ]);
+      expect(diff(last, next)).toEqual([{ op: "replace", path: [1, 0], vnode: text("new") }]);
     });
 
     it("does not put key into the props patch.", () => {
       const last = html("ul", [array([li("b", "b", { class: "a" })])]);
       const next = html("ul", [array([li("b", "b", { class: "b" })])]);
 
-      expect(diff(last, next)).toEqual([
-        { op: "props", path: [0], set: { class: "b" }, unset: [] },
-      ]);
+      expect(diff(last, next)).toEqual([{ op: "props", path: [0], set: { class: "b" }, unset: [] }]);
     });
 
     it("unmounts the removed key instead of the last item.", () => {
@@ -250,9 +187,7 @@ describe("diff", () => {
       const last = html("ul", [array([li("a"), li("c")])]);
       const next = html("ul", [array([li("a"), added, li("c")])]);
 
-      expect(diff(last, next)).toEqual([
-        { op: "mount", path: [1], vnode: added },
-      ]);
+      expect(diff(last, next)).toEqual([{ op: "mount", path: [1], vnode: added }]);
     });
 
     it("unmounts a removed key between static elements.", () => {

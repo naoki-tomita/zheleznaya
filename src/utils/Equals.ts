@@ -31,10 +31,7 @@ function isArrayEquals(left: any[], right: any[]) {
 }
 
 function isObjectEquals(left: any, right: any) {
-  const [leftKeys, rightKeys] = [
-    Object.keys(left).sort(),
-    Object.keys(right).sort(),
-  ];
+  const [leftKeys, rightKeys] = [Object.keys(left).sort(), Object.keys(right).sort()];
   if (!isArrayEquals(leftKeys, rightKeys)) {
     return false;
   }
