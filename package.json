@@ -1,6 +1,6 @@
 {
   "name": "zheleznaya",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "repository": "https://github.com/naoki-tomita/zheleznaya",
@@ -24,8 +24,8 @@
     "build:dev": "esbuild index.ts --bundle --format=esm --sourcemap --outdir=dist",
     "typecheck": "tsc",
     "lint": "npx prettier --write '{**,.}/*.ts' '!dist/**'",
-    "prepublish": "yarn lint && yarn build",
-    "postpublish": "git push --follow-tags",
+    "preversion": "yarn lint && yarn build",
+    "postversion": "git push --follow-tags",
     "test": "vitest run",
     "test:watch": "vitest",
     "dev": "vite"
