@@ -117,7 +117,7 @@ export function diff(lastVNode: VNode | null, vnode: VNode | null, path: IndexPa
   }
   const result: DiffResult = [];
   result.push(...diffNode(lastVNode, vnode, path));
-  if (result[0].op === "replace") {
+  if (result[0]?.op === "replace") {
     // 置き換えなら、子要素作り直しなので、やってよい
     return result;
   }
