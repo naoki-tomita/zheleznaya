@@ -2,7 +2,9 @@
 
 exports[`#render > #mount > should render children that has array children 1`] = `
 <body>
-  <div>
+  <div
+    data-z="root"
+  >
     <div>
       <div>
         <div>
@@ -29,7 +31,9 @@ exports[`#render > #mount > should render children that has array children 1`] =
 
 exports[`#render > #mount > should rendering dom. 1`] = `
 <body>
-  <div>
+  <div
+    data-z="root"
+  >
     <div
       id="root"
     >

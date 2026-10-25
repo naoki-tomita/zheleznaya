@@ -124,7 +124,7 @@ describe("#render", () => {
     });
   });
 
-  describe.only("#update", () => {
+  describe("#update", () => {
     it("should render children that has updated state.", async () => {
       const { render, createStore } = createRoot();
       const state = createStore({ count: 0 });

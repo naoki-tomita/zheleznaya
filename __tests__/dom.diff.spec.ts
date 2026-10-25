@@ -29,7 +29,7 @@ describe("diff", () => {
     it("mounts the whole tree when there is no previous vnode.", () => {
       const vnode = html("div", [text("a")]);
 
-      expect(diff(null, vnode)).toEqual([{ op: "mount", vnode }]);
+      expect(diff(null, vnode)).toEqual([{ op: "mount", path: [], vnode }]);
     });
 
     it("mounts an added child at its flattened index.", () => {

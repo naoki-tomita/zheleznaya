@@ -178,7 +178,6 @@ function createElement(vnode: VNode): Array<HTMLElement | Text> {
 function replace(root: globalThis.Element, vnode: VNode, path: IndexPath) {
   const el = createElement(vnode);
   const before = find(root, path);
-  console.log(el, before);
   before.replaceWith(...el);
 }
 
@@ -204,7 +203,7 @@ function find(root: globalThis.Element, path: IndexPath) {
     return root;
   }
   // rootは管理外のdomノード。これの子要素が本当のルートノード。
-  return path.reduce((acc, index) => (console.log(acc, index), acc.childNodes.item(index)!), root.childNodes.item(0)!);
+  return path.reduce((acc, index) => (acc.childNodes.item(index)!), root.childNodes.item(0)!);
 }
 
 function unmount(root: globalThis.Element, path: IndexPath) {
@@ -270,7 +269,6 @@ export function createRoot(rootElement?: globalThis.Element) {
       return;
     }
     const result = diff(lastVNode, vnode);
-    console.log(result);
     patch(root, result);
     lastVNode = vnode;
   }
