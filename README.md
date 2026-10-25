@@ -1,5 +1,5 @@
 
-![zheleznaya](./zheleznaya.png)
+![zheleznaya](./logo.jpeg)
 
 A light frontend framework like React.
 
