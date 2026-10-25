@@ -20,5 +20,5 @@
     "rewriteRelativeImportExtensions": true,
     "skipLibCheck": true
   },
-  "include": ["*.ts", "*.tsx", "*.mts", "__tests__"]
+  "include": ["*.ts", "*.tsx", "*.mts", "__tests__", "src/dom/server.ts", "src/VNode.ts", "src/dom/client.ts", "src/index.ts", "src/utils/Debounce.ts", "src/utils/Effect.ts", "src/utils/Equals.ts", "src/utils/Settable.ts", "src/types.ts", "src/utils/string.ts"]
 }

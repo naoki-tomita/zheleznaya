@@ -21,15 +21,28 @@ export type LazyElement = () => Element;
  */
 export type Element = ElementNode | LazyElement;
 export type Child = Element | string | number | boolean | null | undefined;
-export interface VNode {
+export type VNode =
+  | TextVNode
+  | HtmlVNode
+  | ArrayVNode;
+export type TextVNode ={
+  type: "text";
   /**
-   * type=textのとき: テキストの文字列
-   * type=htmlのとき: 要素のタグ名
-   * type=arrayのとき: 使わない
+   * テキストの文字列
    */
   name: string;
-  type: "html" | "text" | "array";
+}
+export type HtmlVNode ={
+  type: "html";
+  /**
+   * 要素のタグ名
+   */
+  name: string;
   attributes: { [key: string]: any } | null;
+  children: VNode[];
+}
+export type ArrayVNode ={
+  type: "array";
   children: VNode[];
 }
 
@@ -171,6 +184,6 @@ declare global {
       video: Attributes<HTMLVideoElement>;
       wbr: Attributes<HTMLDivElement>;
     }
-    type Element = ElementNode | LazyElement;
+    type Element = (ElementNode | LazyElement);
   }
 }

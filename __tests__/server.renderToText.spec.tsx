@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { renderToText, h } from "../index.ts";
-import type { Component } from "../types.ts";
+import { h } from "../src/index.ts";
+import { renderToText } from "../src/dom/server.ts";
+import type { Component } from "../src/types.ts";
 
 describe("renderToText", () => {
   it("should rendered string match to snapshots.", () => {
@@ -27,5 +28,5 @@ describe("renderToText", () => {
     }
 
     expect(renderToText(<App />)).toMatchSnapshot();
-  })
+  });
 });

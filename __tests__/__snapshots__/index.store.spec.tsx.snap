@@ -1,21 +1,12 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`#createStore > should rerender when store changed. 1`] = `
-<body>
-  <div>
-    <div>
-      0
-    </div>
-  </div>
-</body>
-`;
-
-exports[`#createStore > should rerender when store changed. 2`] = `
-<body>
-  <div>
-    <div>
-      2
-    </div>
-  </div>
-</body>
+{
+  "__cb__": [],
+  "__emit__": [Function],
+  "__on__": [Function],
+  "__original__": {
+    "count": 0,
+  },
+}
 `;

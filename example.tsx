@@ -1,7 +1,7 @@
-declare const React: {};
-import { h, createStore, createRoot, type Component } from "./index.ts";
+import { h, createRoot } from "./src/index.ts";
+import type { Component } from "./src/types.ts";
 
-const { render } = createRoot();
+const { render, createStore } = createRoot();
 
 const store = createStore({
   foo: "bar",
@@ -79,4 +79,5 @@ function range(size: number) {
   return Array(size).fill(null);
 }
 
-render(<App />);
+const el = <App />;
+render(el);
