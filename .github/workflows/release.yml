@@ -7,7 +7,7 @@ on:
 
 permissions:
   contents: write # GitHub Release を作る
-  id-token: write # npm の provenance (どのコミットからビルドしたかの証明) を付ける
+  id-token: write # npm の Trusted Publishing (トークンなしで公開) と provenance に使う
 
 jobs:
   release:
@@ -36,10 +36,14 @@ jobs:
       - run: rm -rf dist && yarn build
         name: Build
 
+      # Trusted Publishing は npm CLI 11.5.1 以降が必要 (Node 24 同梱の npm は古いことがある)
+      - run: npm install -g npm@latest
+        name: Update npm
+
+      # npmjs.com の zheleznaya の Trusted Publisher に、このリポジトリと release.yml を登録しておくこと。
+      # GitHub Actions の OIDC で認証するので、NPM_TOKEN は使わない
       - run: npm publish --provenance --access public
         name: Release npmjs
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - run: gh release create "$GITHUB_REF_NAME" --generate-notes --verify-tag
         name: Create GitHub Release
