@@ -33,8 +33,7 @@ jobs:
       - run: yarn typecheck && yarn test
         name: Test
 
-      # dist/ はリポジトリにもコミットされているので、消してから作り直す (古い構成のファイルを公開しないため)
-      - run: rm -rf dist && yarn build
+      - run: yarn build
         name: Build
 
       # Trusted Publishing と npm stage は新しい npm CLI が必要 (Node 24 同梱の npm は古いことがある)
