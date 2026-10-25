@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { wrap } from "../src/utils/Settable.ts";
+import { wrap } from "./Settable.ts";
 
 describe("Settable", () => {
   describe("#wrap", () => {
@@ -105,6 +105,55 @@ describe("Settable", () => {
       obj.null = null;
       expect(obj.null).toBe(null);
       expect(spy).toHaveBeenCalledTimes(2);
+    });
+
+    // https://github.com/naoki-tomita/zheleznaya/issues/20 (#7)
+    // Proxy の target が settable なので、has / deleteProperty が元の配列に届かない。
+    it.fails("should splice a settable array.", () => {
+      const obj = wrap({ items: ["a", "c", "d"] });
+
+      const removed = obj.items.splice(0, 1);
+
+      expect(removed).toEqual(["a"]);
+      expect([...obj.items]).toEqual(["c", "d"]);
+    });
+
+    // https://github.com/naoki-tomita/zheleznaya/issues/20 (#7)
+    // 通知されるのは push / pop / shift / unshift と、set トラップを通る splice / fill だけ。
+    (["sort", "reverse", "copyWithin"] as const).forEach(
+      (method) => {
+        it.fails(`should emit when ${method} is called.`, () => {
+          const obj = wrap({ items: ["b", "a", "c"] });
+          const spy = vi.fn();
+          obj.__on__(spy);
+
+          const args: Record<typeof method, unknown[]> = {
+            sort: [],
+            reverse: [],
+            copyWithin: [0, 1],
+          };
+          (obj.items[method] as (...args: unknown[]) => unknown)(
+            ...args[method],
+          );
+
+          expect(spy).toHaveBeenCalled();
+        });
+      },
+    );
+
+    // https://github.com/naoki-tomita/zheleznaya/issues/20 (#9)
+    // 組み込みオブジェクトも Proxy で包むので、メソッドの this が Proxy になり TypeError になる。
+    // (issue では AudioNode で確認。jsdom には AudioContext がないので Map / Date で再現する)
+    it.fails("should keep a Map usable.", () => {
+      const obj = wrap({ map: new Map([["key", "value"]]) });
+
+      expect(obj.map.get("key")).toBe("value");
+    });
+
+    it.fails("should keep a Date usable.", () => {
+      const obj = wrap({ date: new Date(0) });
+
+      expect(obj.date.getTime()).toBe(0);
     });
   });
 });

@@ -1,32 +1,14 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`#render > #mount > should render children that has array children 1`] = `
-<body>
-  <div
-    data-z="root"
-  >
-    <div>
-      <div>
-        <div>
-          sample
-        </div>
-        <div>
-          <ul>
-            <li>
-              a
-            </li>
-            <li>
-              b
-            </li>
-            <li>
-              c
-            </li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
-</body>
+exports[`#createStore > should rerender when store changed. 1`] = `
+{
+  "__cb__": [],
+  "__emit__": [Function],
+  "__on__": [Function],
+  "__original__": {
+    "count": 0,
+  },
+}
 `;
 
 exports[`#render > #mount > should rendering dom. 1`] = `

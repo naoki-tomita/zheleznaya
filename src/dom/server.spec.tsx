@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { h } from "../src/index.ts";
-import { renderToText } from "../src/dom/server.ts";
-import type { Component } from "../src/types.ts";
+import { h } from "../index.ts";
+import { renderToText } from "./server.ts";
+import type { Component } from "../types.ts";
 
 describe("renderToText", () => {
   it("should rendered string match to snapshots.", () => {
@@ -28,5 +28,11 @@ describe("renderToText", () => {
     }
 
     expect(renderToText(<App />)).toMatchSnapshot();
+  });
+
+  // https://github.com/naoki-tomita/zheleznaya/issues/20 (#6)
+  it.fails("should render nothing for booleans.", () => {
+    const show = false;
+    expect(renderToText(<p>{show && <b>shown</b>}{true}</p>)).toBe("<p ></p>");
   });
 });

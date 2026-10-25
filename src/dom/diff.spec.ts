@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { diff } from "../src/dom/client.ts";
-import type { ArrayVNode, HtmlVNode, TextVNode, VNode } from "../src/types.ts";
+import { diff } from "./client.ts";
+import type { ArrayVNode, HtmlVNode, TextVNode, VNode } from "../types.ts";
 
 function text(name: string): TextVNode {
   return { type: "text", name };
@@ -170,6 +170,19 @@ describe("diff", () => {
           html("div", [array([nextChild])]),
         ),
       ).toEqual([{ op: "replace", path: [0], vnode: nextChild }]);
+    });
+
+    // https://github.com/naoki-tomita/zheleznaya/issues/20#issuecomment-6397073919 (B)
+    it.fails("does not diff children after replacing an element.", () => {
+      const nextChild = html("main", [html("p", [text("a")])]);
+      const last = html("div", [
+        html("div", [html("p", [text("a")]), html("p", [text("b")])]),
+      ]);
+      const next = html("div", [nextChild]);
+
+      expect(diff(last, next)).toEqual([
+        { op: "replace", path: [0], vnode: nextChild },
+      ]);
     });
 
     it("replaces a child that becomes an empty array.", () => {
