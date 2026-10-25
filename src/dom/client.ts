@@ -103,8 +103,6 @@ function diffArray(
     );
     const lastKeys = Object.keys(lastObjectByKey);
     const currentKeys = Object.keys(currentObjectByKey);
-    const unmounted = lastKeys.filter((it) => !currentKeys.includes(it));
-    const mounted = currentKeys.filter((it) => !lastKeys.includes(it));
     const diffTargets = [...new Set([...currentKeys, ...lastKeys])].filter(
       (it) => lastKeys.includes(it) && currentKeys.includes(it),
     );
@@ -279,7 +277,7 @@ function updateProps(
   root: globalThis.Element,
   path: IndexPath,
   set: Record<string, unknown>,
-  unset: string[],
+  _unset: string[],
 ) {
   const el = find(root, path);
   updateAttributes(el as HTMLElement, set);
