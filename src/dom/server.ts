@@ -24,6 +24,8 @@ function attributeToString(attributes: { [key: string]: any } | null): string {
 
 function renderVNodeToText(vnode: VNode): string {
   switch (vnode.type) {
+    case "null":
+      return "";
     case "text":
       return vnode.name;
     case "html":

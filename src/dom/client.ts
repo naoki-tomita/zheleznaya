@@ -12,22 +12,108 @@ type DiffResult = PatchOperation[];
 
 type IndexPath = number[];
 type PatchOperation =
-| { op: "mount", vnode: VNode }
+| { op: "mount", vnode: VNode, path?: IndexPath }
 | { op: "unmount", path: IndexPath }
 | { op: "replace", path: IndexPath, vnode: VNode }
 | { op: "props", path: IndexPath, set: Record<string, unknown>, unset: string[] }
 
-function diff(lastVNode: VNode | null, vnode: VNode): DiffResult {
-  return [
-    { op: "mount", vnode },
-  ]
+function diffNode(a: VNode, b: VNode, path: IndexPath): DiffResult {
+  if (a.type !== b.type) {
+    // タイプが違う
+    return [{ op: "replace", path, vnode: b }];
+  }
+  if (a.type === "null" && b.type === "null") {
+    // null
+    return [];
+  }
+  if (a.type === "text" && b.type === "text") {
+    // テキストノードでテキストが違う
+    if (a.name !== b.name) {
+      return [{ op: "replace", path, vnode: b }];
+    }
+  }
+  if (a.type === "html" && b.type === "html") {
+    // HTMLノード
+    if (a.name !== b.name) {
+      // タグが違う
+      return [{ op: "replace", path, vnode: b }];
+    }
+    // attributesの比較
+    const aKeys = Object.keys(a.attributes ?? {});
+    const bKeys = Object.keys(b.attributes ?? {});
+    const keys = [...new Set([...aKeys, ...bKeys])].filter(it => !it.startsWith("__"));
+    const unset = aKeys.filter(it => !bKeys.includes(it));
+    const set = bKeys
+      .filter(it => !aKeys.includes(it))
+      .reduce((acc, k) => ({ ...acc, [k]: (b.attributes as any)[k] }), {} as Record<string, unknown>);
+
+    for (const key of keys) {
+      const aVal = a.attributes?.[key];
+      const bVal = b.attributes?.[key];
+      if (key === "style") {
+        // スタイル系なら、オブジェクトを見る。
+        if (!isEquals(aVal, bVal)) {
+          set[key] = bVal;
+        }
+        continue;
+      }
+      if (aVal !== bVal) {
+        set[key] = bVal;
+      }
+    }
+    if (unset.length !== 0 || Object.keys(set).length !== 0) {
+      return [{ op: "props", path, unset, set }];
+    }
+  }
+  // arrayの場合は、子要素の差分だけを見ればいい
+  return [];
 }
 
-function createHtmlElement(vnode: HtmlVNode): HTMLElement {
-  const target = document.createElement(vnode.name);
-  target.append(...vnode.children.map(createElement).flat());
+function diffArray(lastVNode: ArrayVNode, vnode: ArrayVNode, path: IndexPath): DiffResult {
+  const result: DiffResult = [];
+  const hasLastChildrenKey = lastVNode.children.every(it => ((it as any).attributes?.key));
+  const hasCurrentChildrenKey = vnode.children.every(it => ((it as any).attributes?.key));
+  if (hasLastChildrenKey && hasCurrentChildrenKey) {
+    const lastObjectByKey = lastVNode.children.reduce((acc, it) => ({ ...acc, [(it as any).attributes.key]: it }), {} as Record<string, VNode>);
+    const currentObjectByKey = lastVNode.children.reduce((acc, it) => ({ ...acc, [(it as any).attributes.key]: it }), {} as Record<string, VNode>);
+    const currentKeys = vnode.children.map(it => ((it as any).attributes?.key))
+  } else {
+    console.warn("ArrayNode should have key.");
+    const newPath = [...path];
+    const currentIndex = newPath.pop() ?? 0;
+    for (let i = 0; i < Math.max(lastVNode.children.length, vnode.children.length); i++) {
+      result.push(...diff(lastVNode.children[i], vnode.children[i], [...newPath, currentIndex + i]));
+    }
+  }
+  return result;
+}
 
-  for (const [key, value] of Object.entries(vnode.attributes ?? {})) {
+export function diff(lastVNode: VNode | null, vnode: VNode | null, path: IndexPath = []): DiffResult {
+  if (!vnode) {
+    return [{ op: "unmount", path }];
+  }
+  if (!lastVNode) {
+    return [{ op: "mount", vnode, path }];
+  }
+  const result: DiffResult = [];
+  result.push(...diffNode(lastVNode, vnode, path));
+  if (lastVNode.type !== vnode.type) {
+    // typeが違うなら、子要素全部作り直しなので、diffはここでおしまいでよい
+    return result;
+  }
+  if (lastVNode.type === "array" && vnode.type === "array") {
+    result.push(...diffArray(lastVNode, vnode, path));
+  } else if (lastVNode.type === "html" && vnode.type === "html") {
+    for (let i = 0; i < Math.max(lastVNode.children.length, vnode.children.length); i++) {
+      result.push(...diff(lastVNode.children[i], vnode.children[i], [...path, i]));
+    }
+  }
+
+  return result;
+}
+
+function updateAttributes(target: HTMLElement, set: Record<string, unknown>) {
+  for (const [key, value] of Object.entries(set ?? {})) {
     if (key === "style") {
       for (const [styleKey, styleValue] of Object.entries(value as Partial<CSSStyleDeclaration>)) {
         target.style[styleKey as any] = styleValue as string;
@@ -38,10 +124,31 @@ function createHtmlElement(vnode: HtmlVNode): HTMLElement {
       }
     } else if (key === "ref") {
       continue; // refは後で処理する
+    } else if ((key === "value" || key === "checked") && target.tagName === "INPUT") {
+      if (key === "value") {
+        target.setAttribute("value", value as string);
+        (target as HTMLInputElement).value = value as string;
+      } else if (key === "checked") {
+        if (typeof value === "boolean") {
+          value ? target.setAttribute(key, "") : target.removeAttribute(key);
+        }
+        (target as HTMLInputElement).checked = value as boolean;
+      }
     } else {
-      target.setAttribute(key, value as string);
+      if (typeof value === "boolean") {
+        value ? target.setAttribute(key, "") : target.removeAttribute(key);
+      } else {
+        target.setAttribute(key, value as string);
+      }
     }
   }
+}
+
+function createHtmlElement(vnode: HtmlVNode): HTMLElement {
+  const target = document.createElement(vnode.name);
+  target.append(...vnode.children.map(createElement).flat());
+
+  updateAttributes(target, vnode.attributes ?? {});
 
   if ("ref" in (vnode.attributes ?? {})) {
     vnode.attributes!.ref(target);
@@ -62,23 +169,74 @@ function createElement(vnode: VNode): Array<HTMLElement | Text> {
       return [createHtmlElement(vnode)];
     case "array":
       return createArrayElement(vnode);
+    case "null":
+      return [];
   }
 }
 
-function patch(root: HTMLElement, patchOperations: PatchOperation[]) {
-  for (const operation of patchOperations) {
-    switch (operation.op) {
+
+function replace(root: globalThis.Element, vnode: VNode, path: IndexPath) {
+  const el = createElement(vnode);
+  const before = find(root, path);
+  console.log(el, before);
+  before.replaceWith(...el);
+}
+
+function mount(root: globalThis.Element, vnode: VNode, path?: IndexPath) {
+  const el = createElement(vnode);
+  if (!path) {
+    root.append(...el);
+  } else {
+    const parentPath = path.slice(0, -1);
+    const index = path.pop() ?? 0;
+    const parent = find(root, parentPath);
+    if (parent.childNodes.length === index) {
+      el.forEach(it => parent.appendChild(it));
+    } else if (parent.childNodes.length > index + 1) {
+      parent.childNodes[index].before(...el);
+    }
+  }
+}
+
+function find(root: globalThis.Element, path: IndexPath) {
+  // 空ならルートエレメント。
+  if (path.length === 0) {
+    return root;
+  }
+  // rootは管理外のdomノード。これの子要素が本当のルートノード。
+  return path.reduce((acc, index) => (console.log(acc, index), acc.childNodes.item(index)!), root.childNodes.item(0)!);
+}
+
+function unmount(root: globalThis.Element, path: IndexPath) {
+  const el = find(root, path);
+  el.remove();
+}
+
+function updateProps(root: globalThis.Element, path: IndexPath, set: Record<string, unknown>, unset: string[]) {
+  const el = find(root, path);
+  updateAttributes(el as HTMLElement, set);
+}
+
+function patch(root: globalThis.Element, patchOperations: PatchOperation[]) {
+  for (const o of patchOperations) {
+    switch (o.op) {
       case "mount":
-        const el = createElement(operation.vnode);
-        root.append(...el);
+        mount(root, o.vnode, o.path);
         break;
       case "unmount":
+        unmount(root, o.path);
+        break;
+      case "replace":
+        replace(root, o.vnode, o.path);
+        break;
+      case "props":
+        updateProps(root, o.path, o.set, o.unset);
         break;
     }
   }
 }
 
-export function createRoot(rootElement?: HTMLElement) {
+export function createRoot(rootElement?: globalThis.Element) {
   let store: any = {};
   function createStore<T extends {}>(initialValue: T): T {
     return (store = wrap(initialValue) as unknown as T);
@@ -92,11 +250,12 @@ export function createRoot(rootElement?: HTMLElement) {
 
   function createRootHtmlElement() {
     const root = document.createElement("div");
+    root.dataset["z"] = "root";
     document.body.appendChild(root);
     return root;
   }
 
-  let root: HTMLElement;
+  let root: globalThis.Element;
   function runFirstRender(nodeElement: Element) {
     root = rootElement ?? createRootHtmlElement();
     root.innerHTML = "";
@@ -111,6 +270,7 @@ export function createRoot(rootElement?: HTMLElement) {
       return;
     }
     const result = diff(lastVNode, vnode);
+    console.log(result);
     patch(root, result);
     lastVNode = vnode;
   }

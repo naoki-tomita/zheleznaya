@@ -124,7 +124,7 @@ describe("#render", () => {
     });
   });
 
-  describe("#update", () => {
+  describe.only("#update", () => {
     it("should render children that has updated state.", async () => {
       const { render, createStore } = createRoot();
       const state = createStore({ count: 0 });
@@ -148,4 +148,226 @@ describe("#render", () => {
       expect(newInput.value).toBe("1");
     });
   })
+
+  describe("#unmount", () => {
+    it("should remove the last item and keep the previous node.", async () => {
+      const { render, createStore } = createRoot();
+      const state = createStore({ items: ["a", "b", "c"] });
+
+      const App: Component = () => {
+        return (
+          <ul>
+            {state.items.map((k) => (
+              <li>{k}</li>
+            ))}
+          </ul>
+        );
+      };
+      render(<App />);
+
+      const items = [...document.body.querySelectorAll("li")];
+      expect(items.map((el) => el.textContent)).toEqual(["a", "b", "c"]);
+
+      state.items.pop();
+      await sleep(1);
+
+      const next = [...document.body.querySelectorAll("li")];
+      expect(next.map((el) => el.textContent)).toEqual(["a", "b"]);
+      expect(next[0]).toBe(items[0]);
+      expect(next[1]).toBe(items[1]);
+    });
+
+    it("should remove a middle element and keep the following sibling.", async () => {
+      const { render, createStore } = createRoot();
+      const state = createStore({ show: true });
+
+      const App: Component = () => {
+        return (
+          <div>
+            <span>before</span>
+            {state.show ? <span>target</span> : []}
+            <span>after</span>
+          </div>
+        );
+      };
+      render(<App />);
+
+      const spans = [...document.body.querySelectorAll("span")];
+      expect(spans.map((el) => el.textContent)).toEqual([
+        "before",
+        "target",
+        "after",
+      ]);
+
+      state.show = false;
+      await sleep(1);
+
+      const next = [...document.body.querySelectorAll("span")];
+      expect(next.map((el) => el.textContent)).toEqual(["before", "after"]);
+      expect(next[0]).toBe(spans[0]);
+      expect(next[1]).toBe(spans[2]);
+    });
+
+    it("should remove an array item between static elements.", async () => {
+      const { render, createStore } = createRoot();
+      const state = createStore({ items: ["a", "b", "c"] });
+
+      const App: Component = () => {
+        return (
+          <div>
+            <span>before</span>
+            {state.items.map((k) => (
+              <span>{k}</span>
+            ))}
+            <span>after</span>
+          </div>
+        );
+      };
+      render(<App />);
+
+      const spans = [...document.body.querySelectorAll("span")];
+      expect(spans.map((el) => el.textContent)).toEqual([
+        "before",
+        "a",
+        "b",
+        "c",
+        "after",
+      ]);
+
+      state.items.pop();
+      await sleep(1);
+
+      const next = [...document.body.querySelectorAll("span")];
+      expect(next.map((el) => el.textContent)).toEqual([
+        "before",
+        "a",
+        "b",
+        "after",
+      ]);
+      expect(next[0]).toBe(spans[0]);
+      expect(next[1]).toBe(spans[1]);
+      expect(next[2]).toBe(spans[2]);
+      expect(next[3]).toBe(spans[4]);
+    });
+  });
+
+  describe("#replace", () => {
+    it("should replace an element when the tag changes and keep siblings.", async () => {
+      const { render, createStore } = createRoot();
+      const state = createStore({ bold: false });
+
+      const App: Component = () => {
+        return (
+          <div>
+            <span>before</span>
+            {state.bold ? <strong>target</strong> : <span>target</span>}
+            <span>after</span>
+          </div>
+        );
+      };
+      render(<App />);
+
+      const spans = [...document.body.querySelectorAll("span")];
+      expect(spans.map((el) => el.textContent)).toEqual([
+        "before",
+        "target",
+        "after",
+      ]);
+
+      state.bold = true;
+      await sleep(1);
+
+      const next = [...spans[0].parentElement!.childNodes];
+      expect(next.map((el) => el.textContent)).toEqual([
+        "before",
+        "target",
+        "after",
+      ]);
+      expect(next[0]).toBe(spans[0]);
+      expect(next[1]).not.toBe(spans[1]);
+      expect((next[1] as HTMLElement).tagName).toBe("STRONG");
+      expect(next[2]).toBe(spans[2]);
+    });
+
+    it("should replace an element with a text node and keep siblings.", async () => {
+      const { render, createStore } = createRoot();
+      const state = createStore({ text: false });
+
+      const App: Component = () => {
+        return (
+          <div>
+            <span>before</span>
+            {state.text ? "plain" : <span>target</span>}
+            <span>after</span>
+          </div>
+        );
+      };
+      render(<App />);
+
+      const spans = [...document.body.querySelectorAll("span")];
+      expect(spans.map((el) => el.textContent)).toEqual([
+        "before",
+        "target",
+        "after",
+      ]);
+
+      state.text = true;
+      await sleep(1);
+
+      const next = [...spans[0].parentElement!.childNodes];
+      expect(next.map((el) => el.textContent)).toEqual([
+        "before",
+        "plain",
+        "after",
+      ]);
+      expect(next[0]).toBe(spans[0]);
+      expect(next[1].nodeType).toBe(Node.TEXT_NODE);
+      expect(next[2]).toBe(spans[2]);
+    });
+
+    it("should replace an array item between static elements.", async () => {
+      const { render, createStore } = createRoot();
+      const state = createStore({ items: ["a", "b", "c"], replaced: "" });
+
+      const App: Component = () => {
+        return (
+          <div>
+            <span>before</span>
+            {state.items.map((k) =>
+              state.replaced === k ? <b>{k}</b> : <span>{k}</span>,
+            )}
+            <span>after</span>
+          </div>
+        );
+      };
+      render(<App />);
+
+      const spans = [...document.body.querySelectorAll("span")];
+      expect(spans.map((el) => el.textContent)).toEqual([
+        "before",
+        "a",
+        "b",
+        "c",
+        "after",
+      ]);
+
+      state.replaced = "b";
+      await sleep(1);
+
+      const next = [...spans[0].parentElement!.childNodes];
+      expect(next.map((el) => el.textContent)).toEqual([
+        "before",
+        "a",
+        "b",
+        "c",
+        "after",
+      ]);
+      expect(next[0]).toBe(spans[0]);
+      expect(next[1]).toBe(spans[1]);
+      expect(next[2]).not.toBe(spans[2]);
+      expect((next[2] as HTMLElement).tagName).toBe("B");
+      expect(next[3]).toBe(spans[3]);
+      expect(next[4]).toBe(spans[4]);
+    });
+  });
 });

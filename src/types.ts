@@ -22,16 +22,23 @@ export type LazyElement = () => Element;
 export type Element = ElementNode | LazyElement;
 export type Child = Element | string | number | boolean | null | undefined;
 export type VNode =
+  | NullNode
   | TextVNode
   | HtmlVNode
   | ArrayVNode;
-export type TextVNode ={
+
+export type NullNode = {
+  type: "null";
+}
+
+export type TextVNode = {
   type: "text";
   /**
    * テキストの文字列
    */
   name: string;
 }
+
 export type HtmlVNode ={
   type: "html";
   /**
@@ -41,6 +48,7 @@ export type HtmlVNode ={
   attributes: { [key: string]: any } | null;
   children: VNode[];
 }
+
 export type ArrayVNode ={
   type: "array";
   children: VNode[];
