@@ -18,6 +18,14 @@ function array(children: VNode[]): ArrayVNode {
   return { type: "array", children };
 }
 
+function li(
+  key: string,
+  label: string = key,
+  attributes: Record<string, unknown> = {},
+): HtmlVNode {
+  return html("li", [text(label)], { key, ...attributes });
+}
+
 describe("diff", () => {
   it("returns nothing when the trees match.", () => {
     const vnode = html("div", [text("a")]);
@@ -211,6 +219,80 @@ describe("diff", () => {
       expect(diff(last, next)).toEqual([
         { op: "props", path: [1], set: { class: "b" }, unset: [] },
       ]);
+    });
+  });
+
+  describe("key", () => {
+    it("updates the matched key in place.", () => {
+      const last = html("ul", [array([li("a"), li("b", "old"), li("c")])]);
+      const next = html("ul", [array([li("a"), li("b", "new"), li("c")])]);
+
+      expect(diff(last, next)).toEqual([
+        { op: "replace", path: [1, 0], vnode: text("new") },
+      ]);
+    });
+
+    it("does not put key into the props patch.", () => {
+      const last = html("ul", [array([li("b", "b", { class: "a" })])]);
+      const next = html("ul", [array([li("b", "b", { class: "b" })])]);
+
+      expect(diff(last, next)).toEqual([
+        { op: "props", path: [0], set: { class: "b" }, unset: [] },
+      ]);
+    });
+
+    it("unmounts the removed key instead of the last item.", () => {
+      const last = html("ul", [array([li("a"), li("b"), li("c")])]);
+      const next = html("ul", [array([li("a"), li("c")])]);
+
+      expect(diff(last, next)).toEqual([{ op: "unmount", path: [1] }]);
+    });
+
+    it("mounts an inserted key at its new index.", () => {
+      const added = li("b");
+      const last = html("ul", [array([li("a"), li("c")])]);
+      const next = html("ul", [array([li("a"), added, li("c")])]);
+
+      expect(diff(last, next)).toEqual([
+        { op: "mount", path: [1], vnode: added },
+      ]);
+    });
+
+    it("unmounts a removed key between static elements.", () => {
+      const last = html("div", [
+        html("span", [text("before")]),
+        array([li("a"), li("b"), li("c")]),
+        html("span", [text("after")]),
+      ]);
+      const next = html("div", [
+        html("span", [text("before")]),
+        array([li("a"), li("c")]),
+        html("span", [text("after")]),
+      ]);
+
+      expect(diff(last, next)).toEqual([{ op: "unmount", path: [2] }]);
+    });
+
+    it("moves a reordered key instead of remounting it.", () => {
+      const last = html("ul", [array([li("a"), li("b"), li("c")])]);
+      const next = html("ul", [array([li("c"), li("a"), li("b")])]);
+
+      expect(diff(last, next)).toEqual([{ op: "move", from: [2], path: [0] }]);
+    });
+
+    it("moves a reordered key between static elements.", () => {
+      const last = html("div", [
+        html("span", [text("before")]),
+        array([li("a"), li("b"), li("c")]),
+        html("span", [text("after")]),
+      ]);
+      const next = html("div", [
+        html("span", [text("before")]),
+        array([li("c"), li("a"), li("b")]),
+        html("span", [text("after")]),
+      ]);
+
+      expect(diff(last, next)).toEqual([{ op: "move", from: [3], path: [1] }]);
     });
   });
 });
