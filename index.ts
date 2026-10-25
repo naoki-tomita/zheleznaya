@@ -3,142 +3,41 @@ import { isEquals } from "./Equals.ts";
 import { toKebabCaseFromSnakeCase } from "./Utils.ts";
 import { debounce } from "./Debounce.ts";
 
-export type Component<P = any> = (
-  props: P,
-  children: Array<VNode | string>,
-) => VNode;
-type Element = VNode | (() => VNode);
-type RendereableElement = Element | string | number | boolean;
-interface VNode {
-  name: string;
-  type: "text" | "html" | "array";
-  attributes: { [key: string]: any } | null;
-  children: Array<RendereableElement | RendereableElement[]>;
-}
+// type RendereableElement = Element | string | number | boolean;
 
-interface RenderedVNode extends VNode {
-  children: Array<RenderedVNode | RenderedVNode[]>;
-}
+// interface VNode {
+//   name: string;
+//   type: "text" | "html" | "array";
+//   attributes: { [key: string]: any } | null;
+//   children: Array<RendereableElement | RendereableElement[]>;
+// }
 
-type RenderedVNodeWithHTMLElement =
-  | RenderedVNodeWithHTMLElementText
-  | RenderedVNodeWithHTMLElementNode
-  | RenderedVNodeWithHTMLElementArray;
+// interface RenderedVNode extends VNode {
+//   children: Array<RenderedVNode | RenderedVNode[]>;
+// }
 
-interface RenderedVNodeWithHTMLElementText extends RenderedVNode {
-  type: "text";
-  children: Array<RenderedVNodeWithHTMLElement>;
-  element: Text;
-}
+// type RenderedVNodeWithHTMLElement =
+//   | RenderedVNodeWithHTMLElementText
+//   | RenderedVNodeWithHTMLElementNode
+//   | RenderedVNodeWithHTMLElementArray;
 
-interface RenderedVNodeWithHTMLElementNode extends RenderedVNode {
-  type: "html";
-  children: Array<RenderedVNodeWithHTMLElement>;
-  element: HTMLElement;
-}
+// interface RenderedVNodeWithHTMLElementText extends RenderedVNode {
+//   type: "text";
+//   children: Array<RenderedVNodeWithHTMLElement>;
+//   element: Text;
+// }
 
-interface RenderedVNodeWithHTMLElementArray extends RenderedVNode {
-  type: "array";
-  children: Array<RenderedVNodeWithHTMLElement>;
-  element: HTMLElement[];
-}
+// interface RenderedVNodeWithHTMLElementNode extends RenderedVNode {
+//   type: "html";
+//   children: Array<RenderedVNodeWithHTMLElement>;
+//   element: HTMLElement;
+// }
 
-export function h(
-  name: Component | string,
-  attributes: any | null,
-  ...children: Array<VNode | string>
-): Element {
-  return typeof name === "string"
-    ? { name, attributes, children, type: "html" }
-    : () => name(attributes, children);
-}
-
-
-let store: any = {};
-export function createStore<T extends {}>(initialValue: T): T {
-  return (store = wrap(initialValue) as unknown as T);
-}
-
-export function getStore<T>(): T {
-  return store;
-}
-
-export function useStore<T extends {}>(initialValue: T): T {
-  // already initialized
-  if (store.__on__) {
-    return store;
-  }
-  return createStore(initialValue);
-}
-
-function renderChild(child: RendereableElement): RenderedVNode {
-  if (typeof child === "function") {
-    return renderElement(child());
-  } else if (typeof child === "object") {
-    if (Array.isArray(child)) {
-      return {
-        name: "ArrayNode",
-        type: "array",
-        attributes: {},
-        children: child.map((item) => renderChild(item)) as RenderedVNode[],
-      };
-    }
-    return renderElement(child);
-  } else {
-    return {
-      name: child?.toString() ?? "",
-      attributes: {},
-      children: [],
-      type: "text",
-    };
-  }
-}
-
-function renderElement(node: Element): RenderedVNode {
-  if (typeof node === "function") node = node();
-  return {
-    ...node,
-    children: (node.children || []).map((it) =>
-      renderChild(it as RendereableElement),
-    ),
-  };
-}
-
-export function createRoot(rootElement?: HTMLElement) {
-  let root: HTMLElement;
-
-  const rerenderWrapper = debounce(rerender, 0);
-  function render(nodeElement: Element) {
-    rootElement && (root = rootElement);
-    rerender(nodeElement);
-    store.__on__?.(() => rerenderWrapper(nodeElement));
-  }
-
-  let firstRender = true;
-  let _oldNode: RenderedVNodeWithHTMLElement;
-  function rerender(nodeElement: Element) {
-    const renderedNode = renderElement(nodeElement);
-    const completedVNode = createRootElement(renderedNode);
-    _oldNode = completedVNode;
-    if (firstRender) {
-      if (!root) {
-        root = document.createElement("div");
-        document.body.appendChild(root);
-      }
-      root.innerHTML = "";
-      root.appendChild(completedVNode.element as HTMLElement);
-      firstRender = false;
-    }
-  }
-
-  function createRootElement(node: RenderedVNode): RenderedVNodeWithHTMLElement {
-    return createElement(node, _oldNode, root);
-  }
-
-  return {
-    render,
-  }
-}
+// interface RenderedVNodeWithHTMLElementArray extends RenderedVNode {
+//   type: "array";
+//   children: Array<RenderedVNodeWithHTMLElement>;
+//   element: HTMLElement[];
+// }
 
 export function renderToText(nodeElement: Element): string {
   const nodes = renderElement(nodeElement);
@@ -330,6 +229,135 @@ function createElement(
   }
 }
 
+/*
+* VNode: HTMLの構造を表した木構造。いわゆるVirtual DOM。このツリーを使って、HTMLを構築する。
+* RenderableElement: JSXの要素の木構造。このツリーは、まだコンポーネントを実行していない状態なので、VNodeではない。コンポーネントでない部分はほぼVNodeとおなじだが、子要素がRenderableElementである。
+    * コンポーネントの場合は関数になっていて、実行するとRenderableElementになる。これでコンポーネントでないJSXの木構造として扱えるようになる。
+    * コンポーネントでないJSXの木構造の場合、childrenを再帰的にVNodeに変換する。
+*/
+
+
+
+
+
+
+
+
+function isFunctionNode(node: RenderableElement): node is Component {}
+
+function renderChild(child: RenderableElement): VNode {
+  if (typeof child === "function") {
+    return renderElement(child);
+  } else if (typeof child === "object") {
+    if (Array.isArray(child)) {
+      return {
+        name: "ArrayNode",
+        type: "array",
+        attributes: {},
+        children: child.map((item) => renderChild(item)) as RenderedVNode[],
+      };
+    }
+    return renderElement(child);
+  } else {
+    return {
+      name: child?.toString() ?? "",
+      attributes: {},
+      children: [],
+      type: "text",
+    };
+  }
+}
+
+function renderElement(node: Element): VNode {
+  if (typeof node === "function") node = node();
+  return {
+    ...node,
+    children: node.children.map((it) =>
+      renderChild(it as Element),
+    ),
+  };
+}
+
+export function createRoot(rootElement?: HTMLElement) {
+  const rerenderWrapper = debounce(render, 0);
+
+  function createRootHtmlElement() {
+    const root = document.createElement("div");
+    document.body.appendChild(root);
+    return root;
+  }
+
+  let root: HTMLElement;
+  function runFirstRender(nodeElement: Element) {
+    root = rootElement ?? createRootHtmlElement();
+    root.innerHTML = "";
+    render(nodeElement);
+    store.__on__?.(() => rerenderWrapper(nodeElement));
+  }
+
+  function render(nodeElement: Element) {
+    const renderedNode = renderElement(nodeElement);
+    const completedVNode = createRootElement(renderedNode);
+  }
+
+  function createRootElement(
+    node: RenderedVNode,
+  ): RenderedVNodeWithHTMLElement {
+    return createElement(node, _oldNode, root);
+  }
+
+  return {
+    render: runFirstRender,
+  };
+}
+
+
+export type Component<P = any> = (
+  props: P,
+  children: Array<RenderableVNode | string>,
+) => RenderableVNode;
+type Element = RenderableVNode | (() => RenderableVNode);
+type RenderableElement = Element | string | number | boolean;
+type RenderableVNode = {
+  name: string;
+  type: "text" | "element" | "array";
+  attributes: { [key: string]: any } | null;
+  children: Array<RenderableElement>;
+}
+type VNode = {
+  name: string;
+  type: "text" | "element" | "array";
+  attributes: { [key: string]: any } | null;
+  children: Array<VNode>;
+}
+
+export function h(
+  name: Component | string,
+  attributes: any | null,
+  ...children: Array<RenderableVNode | string>
+): Element {
+  return typeof name === "string"
+    ? { name, attributes, children, type: "element" }
+    : () => name(attributes, children);
+}
+
+let store: any = {};
+export function createStore<T extends {}>(initialValue: T): T {
+  return (store = wrap(initialValue) as unknown as T);
+}
+
+export function getStore<T>(): T {
+  return store;
+}
+
+export function useStore<T extends {}>(initialValue: T): T {
+  // already initialized
+  if (store.__on__) {
+    return store;
+  }
+  return createStore(initialValue);
+}
+
 type Attributes<T extends HTMLElement> =
   | {
       [U in keyof T]?: T[U];
@@ -469,7 +497,7 @@ declare global {
       video: Attributes<HTMLVideoElement>;
       wbr: Attributes<HTMLDivElement>;
     }
-    type Element = VNode;
+    type Element = RenderableVNode;
   }
 }
 

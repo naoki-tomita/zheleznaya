@@ -53,13 +53,6 @@ function renderElement(node) {
         children: (node.children || []).map((it) => renderChild(it)),
     };
 }
-let root;
-export function render(nodeElement, rootElement) {
-    rootElement && (root = rootElement);
-    rerender(nodeElement);
-    store.__on__?.(() => rerenderWrapper(nodeElement));
-}
-const rerenderWrapper = debounce(rerender, 0);
 export function renderToText(nodeElement) {
     const nodes = renderElement(nodeElement);
     return renderVNodeToText(nodes);
@@ -103,22 +96,6 @@ function renderHtmlVNodeToText(vNode) {
     return `<${vNode.name} ${Object.keys(vNode.attributes || {})
         .map((key) => `${key}="${attributeToString(vNode.attributes[key])}"`)
         .join(" ")}>${ref ?? vNode.children.map(renderVNodeToText).join("")}</${vNode.name}>`;
-}
-let firstRender = true;
-let _oldNode;
-function rerender(nodeElement) {
-    const renderedNode = renderElement(nodeElement);
-    const completedVNode = createRootElement(renderedNode);
-    _oldNode = completedVNode;
-    if (firstRender) {
-        if (!root) {
-            root = document.createElement("div");
-            document.body.appendChild(root);
-        }
-        root.innerHTML = "";
-        root.appendChild(completedVNode.element);
-        firstRender = false;
-    }
 }
 function recycleTextElement(node) {
     return {
@@ -243,8 +220,36 @@ function createElement(node, oldNode, parentElement) {
             return recycleNodeElement(node, oldNode, parentElement);
     }
 }
-function createRootElement(node) {
-    return createElement(node, _oldNode, root);
+export function createRoot(rootElement) {
+    let root;
+    const rerenderWrapper = debounce(rerender, 0);
+    function render(nodeElement) {
+        rootElement && (root = rootElement);
+        rerender(nodeElement);
+        store.__on__?.(() => rerenderWrapper(nodeElement));
+    }
+    let firstRender = true;
+    let _oldNode;
+    function rerender(nodeElement) {
+        const renderedNode = renderElement(nodeElement);
+        const completedVNode = createRootElement(renderedNode);
+        _oldNode = completedVNode;
+        if (firstRender) {
+            if (!root) {
+                root = document.createElement("div");
+                document.body.appendChild(root);
+            }
+            root.innerHTML = "";
+            root.appendChild(completedVNode.element);
+            firstRender = false;
+        }
+    }
+    function createRootElement(node) {
+        return createElement(node, _oldNode, root);
+    }
+    return {
+        render,
+    };
 }
 export { createEffect } from "./Effect.js";
 //# sourceMappingURL=index.js.map

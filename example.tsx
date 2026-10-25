@@ -1,5 +1,7 @@
 declare const React: {};
-import { h, createStore, render, type Component } from "./index.ts";
+import { h, createStore, createRoot, type Component } from "./index.ts";
+
+const { render } = createRoot();
 
 const store = createStore({
   foo: "bar",
@@ -35,9 +37,9 @@ const MyComponent = (props: { key: string }) => {
 const MyWrapper: Component = (_, children) => {
   return (
     <div>
-      <div>children↓</div>
+      <div>children↓出なければバグだよ</div>
       {children}
-      <div>children↑</div>
+      <div>children↑出なければバグだよ</div>
     </div>
   );
 }
