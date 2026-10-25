@@ -73,10 +73,16 @@ function diffArray(lastVNode: ArrayVNode, vnode: ArrayVNode, path: IndexPath): D
   const result: DiffResult = [];
   const hasLastChildrenKey = lastVNode.children.every(it => ((it as any).attributes?.key));
   const hasCurrentChildrenKey = vnode.children.every(it => ((it as any).attributes?.key));
-  if (hasLastChildrenKey && hasCurrentChildrenKey) {
+  if (hasLastChildrenKey && hasCurrentChildrenKey && false) {
+    // keyはWIP
     const lastObjectByKey = lastVNode.children.reduce((acc, it) => ({ ...acc, [(it as any).attributes.key]: it }), {} as Record<string, VNode>);
     const currentObjectByKey = lastVNode.children.reduce((acc, it) => ({ ...acc, [(it as any).attributes.key]: it }), {} as Record<string, VNode>);
-    const currentKeys = vnode.children.map(it => ((it as any).attributes?.key))
+    const lastKeys = Object.keys(lastObjectByKey);
+    const currentKeys = Object.keys(currentObjectByKey);
+    const unmounted = lastKeys.filter(it => !currentKeys.includes(it));
+    const mounted = currentKeys.filter(it => !lastKeys.includes(it));
+    const diffTargets = [...new Set([...currentKeys, ...lastKeys])].filter(it => lastKeys.includes(it) && currentKeys.includes(it));
+    diffTargets.reduce((acc, key) => ([...acc, ...diff(lastObjectByKey[key], currentObjectByKey[key], path)]), [] as DiffResult);
   } else {
     console.warn("ArrayNode should have key.");
     const newPath = [...path];
