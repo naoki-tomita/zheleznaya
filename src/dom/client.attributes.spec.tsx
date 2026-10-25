@@ -24,9 +24,7 @@ describe("attributes", () => {
     expect(div.getAttribute("class")).toBe("b");
   });
 
-  // https://github.com/naoki-tomita/zheleznaya/issues/20 (#8)
-  // diff は unset を計算しているが、patch (updateProps) で使っていない。
-  it.fails("should remove attributes that no longer exist.", () => {
+  it("should remove attributes that no longer exist.", () => {
     const { render, createStore } = createRoot();
     const state = createStore({ on: true });
     const App: Component = () => (
@@ -74,7 +72,7 @@ describe("style", () => {
   });
 
   // https://github.com/naoki-tomita/zheleznaya/issues/20 (#8)
-  it.fails("should remove style keys that no longer exist.", () => {
+  it("should remove style keys that no longer exist.", () => {
     const { render, createStore } = createRoot();
     const state = createStore({ bold: true });
     const App: Component = () => (
@@ -95,9 +93,7 @@ describe("style", () => {
     expect(div.style.fontWeight).toBe("");
   });
 
-  // https://github.com/naoki-tomita/zheleznaya/issues/20 (#8)
-  // 型では文字列を渡せるが、DOM 側では Object.entries(文字列) になる。
-  it.fails("should apply a style string.", () => {
+  it("should apply a style string.", () => {
     const { render } = createRoot();
     render(<div id="target" style="color: red" />);
 

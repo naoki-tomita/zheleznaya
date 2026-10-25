@@ -41,7 +41,7 @@ export function wrap<T extends {}>(obj: T): T & Settable<T> {
         if (["__cb__", "__emit__", "__on__", "__original__"].includes(key.toString())) {
           return (target as any)[key as any];
         }
-        if (["push", "pop", "shift", "unshift"].includes(key.toString())) {
+        if (["push", "pop", "shift", "unshift", "splice"].includes(key.toString())) {
           return (...args: any[]) => {
             const result = (obj as any)[key](...args);
             settable.__emit__();

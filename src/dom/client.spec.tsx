@@ -117,7 +117,7 @@ describe("#render", () => {
       expect(document.querySelector("[data-z=root]")!.hasAttribute("class")).toBe(false);
     });
 
-    it.fails("should append children into the top-level element.", () => {
+    it("should append children into the top-level element.", () => {
       const { render, createStore } = createRoot();
       const state = createStore({ items: ["a"] });
       const App: Component = () => (

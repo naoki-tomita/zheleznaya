@@ -3,6 +3,7 @@ import { debounce } from "../utils/Debounce.ts";
 import { isEquals } from "../utils/Equals.ts";
 import { wrap } from "../utils/Settable.ts";
 import { renderElement } from "../VNode.ts";
+import { renderStyleToString } from "./server.ts";
 
 function shouldRender(lastVNode: VNode | null, vnode: VNode): boolean {
   return !lastVNode || !isEquals(lastVNode, vnode);
@@ -46,8 +47,10 @@ function diffNode(a: VNode, b: VNode, path: IndexPath): DiffResult {
     // attributesの比較
     const aKeys = Object.keys(a.attributes ?? {});
     const bKeys = Object.keys(b.attributes ?? {});
-    const keys = [...new Set([...aKeys, ...bKeys])].filter((it) => !it.startsWith("__"));
     const unset = aKeys.filter((it) => !bKeys.includes(it));
+    const keys = [...new Set([...aKeys, ...bKeys])]
+      .filter((it) => !it.startsWith("__"))
+      .filter(it => !unset.includes(it))
     const set = bKeys
       .filter((it) => !aKeys.includes(it))
       .reduce((acc, k) => ({ ...acc, [k]: (b.attributes as any)[k] }), {} as Record<string, unknown>);
@@ -98,7 +101,7 @@ function diffArray(lastVNode: ArrayVNode, vnode: ArrayVNode, path: IndexPath): D
       [] as DiffResult,
     );
   } else {
-    console.warn("ArrayNode should have key.");
+    // console.warn("ArrayNode should have key.");
     const newPath = [...path];
     const currentIndex = newPath.pop() ?? 0;
     for (let i = 0; i < Math.max(lastVNode.children.length, vnode.children.length); i++) {
@@ -118,14 +121,23 @@ export function diff(lastVNode: VNode | null, vnode: VNode | null, path: IndexPa
   const result: DiffResult = [];
   result.push(...diffNode(lastVNode, vnode, path));
   if (result[0]?.op === "replace") {
-    // 置き換えなら、子要素作り直しなので、やってよい
+    // 置き換えなら、子要素作り直しなので、以降はチェックする必要なし
     return result;
   }
   if (lastVNode.type === "array" && vnode.type === "array") {
     result.push(...diffArray(lastVNode, vnode, path));
   } else if (lastVNode.type === "html" && vnode.type === "html") {
+    let index = 0;
     for (let i = 0; i < Math.max(lastVNode.children.length, vnode.children.length); i++) {
-      result.push(...diff(lastVNode.children[i], vnode.children[i], [...path, i]));
+      const currentChild = vnode.children[i];
+      result.push(...diff(lastVNode.children[i], vnode.children[i], [...path, index]));
+      if (currentChild?.type === "array") {
+        // type = arrayの兄弟（特に弟要素）は、arrayの隣なので、index的には1つ隣の扱いになるが、
+        // 実際のElement上だと、arrayは展開されるため、arrayの子要素分だけindexを増やす必要がある
+        index += currentChild.children.length;
+      } else {
+        index++;
+      }
     }
   }
 
@@ -135,9 +147,7 @@ export function diff(lastVNode: VNode | null, vnode: VNode | null, path: IndexPa
 function updateAttributes(target: HTMLElement, set: Record<string, unknown>) {
   for (const [key, value] of Object.entries(set ?? {})) {
     if (key === "style") {
-      for (const [styleKey, styleValue] of Object.entries(value as Partial<CSSStyleDeclaration>)) {
-        target.style[styleKey as any] = styleValue as string;
-      }
+      target.style = renderStyleToString(value as CSSStyleDeclaration);
     } else if (key.startsWith("on")) {
       if (typeof value === "function") {
         (target as any)[key.toLowerCase()] = value;
@@ -205,12 +215,18 @@ function mount(root: globalThis.Element, vnode: VNode, path?: IndexPath) {
   if (!path) {
     root.append(...el);
   } else {
-    const parentPath = path.slice(0, -1);
-    const index = path.pop() ?? 0;
-    const parent = find(root, parentPath);
+    // ややこしいのだが、root要素（mountするとこ）とトップの要素（一番上の要素）のどっちを取ればいいかが分かりづらく、こうなっています。
+    const [parent, index] = path.length === 1
+      ? [root.childNodes.item(0), path[0]]
+      : (() => {
+          const parentPath = path.slice(0, -1);
+          const index = path.pop() ?? 0;
+          return [find(root, parentPath), index];
+        })();
+
     if (parent.childNodes.length === index) {
       el.forEach((it) => parent.appendChild(it));
-    } else if (parent.childNodes.length > index + 1) {
+    } else if (parent.childNodes.length >= index + 1) {
       parent.childNodes[index].before(...el);
     }
   }
@@ -230,13 +246,42 @@ function unmount(root: globalThis.Element, path: IndexPath) {
   el.remove();
 }
 
-function updateProps(root: globalThis.Element, path: IndexPath, set: Record<string, unknown>, _unset: string[]) {
+function updateProps(root: globalThis.Element, path: IndexPath, set: Record<string, unknown>, unset: string[]) {
   const el = find(root, path);
+  unset.forEach(it => (el as HTMLElement).removeAttribute(it));
   updateAttributes(el as HTMLElement, set);
 }
 
+const Order = {
+  mount: 0,
+  unmount: 0,
+  replace: 1,
+  props: 2,
+}
+export function patchOperationSorter(a: PatchOperation, b: PatchOperation): number {
+  const aOrder = Order[a.op];
+  const bOrder = Order[b.op];
+  if (aOrder !== bOrder) {
+    return bOrder - aOrder;
+  }
+  if (a.path?.length !== b.path?.length) {
+    return (b.path?.length ?? 0) - (a.path?.length ?? 0);
+  }
+  if (a.path && b.path) {
+    for (let i = 0; i < a.path.length; i++) {
+      if (a.path[i] !== b.path[i]) {
+        return b.path[i] - a.path[i];
+      }
+    }
+  }
+  return 0;
+}
+
 function patch(root: globalThis.Element, patchOperations: PatchOperation[]) {
-  for (const o of patchOperations) {
+  const sortedOperations = patchOperations.toSorted(patchOperationSorter);
+  console.log("patch", sortedOperations)
+
+  for (const o of sortedOperations) {
     switch (o.op) {
       case "mount":
         mount(root, o.vnode, o.path);

@@ -10,7 +10,7 @@ export function renderStyleToString(style: Partial<CSSStyleDeclaration> | string
     .map(([key, value]) => `${toKebabCaseFromSnakeCase(key)}: ${value}`)
     .join(";");
   if (result.length > 0) {
-    return `style="${result};"`;
+    return `${result};`;
   }
   return "";
 }
@@ -19,7 +19,7 @@ function attributeToString(attributes: { [key: string]: any } | null): string {
   attributes = attributes ?? {};
   return Object.entries(attributes ?? {})
     .filter(([_, value]) => typeof value !== "function")
-    .map(([key, value]) => (key === "style" ? renderStyleToString(value) : `${key}="${value}"`))
+    .map(([key, value]) => (key === "style" ? `style="${renderStyleToString(value)}"` : `${key}="${value}"`))
     .join(" ");
 }
 

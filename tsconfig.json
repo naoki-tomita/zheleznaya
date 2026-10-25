@@ -2,7 +2,7 @@
   // Type-checks everything (library, tests, example). Emit is handled by tsconfig.build.json.
   "compilerOptions": {
     "target": "esnext",
-    "lib": ["es2020", "dom", "dom.iterable"],
+    "lib": ["es2023", "dom", "dom.iterable"],
     "module": "nodenext",
     "jsx": "react",
     "jsxFactory": "h",

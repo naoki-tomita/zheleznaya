@@ -99,7 +99,7 @@ describe("array children", () => {
       return state;
     };
 
-    it.fails("should append an item before the following sibling.", () => {
+    it("should append an item before the following sibling.", () => {
       const state = setup();
 
       state.items.push("d");
@@ -110,7 +110,7 @@ describe("array children", () => {
       );
     });
 
-    it.fails("should keep the following sibling when items are replaced after push.", () => {
+    it("should keep the following sibling when items are replaced after push.", () => {
       const state = setup();
 
       state.items.push("d");
@@ -123,7 +123,7 @@ describe("array children", () => {
       );
     });
 
-    it.fails("should update the following sibling after items are replaced.", () => {
+    it("should update the following sibling after items are replaced.", () => {
       const state = setup();
 
       state.items.push("d");
@@ -138,7 +138,7 @@ describe("array children", () => {
       );
     });
 
-    it.fails("should update a following text node together with items.", () => {
+    it("should update a following text node together with items.", () => {
       const { render, createStore } = createRoot();
       const state = createStore({ items: ["a", "b", "c"], text: "x" });
       const App: Component = () => (
@@ -161,7 +161,7 @@ describe("array children", () => {
     // https://github.com/naoki-tomita/zheleznaya/issues/20#issuecomment-6397073919 (A)
     // diff は unmount の操作を計算した時点の番号のまま並べ、patch は先頭から順に適用する。
     // 1 つ消すと後ろの番号がずれ、次の unmount が存在しない番号を指して null.remove() になる。
-    it.fails("should remove two trailing items.", () => {
+    it("should remove two trailing items.", () => {
       const { render, createStore } = createRoot();
       const state = createStore({ items: ["a", "b", "c"] });
       const App: Component = () => (
@@ -215,7 +215,7 @@ describe("array children", () => {
 
     // https://github.com/naoki-tomita/zheleznaya/issues/20#issuecomment-6396955230 (その他)
     // key の処理が `&& false` で無効になっていて、key を付けても警告を止められない。
-    it.fails("should not warn when every array item has a key.", () => {
+    it("should not warn when every array item has a key.", () => {
       const { render, createStore } = createRoot();
       const state = createStore({ items: ["a", "b"], count: 0 });
       const App: Component = () => (

@@ -109,7 +109,7 @@ describe("Settable", () => {
 
     // https://github.com/naoki-tomita/zheleznaya/issues/20 (#7)
     // Proxy の target が settable なので、has / deleteProperty が元の配列に届かない。
-    it.fails("should splice a settable array.", () => {
+    it("should splice a settable array.", () => {
       const obj = wrap({ items: ["a", "c", "d"] });
 
       const removed = obj.items.splice(0, 1);
