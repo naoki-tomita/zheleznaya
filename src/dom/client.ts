@@ -46,16 +46,11 @@ function diffNode(a: VNode, b: VNode, path: IndexPath): DiffResult {
     // attributesの比較
     const aKeys = Object.keys(a.attributes ?? {});
     const bKeys = Object.keys(b.attributes ?? {});
-    const keys = [...new Set([...aKeys, ...bKeys])].filter(
-      (it) => !it.startsWith("__"),
-    );
+    const keys = [...new Set([...aKeys, ...bKeys])].filter((it) => !it.startsWith("__"));
     const unset = aKeys.filter((it) => !bKeys.includes(it));
     const set = bKeys
       .filter((it) => !aKeys.includes(it))
-      .reduce(
-        (acc, k) => ({ ...acc, [k]: (b.attributes as any)[k] }),
-        {} as Record<string, unknown>,
-      );
+      .reduce((acc, k) => ({ ...acc, [k]: (b.attributes as any)[k] }), {} as Record<string, unknown>);
 
     for (const key of keys) {
       const aVal = a.attributes?.[key];
@@ -79,18 +74,10 @@ function diffNode(a: VNode, b: VNode, path: IndexPath): DiffResult {
   return [];
 }
 
-function diffArray(
-  lastVNode: ArrayVNode,
-  vnode: ArrayVNode,
-  path: IndexPath,
-): DiffResult {
+function diffArray(lastVNode: ArrayVNode, vnode: ArrayVNode, path: IndexPath): DiffResult {
   const result: DiffResult = [];
-  const hasLastChildrenKey = lastVNode.children.every(
-    (it) => (it as any).attributes?.key,
-  );
-  const hasCurrentChildrenKey = vnode.children.every(
-    (it) => (it as any).attributes?.key,
-  );
+  const hasLastChildrenKey = lastVNode.children.every((it) => (it as any).attributes?.key);
+  const hasCurrentChildrenKey = vnode.children.every((it) => (it as any).attributes?.key);
   if (hasLastChildrenKey && hasCurrentChildrenKey && false) {
     // keyはWIP
     const lastObjectByKey = lastVNode.children.reduce(
@@ -107,37 +94,21 @@ function diffArray(
       (it) => lastKeys.includes(it) && currentKeys.includes(it),
     );
     diffTargets.reduce(
-      (acc, key) => [
-        ...acc,
-        ...diff(lastObjectByKey[key], currentObjectByKey[key], path),
-      ],
+      (acc, key) => [...acc, ...diff(lastObjectByKey[key], currentObjectByKey[key], path)],
       [] as DiffResult,
     );
   } else {
     console.warn("ArrayNode should have key.");
     const newPath = [...path];
     const currentIndex = newPath.pop() ?? 0;
-    for (
-      let i = 0;
-      i < Math.max(lastVNode.children.length, vnode.children.length);
-      i++
-    ) {
-      result.push(
-        ...diff(lastVNode.children[i], vnode.children[i], [
-          ...newPath,
-          currentIndex + i,
-        ]),
-      );
+    for (let i = 0; i < Math.max(lastVNode.children.length, vnode.children.length); i++) {
+      result.push(...diff(lastVNode.children[i], vnode.children[i], [...newPath, currentIndex + i]));
     }
   }
   return result;
 }
 
-export function diff(
-  lastVNode: VNode | null,
-  vnode: VNode | null,
-  path: IndexPath = [],
-): DiffResult {
+export function diff(lastVNode: VNode | null, vnode: VNode | null, path: IndexPath = []): DiffResult {
   if (!vnode) {
     return [{ op: "unmount", path }];
   }
@@ -146,21 +117,15 @@ export function diff(
   }
   const result: DiffResult = [];
   result.push(...diffNode(lastVNode, vnode, path));
-  if (lastVNode.type !== vnode.type) {
-    // typeが違うなら、子要素全部作り直しなので、diffはここでおしまいでよい
+  if (result[0].op === "replace") {
+    // 置き換えなら、子要素作り直しなので、やってよい
     return result;
   }
   if (lastVNode.type === "array" && vnode.type === "array") {
     result.push(...diffArray(lastVNode, vnode, path));
   } else if (lastVNode.type === "html" && vnode.type === "html") {
-    for (
-      let i = 0;
-      i < Math.max(lastVNode.children.length, vnode.children.length);
-      i++
-    ) {
-      result.push(
-        ...diff(lastVNode.children[i], vnode.children[i], [...path, i]),
-      );
+    for (let i = 0; i < Math.max(lastVNode.children.length, vnode.children.length); i++) {
+      result.push(...diff(lastVNode.children[i], vnode.children[i], [...path, i]));
     }
   }
 
@@ -170,9 +135,7 @@ export function diff(
 function updateAttributes(target: HTMLElement, set: Record<string, unknown>) {
   for (const [key, value] of Object.entries(set ?? {})) {
     if (key === "style") {
-      for (const [styleKey, styleValue] of Object.entries(
-        value as Partial<CSSStyleDeclaration>,
-      )) {
+      for (const [styleKey, styleValue] of Object.entries(value as Partial<CSSStyleDeclaration>)) {
         target.style[styleKey as any] = styleValue as string;
       }
     } else if (key.startsWith("on")) {
@@ -181,10 +144,7 @@ function updateAttributes(target: HTMLElement, set: Record<string, unknown>) {
       }
     } else if (key === "ref") {
       continue; // refは後で処理する
-    } else if (
-      (key === "value" || key === "checked") &&
-      target.tagName === "INPUT"
-    ) {
+    } else if ((key === "value" || key === "checked") && target.tagName === "INPUT") {
       if (key === "value") {
         target.setAttribute("value", value as string);
         (target as HTMLInputElement).value = value as string;
@@ -262,10 +222,7 @@ function find(root: globalThis.Element, path: IndexPath) {
     return root;
   }
   // rootは管理外のdomノード。これの子要素が本当のルートノード。
-  return path.reduce(
-    (acc, index) => acc.childNodes.item(index)!,
-    root.childNodes.item(0)!,
-  );
+  return path.reduce((acc, index) => acc.childNodes.item(index)!, root.childNodes.item(0)!);
 }
 
 function unmount(root: globalThis.Element, path: IndexPath) {
@@ -273,12 +230,7 @@ function unmount(root: globalThis.Element, path: IndexPath) {
   el.remove();
 }
 
-function updateProps(
-  root: globalThis.Element,
-  path: IndexPath,
-  set: Record<string, unknown>,
-  _unset: string[],
-) {
+function updateProps(root: globalThis.Element, path: IndexPath, set: Record<string, unknown>, _unset: string[]) {
   const el = find(root, path);
   updateAttributes(el as HTMLElement, set);
 }

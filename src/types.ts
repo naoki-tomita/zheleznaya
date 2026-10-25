@@ -1,7 +1,4 @@
-export type Component<P = any> = (
-  props: P,
-  children: Array<Child | Child[]>,
-) => Element;
+export type Component<P = any> = (props: P, children: Array<Child | Child[]>) => Element;
 
 /**
  * h関数が生成する、VNodeになる前の木構造。これをレンダリングするとVNodeになる。
