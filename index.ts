@@ -17,7 +17,11 @@ function renderStyleToString(style: Partial<CSSStyleDeclaration> | string): stri
   return "";
 }
 
-function attributeToString(attributes: { [key: string]: any } | null): string {
+function attributeToString(vnode: VNode, attributes: { [key: string]: any } | null): string {
+  attributes = attributes ?? {};
+  if ("ref" in attributes) {
+    attributes.ref(vnode);
+  }
   return Object.entries(attributes ?? {})
     .filter(([_, value]) => typeof value !== "function")
     .map(([key, value]) => (key === "style" ? renderStyleToString(value) : `${key}="${value}"`)).join(" ");
@@ -28,7 +32,7 @@ function renderVNodeToText(vnode: VNode): string {
     case "text":
       return vnode.name;
     case "html":
-      return `<${vnode.name} ${attributeToString(vnode.attributes)}>${vnode.children.map(renderVNodeToText).join("")}</${vnode.name}>`;
+      return `<${vnode.name} ${attributeToString(vnode, vnode.attributes)}>${vnode.children.map(renderVNodeToText).join("")}</${vnode.name}>`;
     case "array":
       return vnode.children.map((it) => renderVNodeToText(it)).join("");
   }
