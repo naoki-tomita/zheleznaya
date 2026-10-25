@@ -1,9 +1,16 @@
 name: Release
+# v* のタグを push すると、テスト → ビルド → npm 公開 → GitHub Release 作成まで行う。
+# リリース手順: `npm version patch|minor|major` (package.json の更新・コミット・タグ作成) → `git push --follow-tags`
 on:
-  release:
-    types: [created]
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write # GitHub Release を作る
+  id-token: write # npm の provenance (どのコミットからビルドしたかの証明) を付ける
+
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -11,13 +18,30 @@ jobs:
         with:
           node-version: 24.x
           registry-url: "https://registry.npmjs.org"
-      - run: yarn
+      - run: yarn --frozen-lockfile
         name: Resolve dependency
-      - run: |
-          git config --global user.email "mxcpy608@hotmail.com"
-          git config --global user.name "Naoki Tomita"
-        name: Setup git config for publish library.
-      - run: yarn publish --new-version ${{ github.event.release.tag_name }}
+
+      - name: Check tag matches package.json
+        run: |
+          version=$(node -p "require('./package.json').version")
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::タグ $GITHUB_REF_NAME と package.json の version $version が一致しません"
+            exit 1
+          fi
+
+      - run: yarn typecheck && yarn test
+        name: Test
+
+      # dist/ はリポジトリにもコミットされているので、消してから作り直す (古い構成のファイルを公開しないため)
+      - run: rm -rf dist && yarn build
+        name: Build
+
+      - run: npm publish --provenance --access public
         name: Release npmjs
         env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - run: gh release create "$GITHUB_REF_NAME" --generate-notes --verify-tag
+        name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
