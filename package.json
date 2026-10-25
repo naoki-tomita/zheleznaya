@@ -25,7 +25,7 @@
     "typecheck": "tsc",
     "lint": "npx prettier --write '{**,.}/*.ts' '!dist/**'",
     "preversion": "yarn lint && yarn build",
-    "postversion": "git push --follow-tags",
+    "push": "git push --follow-tags",
     "test": "vitest run",
     "test:watch": "vitest",
     "dev": "vite"
