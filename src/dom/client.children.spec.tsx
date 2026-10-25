@@ -236,7 +236,7 @@ describe("array children", () => {
 
 describe("conditional children", () => {
   // https://github.com/naoki-tomita/zheleznaya/issues/20 (#6)
-  it.fails("should render nothing for false.", () => {
+  it("should render nothing for false.", () => {
     const { render } = createRoot();
     const show = false;
     render(<p id="cond">{show && <b>shown</b>}</p>);
@@ -245,7 +245,7 @@ describe("conditional children", () => {
   });
 
   // https://github.com/naoki-tomita/zheleznaya/issues/20 (#6)
-  it.fails("should render nothing for true.", () => {
+  it("should render nothing for true.", () => {
     const { render } = createRoot();
     render(<p id="cond">{true}</p>);
 

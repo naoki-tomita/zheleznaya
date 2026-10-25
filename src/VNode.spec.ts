@@ -52,7 +52,7 @@ describe("#renderElement", () => {
 
   // https://github.com/naoki-tomita/zheleznaya/issues/20 (#6)
   // renderChild が boolean を文字列にしている。
-  it.fails("should not render booleans as text.", () => {
+  it("should not render booleans as text.", () => {
     const children = renderChildren(false, true);
 
     expect(children).not.toContainEqual({ type: "text", name: "false" });

@@ -20,6 +20,11 @@ function renderChild(child: Child | Child[]): VNode {
       };
     }
     return renderElement(child);
+  } else if (typeof child === "boolean") {
+    return {
+      name: "",
+      type: "text",
+    }
   } else {
     return {
       name: child.toString(),

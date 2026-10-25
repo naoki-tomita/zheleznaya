@@ -31,7 +31,7 @@ describe("renderToText", () => {
   });
 
   // https://github.com/naoki-tomita/zheleznaya/issues/20 (#6)
-  it.fails("should render nothing for booleans.", () => {
+  it("should render nothing for booleans.", () => {
     const show = false;
     expect(renderToText(<p>{show && <b>shown</b>}{true}</p>)).toBe("<p ></p>");
   });
