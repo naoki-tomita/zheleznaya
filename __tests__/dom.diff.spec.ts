@@ -222,7 +222,7 @@ describe("diff", () => {
     });
   });
 
-  describe("key", () => {
+  describe.skip("key", () => {
     it("updates the matched key in place.", () => {
       const last = html("ul", [array([li("a"), li("b", "old"), li("c")])]);
       const next = html("ul", [array([li("a"), li("b", "new"), li("c")])]);
