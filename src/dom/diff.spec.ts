@@ -35,6 +35,39 @@ describe("diff", () => {
 
       expect(diff(last, next)).toEqual([{ op: "mount", path: [2], vnode: added }]);
     });
+
+    it("rewrites the following children by index when a child is inserted at the start.", () => {
+      const insertedText = text("x");
+      const shiftedText = text("a");
+      const mounted = html("li", [text("b")]);
+      const last = html("ul", [html("li", [text("a")]), html("li", [text("b")])]);
+      const next = html("ul", [html("li", [insertedText]), html("li", [shiftedText]), mounted]);
+
+      expect(diff(last, next)).toEqual([
+        { op: "replace", path: [0, 0], vnode: insertedText },
+        { op: "replace", path: [1, 0], vnode: shiftedText },
+        { op: "mount", path: [2], vnode: mounted },
+      ]);
+    });
+
+    it("rewrites the following children by index when a child is inserted in the middle.", () => {
+      const insertedText = text("x");
+      const shiftedText = text("b");
+      const mounted = html("li", [text("c")]);
+      const last = html("ul", [html("li", [text("a")]), html("li", [text("b")]), html("li", [text("c")])]);
+      const next = html("ul", [
+        html("li", [text("a")]),
+        html("li", [insertedText]),
+        html("li", [shiftedText]),
+        mounted,
+      ]);
+
+      expect(diff(last, next)).toEqual([
+        { op: "replace", path: [1, 0], vnode: insertedText },
+        { op: "replace", path: [2, 0], vnode: shiftedText },
+        { op: "mount", path: [3], vnode: mounted },
+      ]);
+    });
   });
 
   describe("unmount", () => {
