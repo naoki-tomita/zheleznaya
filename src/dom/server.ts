@@ -1,19 +1,6 @@
 import type { VNode, Element } from "../types.ts";
 import { renderElement } from "../VNode.ts";
-import { toKebabCaseFromSnakeCase } from "../utils/string.ts";
-
-export function renderStyleToString(style: Partial<CSSStyleDeclaration> | string): string {
-  if (typeof style === "string") {
-    return style;
-  }
-  const result = Object.entries(style)
-    .map(([key, value]) => `${toKebabCaseFromSnakeCase(key)}: ${value}`)
-    .join(";");
-  if (result.length > 0) {
-    return `${result};`;
-  }
-  return "";
-}
+import { renderStyleToString } from "./common.ts";
 
 function attributeToString(attributes: { [key: string]: any } | null): string {
   attributes = attributes ?? {};

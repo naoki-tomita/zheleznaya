@@ -3,7 +3,7 @@ import { debounce } from "../utils/Debounce.ts";
 import { isEquals } from "../utils/Equals.ts";
 import { wrap } from "../utils/Settable.ts";
 import { renderElement } from "../VNode.ts";
-import { renderStyleToString } from "./server.ts";
+import { renderStyleToString } from "./common.ts";
 
 function shouldRender(lastVNode: VNode | null, vnode: VNode): boolean {
   return !lastVNode || !isEquals(lastVNode, vnode);
@@ -121,7 +121,7 @@ export function diff(lastVNode: VNode | null, vnode: VNode | null, path: IndexPa
   const result: DiffResult = [];
   result.push(...diffNode(lastVNode, vnode, path));
   if (result[0]?.op === "replace") {
-    // 置き換えなら、子要素作り直しなので、以降はチェックする必要なし
+    // 置き換えなら、子要素作り直しなので、以降（子要素）はチェックする必要なし
     return result;
   }
   if (lastVNode.type === "array" && vnode.type === "array") {
