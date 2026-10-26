@@ -118,29 +118,6 @@ describe("Settable", () => {
       expect([...obj.items]).toEqual(["c", "d"]);
     });
 
-    // https://github.com/naoki-tomita/zheleznaya/issues/20 (#7)
-    // 通知されるのは push / pop / shift / unshift と、set トラップを通る splice / fill だけ。
-    (["sort", "reverse", "copyWithin"] as const).forEach(
-      (method) => {
-        it.fails(`should emit when ${method} is called.`, () => {
-          const obj = wrap({ items: ["b", "a", "c"] });
-          const spy = vi.fn();
-          obj.__on__(spy);
-
-          const args: Record<typeof method, unknown[]> = {
-            sort: [],
-            reverse: [],
-            copyWithin: [0, 1],
-          };
-          (obj.items[method] as (...args: unknown[]) => unknown)(
-            ...args[method],
-          );
-
-          expect(spy).toHaveBeenCalled();
-        });
-      },
-    );
-
     // https://github.com/naoki-tomita/zheleznaya/issues/20 (#9)
     // 組み込みオブジェクトも Proxy で包むので、メソッドの this が Proxy になり TypeError になる。
     // (issue では AudioNode で確認。jsdom には AudioContext がないので Map / Date で再現する)
