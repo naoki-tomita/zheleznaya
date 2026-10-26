@@ -235,9 +235,10 @@ function mount(root: globalThis.Element, vnode: VNode, path?: IndexPath) {
 }
 
 function find(root: globalThis.Element, path: IndexPath) {
-  // 空ならルートエレメント。
+  // 空ならrootエレメントか、rootエレメントの最初の子要素。
+  // rootエレメントが選ばれるのは、初回マウントのみなので、rootエレメントの子要素は管理外。
   if (path.length === 0) {
-    return root;
+    return root.childNodes.item(0) ?? root;
   }
   // rootは管理外のdomノード。これの子要素が本当のルートノード。
   return path.reduce((acc, index) => acc.childNodes.item(index)!, root.childNodes.item(0)!);

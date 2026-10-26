@@ -4,6 +4,7 @@ export function h(name: Component | string, attributes: any | null, ...children:
   return typeof name === "string" ? { name, attributes, children, type: "html" } : () => name(attributes, children);
 }
 
+export type { Component };
 export { createRoot } from "./dom/client.ts";
 export { renderToText } from "./dom/server.ts";
 export { createEffect } from "./utils/Effect.ts";
