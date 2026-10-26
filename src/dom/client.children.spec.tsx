@@ -177,7 +177,7 @@ describe("array children", () => {
       expect(document.querySelector("ul")!.innerHTML).toBe("<li>a</li>");
     });
 
-    it.fails("should remove a middle component whose children differ from the next one.", () => {
+    it("should remove a middle component whose children differ from the next one.", () => {
       const { render, createStore } = createRoot();
       const state = createStore({ items: ["A", "B", "X", "Y", "Z"] });
       const Item: Component<{ n: string }> = ({ n }) => (

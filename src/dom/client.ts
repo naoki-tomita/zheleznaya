@@ -129,12 +129,12 @@ export function diff(lastVNode: VNode | null, vnode: VNode | null, path: IndexPa
   } else if (lastVNode.type === "html" && vnode.type === "html") {
     let index = 0;
     for (let i = 0; i < Math.max(lastVNode.children.length, vnode.children.length); i++) {
-      const currentChild = vnode.children[i];
+      const lastChild = lastVNode.children[i];
       result.push(...diff(lastVNode.children[i], vnode.children[i], [...path, index]));
-      if (currentChild?.type === "array") {
+      if (lastChild?.type === "array") {
         // type = arrayの兄弟（特に弟要素）は、arrayの隣なので、index的には1つ隣の扱いになるが、
         // 実際のElement上だと、arrayは展開されるため、arrayの子要素分だけindexを増やす必要がある
-        index += currentChild.children.length;
+        index += lastChild.children.length;
       } else {
         index++;
       }
