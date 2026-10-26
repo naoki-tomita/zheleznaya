@@ -121,13 +121,13 @@ describe("Settable", () => {
     // https://github.com/naoki-tomita/zheleznaya/issues/20 (#9)
     // 組み込みオブジェクトも Proxy で包むので、メソッドの this が Proxy になり TypeError になる。
     // (issue では AudioNode で確認。jsdom には AudioContext がないので Map / Date で再現する)
-    it.fails("should keep a Map usable.", () => {
+    it("should keep a Map usable.", () => {
       const obj = wrap({ map: new Map([["key", "value"]]) });
 
       expect(obj.map.get("key")).toBe("value");
     });
 
-    it.fails("should keep a Date usable.", () => {
+    it("should keep a Date usable.", () => {
       const obj = wrap({ date: new Date(0) });
 
       expect(obj.date.getTime()).toBe(0);

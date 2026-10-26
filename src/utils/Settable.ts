@@ -9,6 +9,9 @@ export function wrap<T extends {}>(obj: T): T & Settable<T> {
   if (obj == null || typeof obj !== "object") {
     return obj as any;
   }
+  if (typeof obj === "object" && !Array.isArray(obj) && (obj as any).__proto__ !== Object.prototype) {
+    return obj as any;
+  }
 
   const settable: Settable<T> = {
     __cb__: [],
