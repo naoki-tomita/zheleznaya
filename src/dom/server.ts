@@ -36,8 +36,6 @@ function renderVNodeToText(vnode: VNode): string {
         vnode.attributes!.ref(el);
       }
       return `<${vnode.name} ${attributeToString(vnode.attributes)}>${el.innerHTML}</${vnode.name}>`;
-    case "array":
-      return vnode.children.map((it) => renderVNodeToText(it)).join("");
   }
 }
 

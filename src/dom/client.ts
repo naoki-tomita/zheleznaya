@@ -77,40 +77,6 @@ function diffNode(a: VNode, b: VNode, path: IndexPath): DiffResult {
   return [];
 }
 
-function diffArray(lastVNode: ArrayVNode, vnode: ArrayVNode, path: IndexPath): DiffResult {
-  const result: DiffResult = [];
-  const hasLastChildrenKey = lastVNode.children.every((it) => (it as any).attributes?.key);
-  const hasCurrentChildrenKey = vnode.children.every((it) => (it as any).attributes?.key);
-  if (hasLastChildrenKey && hasCurrentChildrenKey && false) {
-    // keyはWIP
-    const lastObjectByKey = lastVNode.children.reduce(
-      (acc, it) => ({ ...acc, [(it as any).attributes.key]: it }),
-      {} as Record<string, VNode>,
-    );
-    const currentObjectByKey = lastVNode.children.reduce(
-      (acc, it) => ({ ...acc, [(it as any).attributes.key]: it }),
-      {} as Record<string, VNode>,
-    );
-    const lastKeys = Object.keys(lastObjectByKey);
-    const currentKeys = Object.keys(currentObjectByKey);
-    const diffTargets = [...new Set([...currentKeys, ...lastKeys])].filter(
-      (it) => lastKeys.includes(it) && currentKeys.includes(it),
-    );
-    diffTargets.reduce(
-      (acc, key) => [...acc, ...diff(lastObjectByKey[key], currentObjectByKey[key], path)],
-      [] as DiffResult,
-    );
-  } else {
-    // console.warn("ArrayNode should have key.");
-    const newPath = [...path];
-    const currentIndex = newPath.pop() ?? 0;
-    for (let i = 0; i < Math.max(lastVNode.children.length, vnode.children.length); i++) {
-      result.push(...diff(lastVNode.children[i], vnode.children[i], [...newPath, currentIndex + i]));
-    }
-  }
-  return result;
-}
-
 export function diff(lastVNode: VNode | null, vnode: VNode | null, path: IndexPath = []): DiffResult {
   if (!vnode) {
     return [{ op: "unmount", path }];
@@ -173,11 +139,6 @@ function createHtmlElement(vnode: HtmlVNode): HTMLElement {
     vnode.attributes!.ref(target);
   }
   return target;
-}
-
-function createArrayElement(vnode: ArrayVNode) {
-  const targets = vnode.children.map(createElement);
-  return targets.flat();
 }
 
 function createElement(vnode: VNode): Array<HTMLElement | Text> {
