@@ -50,7 +50,7 @@ function diffNode(a: VNode, b: VNode, path: IndexPath): DiffResult {
     const unset = aKeys.filter((it) => !bKeys.includes(it));
     const keys = [...new Set([...aKeys, ...bKeys])]
       .filter((it) => !it.startsWith("__"))
-      .filter(it => !unset.includes(it))
+      .filter((it) => !unset.includes(it));
     const set = bKeys
       .filter((it) => !aKeys.includes(it))
       .reduce((acc, k) => ({ ...acc, [k]: (b.attributes as any)[k] }), {} as Record<string, unknown>);
@@ -175,9 +175,10 @@ function updateAttributes(target: HTMLElement | SVGElement, set: Record<string, 
 }
 
 function createHtmlElement(vnode: HtmlVNode): HTMLElement | SVGElement {
-  const target = vnode.name === "svg"
-    ? document.createElementNS("http://www.w3.org/2000/svg", vnode.name)
-    : document.createElement(vnode.name);
+  const target =
+    vnode.name === "svg"
+      ? document.createElementNS("http://www.w3.org/2000/svg", vnode.name)
+      : document.createElement(vnode.name);
   target.append(...vnode.children.map(createElement).flat());
 
   updateAttributes(target, vnode.attributes ?? {});
@@ -218,13 +219,14 @@ function mount(root: globalThis.Element, vnode: VNode, path?: IndexPath) {
     root.append(...el);
   } else {
     // ややこしいのだが、root要素（mountするとこ）とトップの要素（一番上の要素）のどっちを取ればいいかが分かりづらく、こうなっています。
-    const [parent, index] = path.length === 1
-      ? [root.childNodes.item(0), path[0]]
-      : (() => {
-          const parentPath = path.slice(0, -1);
-          const index = path.pop() ?? 0;
-          return [find(root, parentPath), index];
-        })();
+    const [parent, index] =
+      path.length === 1
+        ? [root.childNodes.item(0), path[0]]
+        : (() => {
+            const parentPath = path.slice(0, -1);
+            const index = path.pop() ?? 0;
+            return [find(root, parentPath), index];
+          })();
 
     if (parent.childNodes.length === index) {
       el.forEach((it) => parent.appendChild(it));
@@ -251,7 +253,7 @@ function unmount(root: globalThis.Element, path: IndexPath) {
 
 function updateProps(root: globalThis.Element, path: IndexPath, set: Record<string, unknown>, unset: string[]) {
   const el = find(root, path);
-  unset.forEach(it => (el as HTMLElement).removeAttribute(it));
+  unset.forEach((it) => (el as HTMLElement).removeAttribute(it));
   updateAttributes(el as HTMLElement, set);
 }
 
@@ -260,7 +262,7 @@ const Order = {
   unmount: 0,
   replace: 1,
   props: 2,
-}
+};
 
 export function patchOperationSorter(a: PatchOperation, b: PatchOperation): number {
   const aOrder = Order[a.op];

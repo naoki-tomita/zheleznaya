@@ -63,7 +63,7 @@ interface AttributesOverwrite<T extends HTMLElement | SVGElement> {
 declare global {
   namespace JSX {
     interface IntrinsicElements {
-      a: Attributes<HTMLAnchorElement> | Attributes<SVGAElement>
+      a: Attributes<HTMLAnchorElement> | Attributes<SVGAElement>;
       abbr: Attributes<HTMLDivElement>;
       acronym: Attributes<HTMLDivElement>;
       address: Attributes<HTMLDivElement>;
@@ -163,8 +163,8 @@ declare global {
       strong: Attributes<HTMLDivElement>;
       style: Attributes<HTMLStyleElement> | Attributes<SVGStyleElement>;
       sub: Attributes<HTMLDivElement>;
-      summary: Attributes<HTMLDivElement>
-      sup: Attributes<HTMLDivElement>
+      summary: Attributes<HTMLDivElement>;
+      sup: Attributes<HTMLDivElement>;
       svg: Attributes<SVGElement>;
       table: Attributes<HTMLTableElement>;
       tbody: Attributes<HTMLDivElement>;

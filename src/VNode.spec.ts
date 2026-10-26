@@ -13,8 +13,7 @@ function renderChildren(...children: Array<Child | Child[]>): VNode[] {
 
 describe("#renderElement", () => {
   it("should resolve components into html vnodes.", () => {
-    const Inner: Component<{ name: string }> = ({ name }, children) =>
-      h("p", { class: name }, ...children);
+    const Inner: Component<{ name: string }> = ({ name }, children) => h("p", { class: name }, ...children);
 
     expect(renderElement(h(Inner, { name: "a" }, "text"))).toEqual({
       type: "html",

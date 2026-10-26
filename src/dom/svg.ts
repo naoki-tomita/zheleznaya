@@ -1,4 +1,4 @@
-export const SvgElements =[
+export const SvgElements = [
   "a",
   "animate",
   "animateMotion",

@@ -124,14 +124,10 @@ describe("diff", () => {
     // https://github.com/naoki-tomita/zheleznaya/issues/20#issuecomment-6397073919 (B)
     it("does not diff children after replacing an element.", () => {
       const nextChild = html("main", [html("p", [text("a")])]);
-      const last = html("div", [
-        html("div", [html("p", [text("a")]), html("p", [text("b")])]),
-      ]);
+      const last = html("div", [html("div", [html("p", [text("a")]), html("p", [text("b")])])]);
       const next = html("div", [nextChild]);
 
-      expect(diff(last, next)).toEqual([
-        { op: "replace", path: [0], vnode: nextChild },
-      ]);
+      expect(diff(last, next)).toEqual([{ op: "replace", path: [0], vnode: nextChild }]);
     });
 
     it("replaces a child that becomes an empty array.", () => {

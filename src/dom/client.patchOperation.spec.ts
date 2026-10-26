@@ -21,10 +21,7 @@ function props(path: number[]) {
 }
 
 type Operation =
-  | ReturnType<typeof mount>
-  | ReturnType<typeof unmount>
-  | ReturnType<typeof replace>
-  | ReturnType<typeof props>;
+  ReturnType<typeof mount> | ReturnType<typeof unmount> | ReturnType<typeof replace> | ReturnType<typeof props>;
 
 function sort(...operations: Operation[]) {
   return operations.toSorted(patchOperationSorter).map((operation) => {
@@ -44,11 +41,7 @@ describe("#patchOperationSorter", () => {
   });
 
   it("runs a higher priority operation before a lower one with a deeper path.", () => {
-    expect(sort(unmount([2, 2]), props([0]), replace([9]))).toEqual([
-      "props:0",
-      "replace:9",
-      "unmount:2.2",
-    ]);
+    expect(sort(unmount([2, 2]), props([0]), replace([9]))).toEqual(["props:0", "replace:9", "unmount:2.2"]);
   });
 
   it("runs a deeper path first.", () => {
@@ -60,18 +53,11 @@ describe("#patchOperationSorter", () => {
   });
 
   it("runs a larger index first when the depth is the same.", () => {
-    expect(sort(unmount([0]), unmount([2]), unmount([1]))).toEqual([
-      "unmount:2",
-      "unmount:1",
-      "unmount:0",
-    ]);
+    expect(sort(unmount([0]), unmount([2]), unmount([1]))).toEqual(["unmount:2", "unmount:1", "unmount:0"]);
   });
 
   it("compares the earlier path segment before the later one.", () => {
-    expect(sort(unmount([0, 9]), unmount([1, 0]))).toEqual([
-      "unmount:1.0",
-      "unmount:0.9",
-    ]);
+    expect(sort(unmount([0, 9]), unmount([1, 0]))).toEqual(["unmount:1.0", "unmount:0.9"]);
   });
 
   it("runs a path with an index before a mount that has no path.", () => {

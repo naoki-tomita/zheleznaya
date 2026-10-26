@@ -24,7 +24,7 @@ function renderChild(child: Child | Child[]): VNode {
     return {
       name: "",
       type: "text",
-    }
+    };
   } else {
     return {
       name: child.toString(),
