@@ -18,7 +18,7 @@ export type LazyElement = () => Element;
  */
 export type Element = ElementNode | LazyElement;
 export type Child = Element | string | number | boolean | null | undefined;
-export type VNode = NullNode | TextVNode | HtmlVNode | ArrayVNode;
+export type VNode = NullNode | TextVNode | HtmlVNode;
 
 export type NullNode = {
   type: "null";

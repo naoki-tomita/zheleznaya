@@ -4,7 +4,7 @@ function isLazyElement(node: Element | Child | Child[]): node is LazyElement {
   return typeof node === "function";
 }
 
-function renderChild(child: Child | Child[]): VNode {
+function renderChild(child: Child | Child[]): VNode | VNode[] {
   if (child == null) {
     return {
       name: "",
@@ -14,10 +14,7 @@ function renderChild(child: Child | Child[]): VNode {
     return renderElement(child);
   } else if (typeof child === "object") {
     if (Array.isArray(child)) {
-      return {
-        type: "array",
-        children: child.map((item) => renderChild(item)),
-      };
+      return child.map((item) => renderChild(item)).flat();
     }
     return renderElement(child);
   } else if (typeof child === "boolean") {
@@ -41,6 +38,6 @@ export function renderElement(node: Element): VNode {
   node = resolveToElementNode(node);
   return {
     ...node,
-    children: node.children.map(renderChild),
+    children: node.children.map(renderChild).flat(),
   };
 }

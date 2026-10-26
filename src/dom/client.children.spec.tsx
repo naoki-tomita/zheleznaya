@@ -177,7 +177,7 @@ describe("array children", () => {
       expect(document.querySelector("ul")!.innerHTML).toBe("<li>a</li>");
     });
 
-    it.fails("should remove a middle component whose children differ from the next one.", () => {
+    it("should remove a middle component whose children differ from the next one.", () => {
       const { render, createStore } = createRoot();
       const state = createStore({ items: ["A", "B", "X", "Y", "Z"] });
       const Item: Component<{ n: string }> = ({ n }) => (
@@ -312,7 +312,7 @@ describe("#unmount", () => {
     expect(next[1]).toBe(items[1]);
   });
 
-  it("should remove a middle element and keep the following sibling.", () => {
+  it("rewrites the next sibling into the removed position and drops the last node.", () => {
     const { render, createStore } = createRoot();
     const state = createStore({ show: true });
 
@@ -340,10 +340,11 @@ describe("#unmount", () => {
     const next = [...document.body.querySelectorAll("span")];
     expect(next.map((el) => el.textContent)).toEqual(["before", "after"]);
     expect(next[0]).toBe(spans[0]);
-    expect(next[1]).toBe(spans[2]);
+    expect(next[1]).toBe(spans[1]);
+    expect(spans[2].isConnected).toBe(false);
   });
 
-  it("should remove an array item between static elements.", () => {
+  it("rewrites the following sibling into a removed array item and drops the last node.", () => {
     const { render, createStore } = createRoot();
     const state = createStore({ items: ["a", "b", "c"] });
 
@@ -382,7 +383,8 @@ describe("#unmount", () => {
     expect(next[0]).toBe(spans[0]);
     expect(next[1]).toBe(spans[1]);
     expect(next[2]).toBe(spans[2]);
-    expect(next[3]).toBe(spans[4]);
+    expect(next[3]).toBe(spans[3]);
+    expect(spans[4].isConnected).toBe(false);
   });
 });
 

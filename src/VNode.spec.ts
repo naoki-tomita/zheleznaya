@@ -31,15 +31,10 @@ describe("#renderElement", () => {
     ]);
   });
 
-  it("should render an array child as an array vnode.", () => {
+  it("flattens an array child into sibling vnodes.", () => {
     expect(renderChildren(["a", "b"])).toEqual([
-      {
-        type: "array",
-        children: [
-          { type: "text", name: "a" },
-          { type: "text", name: "b" },
-        ],
-      },
+      { type: "text", name: "a" },
+      { type: "text", name: "b" },
     ]);
   });
 
