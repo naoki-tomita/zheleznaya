@@ -279,7 +279,7 @@ const App: Component = () => {
           <Btn label="リセット" onclick={reset} />
         </div>
         <nav>
-          {nav.map((it) => h("a", { href: `#${it.id}` }, it.label))}
+          {nav.map((it) => <a href={`#${it.id}`}>{it.label}</a>)}
         </nav>
       </header>
 
@@ -594,7 +594,7 @@ const App: Component = () => {
         />
       </Panel>
 
-      <Panel id="toplevel" title="一番外側の属性" note="内側の枠が #app、外側の線が data-z=root。class を切り替えて、どちらに付いたかを読む。">
+      <Panel id="toplevel" title="一番外側の属性" note="class は #app に付く。枠の色が切り替わり、data-z=root には class が付かない。">
         <p>state.topClass は {state.topClass}</p>
         <div class="row">
           <Btn

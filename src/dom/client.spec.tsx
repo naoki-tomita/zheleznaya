@@ -102,9 +102,7 @@ describe("#render", () => {
       expect(document.querySelector("p")).toBe(p);
     });
 
-    // 一番外側の要素 (path が []) への patch が、rootElement (コンテナ) の方に当たっている。
-    // find が path [] のときだけ root そのものを返すため。
-    it.fails("should update attributes of the top-level element.", () => {
+    it("should update attributes of the top-level element.", () => {
       const { render, createStore } = createRoot();
       const state = createStore({ name: "a" });
       const App: Component = () => <ul class={state.name} />;

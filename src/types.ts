@@ -63,7 +63,7 @@ interface AttributesOverwrite<T extends HTMLElement | SVGElement> {
 declare global {
   namespace JSX {
     interface IntrinsicElements {
-      a: Attributes<HTMLAnchorElement & SVGAElement>
+      a: Attributes<HTMLAnchorElement> | Attributes<SVGAElement>
       abbr: Attributes<HTMLDivElement>;
       acronym: Attributes<HTMLDivElement>;
       address: Attributes<HTMLDivElement>;
@@ -153,7 +153,7 @@ declare global {
       ruby: Attributes<HTMLDivElement>;
       s: Attributes<HTMLDivElement>;
       samp: Attributes<HTMLDivElement>;
-      script: Attributes<HTMLScriptElement & SVGScriptElement>;
+      script: Attributes<HTMLScriptElement> | Attributes<SVGScriptElement>;
       section: Attributes<HTMLDivElement>;
       select: Attributes<HTMLSelectElement>;
       small: Attributes<HTMLDivElement>;
@@ -161,11 +161,11 @@ declare global {
       span: Attributes<HTMLSpanElement>;
       strike: Attributes<HTMLDivElement>;
       strong: Attributes<HTMLDivElement>;
-      style: Attributes<HTMLStyleElement & SVGStyleElement>;
+      style: Attributes<HTMLStyleElement> | Attributes<SVGStyleElement>;
       sub: Attributes<HTMLDivElement>;
       summary: Attributes<HTMLDivElement>
       sup: Attributes<HTMLDivElement>
-      svg: Attributes<SVGAElement & HTMLElement>;
+      svg: Attributes<SVGElement>;
       table: Attributes<HTMLTableElement>;
       tbody: Attributes<HTMLDivElement>;
       td: Attributes<HTMLTableDataCellElement>;
@@ -175,7 +175,7 @@ declare global {
       th: Attributes<HTMLTableHeaderCellElement>;
       thead: Attributes<HTMLTableHeaderCellElement>;
       time: Attributes<HTMLTimeElement>;
-      title: Attributes<HTMLTitleElement & SVGTitleElement>;
+      title: Attributes<HTMLTitleElement> | Attributes<SVGTitleElement>;
       tr: Attributes<HTMLTableRowElement>;
       track: Attributes<HTMLTrackElement>;
       tt: Attributes<HTMLDivElement>;
