@@ -144,7 +144,7 @@ export function diff(lastVNode: VNode | null, vnode: VNode | null, path: IndexPa
   return result;
 }
 
-function updateAttributes(target: HTMLElement, set: Record<string, unknown>) {
+function updateAttributes(target: HTMLElement | SVGElement, set: Record<string, unknown>) {
   for (const [key, value] of Object.entries(set ?? {})) {
     if (key === "style") {
       target.style = renderStyleToString(value as CSSStyleDeclaration);
@@ -174,8 +174,10 @@ function updateAttributes(target: HTMLElement, set: Record<string, unknown>) {
   }
 }
 
-function createHtmlElement(vnode: HtmlVNode): HTMLElement {
-  const target = document.createElement(vnode.name);
+function createHtmlElement(vnode: HtmlVNode): HTMLElement | SVGElement {
+  const target = vnode.name === "svg"
+    ? document.createElementNS("http://www.w3.org/2000/svg", vnode.name)
+    : document.createElement(vnode.name);
   target.append(...vnode.children.map(createElement).flat());
 
   updateAttributes(target, vnode.attributes ?? {});
@@ -191,7 +193,7 @@ function createArrayElement(vnode: ArrayVNode) {
   return targets.flat();
 }
 
-function createElement(vnode: VNode): Array<HTMLElement | Text> {
+function createElement(vnode: VNode): Array<HTMLElement | Text | SVGElement> {
   switch (vnode.type) {
     case "text":
       return [document.createTextNode(vnode.name)];

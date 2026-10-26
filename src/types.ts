@@ -47,13 +47,13 @@ export type ArrayVNode = {
   children: VNode[];
 };
 
-type Attributes<T extends HTMLElement> =
+type Attributes<T extends HTMLElement | SVGElement> =
   | {
       [U in keyof T]?: T[U];
     }
   | AttributesOverwrite<T>;
 
-interface AttributesOverwrite<T extends HTMLElement> {
+interface AttributesOverwrite<T extends HTMLElement | SVGElement> {
   children?: Array<Element | Element[]> | Element;
   class?: string;
   style?: Partial<CSSStyleDeclaration> | string;
@@ -63,7 +63,7 @@ interface AttributesOverwrite<T extends HTMLElement> {
 declare global {
   namespace JSX {
     interface IntrinsicElements {
-      a: Attributes<HTMLAnchorElement>;
+      a: Attributes<HTMLAnchorElement & SVGAElement>
       abbr: Attributes<HTMLDivElement>;
       acronym: Attributes<HTMLDivElement>;
       address: Attributes<HTMLDivElement>;
@@ -153,7 +153,7 @@ declare global {
       ruby: Attributes<HTMLDivElement>;
       s: Attributes<HTMLDivElement>;
       samp: Attributes<HTMLDivElement>;
-      script: Attributes<HTMLScriptElement>;
+      script: Attributes<HTMLScriptElement & SVGScriptElement>;
       section: Attributes<HTMLDivElement>;
       select: Attributes<HTMLSelectElement>;
       small: Attributes<HTMLDivElement>;
@@ -161,10 +161,10 @@ declare global {
       span: Attributes<HTMLSpanElement>;
       strike: Attributes<HTMLDivElement>;
       strong: Attributes<HTMLDivElement>;
-      style: Attributes<HTMLStyleElement>;
+      style: Attributes<HTMLStyleElement & SVGStyleElement>;
       sub: Attributes<HTMLDivElement>;
-      summary: Attributes<HTMLDivElement>;
-      sup: Attributes<HTMLDivElement>;
+      summary: Attributes<HTMLDivElement>
+      sup: Attributes<HTMLDivElement>
       svg: Attributes<SVGAElement & HTMLElement>;
       table: Attributes<HTMLTableElement>;
       tbody: Attributes<HTMLDivElement>;
@@ -175,7 +175,7 @@ declare global {
       th: Attributes<HTMLTableHeaderCellElement>;
       thead: Attributes<HTMLTableHeaderCellElement>;
       time: Attributes<HTMLTimeElement>;
-      title: Attributes<HTMLTitleElement>;
+      title: Attributes<HTMLTitleElement & SVGTitleElement>;
       tr: Attributes<HTMLTableRowElement>;
       track: Attributes<HTMLTrackElement>;
       tt: Attributes<HTMLDivElement>;
@@ -184,6 +184,65 @@ declare global {
       var: Attributes<HTMLDivElement>;
       video: Attributes<HTMLVideoElement>;
       wbr: Attributes<HTMLDivElement>;
+      // SVGに対応したい気持ちはある
+      // animate: Attributes<SVGAnimateElement>;
+      // animateMotion: Attributes<SVGAnimateMotionElement>;
+      // animateTransform: Attributes<SVGAnimateTransformElement>;
+      // circle: Attributes<SVGCircleElement>;
+      // clipPath: Attributes<SVGClipPathElement>;
+      // defs: Attributes<SVGDefsElement>;
+      // desc: Attributes<SVGDescElement>;
+      // ellipse: Attributes<SVGEllipseElement>;
+      // feBlend: Attributes<SVGFEBlendElement>;
+      // feColorMatrix: Attributes<SVGFEColorMatrixElement>;
+      // feComponentTransfer: Attributes<SVGFEComponentTransferElement>;
+      // feComposite: Attributes<SVGFECompositeElement>;
+      // feConvolveMatrix: Attributes<SVGFEConvolveMatrixElement>;
+      // feDiffuseLighting: Attributes<SVGFEDiffuseLightingElement>;
+      // feDisplacementMap: Attributes<SVGFEDisplacementMapElement>;
+      // feDistantLight: Attributes<SVGFEDistantLightElement>;
+      // feDropShadow: Attributes<SVGFEDropShadowElement>;
+      // feFlood: Attributes<SVGFEFloodElement>;
+      // feFuncA: Attributes<SVGFEFuncAElement>;
+      // feFuncB: Attributes<SVGFEFuncBElement>;
+      // feFuncG: Attributes<SVGFEFuncGElement>;
+      // feFuncR: Attributes<SVGFEFuncRElement>;
+      // feGaussianBlur: Attributes<SVGFEGaussianBlurElement>;
+      // feImage: Attributes<SVGFEImageElement>;
+      // feMerge: Attributes<SVGFEMergeElement>;
+      // feMergeNode: Attributes<SVGFEMergeNodeElement>;
+      // feMorphology: Attributes<SVGFEMorphologyElement>;
+      // feOffset: Attributes<SVGFEOffsetElement>;
+      // fePointLight: Attributes<SVGFEPointLightElement>;
+      // feSpecularLighting: Attributes<SVGFESpecularLightingElement>;
+      // feSpotLight: Attributes<SVGFESpotLightElement>;
+      // feTile: Attributes<SVGFETileElement>;
+      // feTurbulence: Attributes<SVGFETurbulenceElement>;
+      // filter: Attributes<SVGFilterElement>;
+      // foreignObject: Attributes<SVGForeignObjectElement>;
+      // g: Attributes<SVGGElement>;
+      // image: Attributes<SVGImageElement>;
+      // line: Attributes<SVGLineElement>;
+      // linearGradient: Attributes<SVGLinearGradientElement>;
+      // marker: Attributes<SVGMarkerElement>;
+      // mask: Attributes<SVGMaskElement>;
+      // metadata: Attributes<SVGMetadataElement>;
+      // mpath: Attributes<SVGMPathElement>;
+      // path: Attributes<SVGPathElement>;
+      // pattern: Attributes<SVGPatternElement>;
+      // polygon: Attributes<SVGPolygonElement>;
+      // polyline: Attributes<SVGPolylineElement>;
+      // radialGradient: Attributes<SVGRadialGradientElement>;
+      // rect: Attributes<SVGRectElement>;
+      // set: Attributes<SVGSetElement>;
+      // stop: Attributes<SVGStopElement>;
+      // switch: Attributes<SVGSwitchElement>;
+      // symbol: Attributes<SVGSymbolElement>;
+      // text: Attributes<SVGTextElement>;
+      // textPath: Attributes<SVGTextPathElement>;
+      // tspan: Attributes<SVGTSpanElement>;
+      // use: Attributes<SVGUseElement>;
+      // view: Attributes<SVGViewElement>;
     }
     type Element = ElementNode | LazyElement;
   }
