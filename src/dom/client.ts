@@ -258,6 +258,7 @@ const Order = {
   replace: 1,
   props: 2,
 }
+
 export function patchOperationSorter(a: PatchOperation, b: PatchOperation): number {
   const aOrder = Order[a.op];
   const bOrder = Order[b.op];
@@ -279,7 +280,6 @@ export function patchOperationSorter(a: PatchOperation, b: PatchOperation): numb
 
 function patch(root: globalThis.Element, patchOperations: PatchOperation[]) {
   const sortedOperations = patchOperations.toSorted(patchOperationSorter);
-  console.log("patch", sortedOperations)
 
   for (const o of sortedOperations) {
     switch (o.op) {
