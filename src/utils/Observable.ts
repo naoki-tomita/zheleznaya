@@ -1,6 +1,4 @@
-export type Observable<T> = T & {
-  __on__(callback: () => void): void;
-}
+export type Observable<T> = T;
 
 type InternalObj<T> = {
   callbacks: Array<() => void>;
