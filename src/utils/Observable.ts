@@ -47,10 +47,7 @@ export function wrap<T extends {}>(obj: T): T {
     : Object.keys(obj).reduce((acc, key) => {
         const newVal = wrap((obj as any)[key]);
         if (isObservable(newVal)) newVal.__on__(emit);
-        return {
-          ...acc,
-          [key]: newVal,
-        };
+        return { ...acc, [key]: newVal };
       }, {});
 
   const proxy = new Proxy(newObj, {
@@ -64,12 +61,8 @@ export function wrap<T extends {}>(obj: T): T {
       return true;
     },
     get(target, p) {
-      if (p === "__on__") {
-        return subscribe;
-      }
-      if (p == "__off__") {
-        return unsubscribe;
-      }
+      if (p === "__on__") return subscribe;
+      if (p == "__off__") return unsubscribe;
       return (target as any)[p];
     },
     ownKeys(target) {
