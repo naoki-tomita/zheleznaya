@@ -1,7 +1,7 @@
 import type { ArrayVNode, Element, HtmlVNode, VNode } from "../types.ts";
 import { debounce } from "../utils/Debounce.ts";
 import { isEquals } from "../utils/Equals.ts";
-import { wrap } from "../utils/Settable.ts";
+import { wrap } from "../utils/Observable.ts";
 import { renderElement } from "../VNode.ts";
 import { renderStyleToString } from "./common.ts";
 
