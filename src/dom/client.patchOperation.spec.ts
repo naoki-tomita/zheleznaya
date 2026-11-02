@@ -31,8 +31,8 @@ function sort(...operations: Operation[]) {
 }
 
 describe("#patchOperationSorter", () => {
-  it("runs props, then replace, then mount and unmount.", () => {
-    expect(sort(unmount([0]), mount([0]), replace([0]), props([0]))).toEqual([
+  it("runs props, then replace, then unmount, then mount.", () => {
+    expect(sort(mount([0]), unmount([0]), replace([0]), props([0]))).toEqual([
       "props:0",
       "replace:0",
       "unmount:0",
@@ -60,12 +60,24 @@ describe("#patchOperationSorter", () => {
     expect(sort(unmount([0, 9]), unmount([1, 0]))).toEqual(["unmount:1.0", "unmount:0.9"]);
   });
 
-  it("runs a path with an index before a mount that has no path.", () => {
-    expect(sort(mount(), mount([0]))).toEqual(["mount:0", "mount"]);
+  it("runs a shallower path first when mounting.", () => {
+    expect(sort(mount([0]), mount([0, 1, 2]), mount([0, 1]))).toEqual(["mount:0", "mount:0.1", "mount:0.1.2"]);
   });
 
-  it("keeps the original order when the priority and the path are equal.", () => {
-    expect(sort(unmount([1]), mount([1]))).toEqual(["unmount:1", "mount:1"]);
-    expect(sort(mount([1]), unmount([1]))).toEqual(["mount:1", "unmount:1"]);
+  it("runs a smaller index first when mounting at the same depth.", () => {
+    expect(sort(mount([0]), mount([2]), mount([1]))).toEqual(["mount:0", "mount:1", "mount:2"]);
+  });
+
+  it("compares the earlier path segment before the later one when mounting.", () => {
+    expect(sort(mount([0, 9]), mount([1, 0]))).toEqual(["mount:0.9", "mount:1.0"]);
+  });
+
+  it("runs a mount that has no path before a path with an index.", () => {
+    expect(sort(mount(), mount([0]))).toEqual(["mount", "mount:0"]);
+  });
+
+  it("runs every unmount before every mount.", () => {
+    expect(sort(mount([0]), unmount([2]), mount([1]))).toEqual(["unmount:2", "mount:0", "mount:1"]);
+    expect(sort(mount([1]), unmount([1]))).toEqual(["unmount:1", "mount:1"]);
   });
 });

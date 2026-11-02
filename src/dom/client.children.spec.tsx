@@ -235,7 +235,6 @@ describe("array children", () => {
 });
 
 describe("conditional children", () => {
-  // https://github.com/naoki-tomita/zheleznaya/issues/20 (#6)
   it("should render nothing for false.", () => {
     const { render } = createRoot();
     const show = false;
@@ -244,7 +243,6 @@ describe("conditional children", () => {
     expect(document.getElementById("cond")!.textContent).toBe("");
   });
 
-  // https://github.com/naoki-tomita/zheleznaya/issues/20 (#6)
   it("should render nothing for true.", () => {
     const { render } = createRoot();
     render(<p id="cond">{true}</p>);
@@ -264,7 +262,6 @@ describe("conditional children", () => {
     expect(document.getElementById("cond")!.textContent).toBe("");
   });
 
-  // https://github.com/naoki-tomita/zheleznaya/issues/20 (#4, #5)
   it("should remove elements that switched to empty strings.", () => {
     const { render, createStore } = createRoot();
     const state = createStore({ n: 3 });
@@ -281,6 +278,23 @@ describe("conditional children", () => {
     flushRender();
 
     expect(document.getElementById("shrink")!.innerHTML).toBe("<i>1</i>");
+  });
+
+  it("should be collectly update the array when the array is sliced and pushed.", () => {
+    const { render, createStore } = createRoot();
+    const state = createStore({ items: ["a", "b", "c"] });
+    const App: Component = () => (
+      <ul>{state.items.map((k) => <li>{k}</li>)}</ul>
+    );
+    render(<App />);
+
+    state.items = state.items.slice(0, 1);
+    flushRender();
+    expect(document.querySelector("ul")!.innerHTML).toBe("<li>a</li>");
+
+    state.items = ["a", "c", "d"];
+    flushRender();
+    expect(document.querySelector("ul")!.innerHTML).toBe("<li>a</li><li>c</li><li>d</li>");
   });
 });
 
@@ -424,8 +438,6 @@ describe("#replace", () => {
     expect(next[2]).toBe(spans[2]);
   });
 
-  // https://github.com/naoki-tomita/zheleznaya/issues/20#issuecomment-6397073919 (B)
-  // (直った) replace のあとも子の差分を計算し続け、作り直した要素に古い差分を当てていた。
   it("should replace an element whose tag and children both change.", () => {
     const { render, createStore } = createRoot();
     const state = createStore({ main: false });

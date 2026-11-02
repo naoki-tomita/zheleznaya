@@ -253,15 +253,18 @@ function unmount(root: globalThis.Element, path: IndexPath) {
 
 function updateProps(root: globalThis.Element, path: IndexPath, set: Record<string, unknown>, unset: string[]) {
   const el = find(root, path);
-  unset.forEach((it) => (el as HTMLElement).removeAttribute(it));
+  unset.forEach((it) => {
+    (el as HTMLElement).removeAttribute(it);
+    delete (el as any)[it];
+  });
   updateAttributes(el as HTMLElement, set);
 }
 
 const Order = {
   mount: 0,
-  unmount: 0,
-  replace: 1,
-  props: 2,
+  unmount: 1,
+  replace: 2,
+  props: 3,
 };
 
 export function patchOperationSorter(a: PatchOperation, b: PatchOperation): number {
@@ -270,13 +273,18 @@ export function patchOperationSorter(a: PatchOperation, b: PatchOperation): numb
   if (aOrder !== bOrder) {
     return bOrder - aOrder;
   }
+
+  // mountの場合は、浅い方/兄から処理をする。
+  // それ以外の場合は、深い方/弟から処理をする。
+  // ほぼ計算処理は同じなんだが、符号が逆転するので、signを使って一括で処理する。
+  const sign = a.op === "mount" && b.op === "mount" ? -1 : 1;
   if (a.path?.length !== b.path?.length) {
-    return (b.path?.length ?? 0) - (a.path?.length ?? 0);
+    return sign * ((b.path?.length ?? 0) - (a.path?.length ?? 0));
   }
   if (a.path && b.path) {
     for (let i = 0; i < a.path.length; i++) {
       if (a.path[i] !== b.path[i]) {
-        return b.path[i] - a.path[i];
+        return sign * (b.path[i] - a.path[i]);
       }
     }
   }

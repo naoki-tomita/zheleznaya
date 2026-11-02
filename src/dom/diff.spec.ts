@@ -169,29 +169,35 @@ describe("diff", () => {
     });
   });
 
-  describe.skip("key", () => {
-    it("updates the matched key in place.", () => {
+  describe("key", () => {
+    it.fails("updates the matched key in place.", () => {
       const last = html("ul", [array([li("a"), li("b", "old"), li("c")])]);
-      const next = html("ul", [array([li("a"), li("b", "new"), li("c")])]);
+      const next = html("ul", [array([li("c"), li("a"), li("b", "new")])]);
 
-      expect(diff(last, next)).toEqual([{ op: "replace", path: [1, 0], vnode: text("new") }]);
+      expect(diff(last, next)).toEqual([
+        { op: "replace", path: [1, 0], vnode: text("new") },
+        { op: "move", from: [2], path: [0] },
+      ]);
     });
 
-    it("does not put key into the props patch.", () => {
-      const last = html("ul", [array([li("b", "b", { class: "a" })])]);
-      const next = html("ul", [array([li("b", "b", { class: "b" })])]);
+    it.fails("does not put key into the props patch.", () => {
+      const last = html("ul", [array([li("a", "a", { class: "a" }), li("b", "b", { class: "a" })])]);
+      const next = html("ul", [array([li("b", "b", { class: "b" }), li("a", "a", { class: "a" })])]);
 
-      expect(diff(last, next)).toEqual([{ op: "props", path: [0], set: { class: "b" }, unset: [] }]);
+      expect(diff(last, next)).toEqual([
+        { op: "props", path: [1], set: { class: "b" }, unset: [] },
+        { op: "move", from: [1], path: [0] },
+      ]);
     });
 
-    it("unmounts the removed key instead of the last item.", () => {
+    it.fails("unmounts the removed key instead of the last item.", () => {
       const last = html("ul", [array([li("a"), li("b"), li("c")])]);
       const next = html("ul", [array([li("a"), li("c")])]);
 
       expect(diff(last, next)).toEqual([{ op: "unmount", path: [1] }]);
     });
 
-    it("mounts an inserted key at its new index.", () => {
+    it.fails("mounts an inserted key at its new index.", () => {
       const added = li("b");
       const last = html("ul", [array([li("a"), li("c")])]);
       const next = html("ul", [array([li("a"), added, li("c")])]);
@@ -199,7 +205,7 @@ describe("diff", () => {
       expect(diff(last, next)).toEqual([{ op: "mount", path: [1], vnode: added }]);
     });
 
-    it("unmounts a removed key between static elements.", () => {
+    it.fails("unmounts a removed key between static elements.", () => {
       const last = html("div", [
         html("span", [text("before")]),
         array([li("a"), li("b"), li("c")]),
@@ -214,14 +220,14 @@ describe("diff", () => {
       expect(diff(last, next)).toEqual([{ op: "unmount", path: [2] }]);
     });
 
-    it("moves a reordered key instead of remounting it.", () => {
+    it.fails("moves a reordered key instead of remounting it.", () => {
       const last = html("ul", [array([li("a"), li("b"), li("c")])]);
       const next = html("ul", [array([li("c"), li("a"), li("b")])]);
 
       expect(diff(last, next)).toEqual([{ op: "move", from: [2], path: [0] }]);
     });
 
-    it("moves a reordered key between static elements.", () => {
+    it.fails("moves a reordered key between static elements.", () => {
       const last = html("div", [
         html("span", [text("before")]),
         array([li("a"), li("b"), li("c")]),
